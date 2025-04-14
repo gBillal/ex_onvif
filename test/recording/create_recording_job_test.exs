@@ -18,8 +18,8 @@ defmodule Onvif.Recording.CreateRecordingJobTest do
       {:ok, response} =
         Onvif.Recording.CreateRecordingJob.request(device, %JobConfiguration{
           recording_token: "SD_DISK_20241120_211729_9C896594",
-          priority: "9",
-          mode: "Active"
+          priority: 9,
+          mode: :active
         })
 
       assert response == "SD_DISK_20241120_211729_9C896594"
