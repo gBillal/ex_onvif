@@ -2,7 +2,10 @@ defmodule Onvif.Middleware.XmlAuth do
   @moduledoc false
 
   @behaviour Tesla.Middleware
+
   import XmlBuilder
+
+  alias Onvif.Request
 
   @nonce_bytesize 16
 
@@ -24,21 +27,19 @@ defmodule Onvif.Middleware.XmlAuth do
   end
 
   defp inject_xml_auth_header(env, opts) do
-    case generate_xml_auth_header(opts) do
-      nil ->
-        generate(
-          element(:"s:Envelope", @standard_namespaces ++ env.body.namespaces, [env.body.content])
-        )
+    request =
+      case generate_xml_auth_header(opts) do
+        nil ->
+          Request.add_namespaces(env.body, @standard_namespaces)
 
-      auth_header ->
-        generate(
-          element(
-            :"s:Envelope",
-            @standard_namespaces ++ @security_header_namespaces ++ env.body.namespaces,
-            [auth_header, env.body.content]
-          )
-        )
-    end
+        auth_header ->
+          env.body
+          |> Request.add_namespaces(@standard_namespaces)
+          |> Request.add_namespaces(@security_header_namespaces)
+          |> Request.put_header(:auth, auth_header)
+      end
+
+    Request.serialize(request)
   end
 
   defp generate_xml_auth_header(device: device) do
@@ -52,35 +53,30 @@ defmodule Onvif.Middleware.XmlAuth do
     digest = :sha |> :crypto.hash(nonce_bytes <> created_at <> device.password) |> Base.encode64()
 
     element(
-      :"s:Header",
+      :"wsse:Security",
+      %{"s:mustUnderstand" => "1"},
       [
         element(
-          :"wsse:Security",
-          %{"s:mustUnderstand" => "1"},
+          :"wsse:UsernameToken",
           [
+            element(:"wsse:Username", device.username),
             element(
-              :"wsse:UsernameToken",
-              [
-                element(:"wsse:Username", device.username),
-                element(
-                  :"wsse:Password",
-                  %{
-                    "Type" =>
-                      "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordDigest"
-                  },
-                  digest
-                ),
-                element(
-                  :"wsse:Nonce",
-                  %{
-                    "EncodingType" =>
-                      "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary"
-                  },
-                  nonce
-                ),
-                element(:"wsu:Created", created_at)
-              ]
-            )
+              :"wsse:Password",
+              %{
+                "Type" =>
+                  "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordDigest"
+              },
+              digest
+            ),
+            element(
+              :"wsse:Nonce",
+              %{
+                "EncodingType" =>
+                  "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary"
+              },
+              nonce
+            ),
+            element(:"wsu:Created", created_at)
           ]
         )
       ]
