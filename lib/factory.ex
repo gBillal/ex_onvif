@@ -15,6 +15,7 @@ defmodule Onvif.Factory do
       recording_ver10_service_path: "/onvif/recording_service",
       search_ver10_service_path: "/onvif/search_service",
       ptz_ver20_service_path: "/onvif/ptz_service",
+      event_ver10_service_path: "/onvif/Events",
       model: "N864A6",
       ntp: "NTP",
       password: "admin",
@@ -90,7 +91,7 @@ defmodule Onvif.Factory do
           namespace: "http://www.onvif.org/ver20/ptz/wsdl",
           xaddr: "http://192.168.254.89/onvif/ptz_service",
           version: "22.12"
-        },
+        }
       ],
       time_diff_from_system_secs: 3597,
       username: "admin"

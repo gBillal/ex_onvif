@@ -8,11 +8,17 @@ defmodule Onvif.Event.Schemas.PullPointSubscription do
   import Ecto.Changeset
   import SweetXml
 
+  @type t :: %__MODULE__{}
+
   @primary_key false
   @derive Jason.Encoder
   embedded_schema do
     embeds_one :subscription_reference, SubscriptionReference, primary_key: false do
       field(:address, :string)
+
+      embeds_one :reference_parameters, ReferenceParameters, primary_key: false do
+        field(:subscription_id, :string)
+      end
     end
 
     field(:current_time, :utc_datetime)
@@ -47,7 +53,23 @@ defmodule Onvif.Event.Schemas.PullPointSubscription do
   defp parse_subscription_reference(doc) do
     xmap(
       doc,
-      address: ~x"./wsa:Address/text()"s
+      address:
+        ~x"./wsa:Address/text()"s
+        |> add_namespace("wsa", "http://schemas.xmlsoap.org/ws/2004/08/addressing")
+        |> add_namespace("wsa", "http://www.w3.org/2005/08/addressing"),
+      reference_parameters:
+        ~x"./wsa5:ReferenceParameters"e |> transform_by(&parse_reference_parameters/1)
+    )
+  end
+
+  defp parse_reference_parameters(nil), do: nil
+
+  defp parse_reference_parameters(doc) do
+    xmap(
+      doc,
+      subscription_id:
+        ~x"./dom0:SubscriptionId/text()"s
+        |> add_namespace("dom0", "http://www.axis.com/2009/event")
     )
   end
 
@@ -55,5 +77,10 @@ defmodule Onvif.Event.Schemas.PullPointSubscription do
     subscription_reference
     |> cast(attrs, [:address])
     |> validate_required([:address])
+    |> cast_embed(:reference_parameters, with: &reference_parameters_changeset/2)
+  end
+
+  defp reference_parameters_changeset(reference_parameters, attrs) do
+    cast(reference_parameters, attrs, [:subscription_id])
   end
 end

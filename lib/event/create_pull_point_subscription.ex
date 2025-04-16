@@ -16,7 +16,7 @@ defmodule Onvif.Event.CreatePullPointSubscription do
   def soap_action(),
     do: "http://www.onvif.org/ver10/events/wsdl/EventPortType/CreatePullPointSubscriptionRequest"
 
-  @spec request(Device.t()) :: {:ok, map()} | {:error, map()}
+  @spec request(Device.t()) :: {:ok, [PullPointSubscription.t()]} | {:error, map()}
   @spec request(Device.t(), String.t() | nil) :: {:ok, map()} | {:error, map()}
   def request(device, args \\ nil), do: Onvif.Event.request(device, args, __MODULE__)
 
