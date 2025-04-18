@@ -14,9 +14,11 @@ defmodule Onvif.Event.Schemas.PullPointSubscription do
   @derive Jason.Encoder
   embedded_schema do
     embeds_one :subscription_reference, SubscriptionReference, primary_key: false do
+      @derive Jason.Encoder
       field(:address, :string)
 
       embeds_one :reference_parameters, ReferenceParameters, primary_key: false do
+        @derive Jason.Encoder
         field(:subscription_id, :string)
       end
     end

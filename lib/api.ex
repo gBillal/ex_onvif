@@ -2,11 +2,25 @@ defmodule Onvif.API do
   @moduledoc false
 
   @spec client(Onvif.Device.t(), Keyword.t()) :: Tesla.Client.t()
+  @spec client(Onvif.Device.t()) :: Tesla.Client.t()
   def client(device, opts \\ [service_path: :device_service_path]) do
     adapter = {Tesla.Adapter.Finch, name: Onvif.Finch}
     service_path = get_service_path!(device, opts)
 
     url = device.address <> service_path
+
+    middleware = [
+      {Tesla.Middleware.BaseUrl, url},
+      auth_function(device),
+      {Tesla.Middleware.Logger, log_level: :info}
+    ]
+
+    Tesla.client(middleware, adapter)
+  end
+
+  @spec pull_point_client(Onvif.Device.t(), String.t()) :: Tesla.Client.t()
+  def pull_point_client(device, url) do
+    adapter = {Tesla.Adapter.Finch, name: Onvif.Finch}
 
     middleware = [
       {Tesla.Middleware.BaseUrl, url},
