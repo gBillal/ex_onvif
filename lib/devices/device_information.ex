@@ -1,4 +1,4 @@
-defmodule Onvif.Devices.Schemas.DeviceInformation do
+defmodule Onvif.Devices.DeviceInformation do
   @moduledoc """
   DeviceInformation schema
   """
@@ -7,6 +7,8 @@ defmodule Onvif.Devices.Schemas.DeviceInformation do
   import SweetXml
 
   @required [:manufacturer, :model, :firmware_version, :serial_number, :hardware_id]
+
+  @type t :: %__MODULE__{}
 
   @primary_key false
   @derive Jason.Encoder

@@ -1,4 +1,4 @@
-defmodule Onvif.Devices.Schemas.Service do
+defmodule Onvif.Devices.Service do
   @moduledoc """
   Service schema that outlines namespaces and versions
   """

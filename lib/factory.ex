@@ -31,66 +31,66 @@ defmodule Onvif.Factory do
       ],
       serial_number: "NV012306000836",
       services: [
-        %Onvif.Devices.Schemas.Service{
+        %Onvif.Devices.Service{
           namespace: "http://www.onvif.org/ver10/replay/wsdl",
           version: "17.06",
           xaddr: "http://192.168.254.89/onvif/replay_service"
         },
-        %Onvif.Devices.Schemas.Service{
+        %Onvif.Devices.Service{
           namespace: "http://www.onvif.org/ver10/search/wsdl",
           version: "18.12",
           xaddr: "http://192.168.254.89/onvif/search_service"
         },
-        %Onvif.Devices.Schemas.Service{
+        %Onvif.Devices.Service{
           namespace: "http://www.onvif.org/ver10/recording/wsdl",
           version: "18.06",
           xaddr: "http://192.168.254.89/onvif/recording_service"
         },
-        %Onvif.Devices.Schemas.Service{
+        %Onvif.Devices.Service{
           namespace: "http://www.onvif.org/ver10/deviceIO/wsdl",
           version: "18.12",
           xaddr: "http://192.168.254.89/onvif/deviceIO_service"
         },
-        %Onvif.Devices.Schemas.Service{
+        %Onvif.Devices.Service{
           namespace: "http://www.onvif.org/ver10/events/wsdl",
           version: "2.60",
           xaddr: "http://192.168.254.89/onvif/event_service"
         },
-        %Onvif.Devices.Schemas.Service{
+        %Onvif.Devices.Service{
           namespace: "http://www.onvif.org/ver20/ptz/wsdl",
           version: "18.12",
           xaddr: "http://192.168.254.89/onvif/ptz_service"
         },
-        %Onvif.Devices.Schemas.Service{
+        %Onvif.Devices.Service{
           namespace: "http://www.onvif.org/ver20/media/wsdl",
           version: "18.12",
           xaddr: "http://192.168.254.89/onvif/media2_service"
         },
-        %Onvif.Devices.Schemas.Service{
+        %Onvif.Devices.Service{
           namespace: "http://www.onvif.org/ver10/media/wsdl",
           version: "18.06",
           xaddr: "http://192.168.254.89/onvif/media_service"
         },
-        %Onvif.Devices.Schemas.Service{
+        %Onvif.Devices.Service{
           namespace: "http://www.onvif.org/ver20/imaging/wsdl",
           version: "18.12",
           xaddr: "http://192.168.254.89/onvif/imaging_service"
         },
-        %Onvif.Devices.Schemas.Service{
+        %Onvif.Devices.Service{
           namespace: "http://www.onvif.org/ver20/analytics/wsdl",
           version: "18.12",
           xaddr: "http://192.168.254.89/onvif/analytics_service"
         },
-        %Onvif.Devices.Schemas.Service{
+        %Onvif.Devices.Service{
           namespace: "http://www.onvif.org/ver10/device/wsdl",
           version: "18.12",
           xaddr: "http://192.168.254.89/onvif/device_service"
         },
-        %Onvif.Devices.Schemas.Service{
+        %Onvif.Devices.Service{
           namespace: "http://www.onvif.org/ver20/ptz/wsdl",
           xaddr: "http://192.168.254.89/onvif/ptz_service",
           version: "22.12"
-        },
+        }
       ],
       time_diff_from_system_secs: 3597,
       username: "admin"

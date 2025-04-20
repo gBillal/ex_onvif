@@ -1,4 +1,4 @@
-defmodule Onvif.Devices.Schemas.NetworkInterface do
+defmodule Onvif.Devices.NetworkInterface do
   @moduledoc """
   Device's network interface
   """
@@ -144,10 +144,6 @@ defmodule Onvif.Devices.Schemas.NetworkInterface do
     %__MODULE__{}
     |> changeset(parsed)
     |> apply_action(:validate)
-  end
-
-  def to_json(%__MODULE__{} = schema) do
-    Jason.encode(schema)
   end
 
   defp parse_info(nil), do: nil
