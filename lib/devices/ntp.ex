@@ -1,4 +1,4 @@
-defmodule Onvif.Devices.Schemas.NTP do
+defmodule Onvif.Devices.NTP do
   @moduledoc """
   Schema for the NTP configuration to be used with SetNTP and GetNTP operations.
   """

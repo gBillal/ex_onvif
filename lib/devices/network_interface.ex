@@ -1,4 +1,4 @@
-defmodule Onvif.Devices.Schemas.NetworkInterface do
+defmodule Onvif.Devices.NetworkInterface do
   @moduledoc """
   Device's network interface
   """

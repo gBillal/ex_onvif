@@ -1,4 +1,4 @@
-defmodule Onvif.Devices2 do
+defmodule Onvif.Devices do
   @moduledoc """
   Interface for making requests to the Onvif devices service
 
@@ -9,15 +9,15 @@ defmodule Onvif.Devices2 do
   import SweetXml
   import XmlBuilder
 
-  alias Onvif.Devices.{Scope, ServiceCapabilities}
-
-  alias Onvif.Devices.Schemas.{
+  alias Onvif.Devices.{
     DeviceInformation,
     HostnameInformation,
     NetworkProtocol,
     NetworkInterface,
     NTP,
+    Scope,
     Service,
+    ServiceCapabilities,
     SystemDateAndTime
   }
 
@@ -154,7 +154,7 @@ defmodule Onvif.Devices2 do
   This operation configures defined network protocols on a device.
   """
   @spec set_network_protocols(Onvif.Device.t(), NetworkProtocol.t() | [NetworkProtocol.t()]) ::
-          {:ok, String.t()} | {:error, any()}
+          :ok | {:error, any()}
   def set_network_protocols(device, network_protocols) do
     body =
       element(:"s:Body", [
@@ -165,7 +165,7 @@ defmodule Onvif.Devices2 do
         ])
       ])
 
-    do_request(device, "SetNetworkProtocols", body, fn _body -> "" end)
+    do_request(device, "SetNetworkProtocols", body, fn _body -> :ok end)
   end
 
   @doc """
@@ -177,10 +177,10 @@ defmodule Onvif.Devices2 do
 
   Changes to the NTP server list will not affect the clock mode DateTimeType. Use SetSystemDateAndTime to activate NTP operation.
   """
-  @spec set_ntp(Onvif.Device.t(), NTP.t()) :: {:ok, String.t()} | {:error, any()}
+  @spec set_ntp(Onvif.Device.t(), NTP.t()) :: :ok | {:error, any()}
   def set_ntp(device, ntp) do
     body = element(:"s:Body", [element(:"tds:SetNTP", NTP.encode(ntp))])
-    do_request(device, "SetNTP", body, fn _body -> "" end)
+    do_request(device, "SetNTP", body, fn _body -> :ok end)
   end
 
   @doc """
@@ -194,11 +194,19 @@ defmodule Onvif.Devices2 do
   The DayLightSavings flag should be set to true to activate any DST settings of the TimeZone string.
   Clear the DayLightSavings flag if the DST portion of the TimeZone settings should be ignored.
   """
-  @spec set_system_date_and_time(Onvif.Device.t(), SystemDateAndTime.t()) ::
-          {:ok, String.t()} | {:error, any()}
+  @spec set_system_date_and_time(Onvif.Device.t(), SystemDateAndTime.t()) :: :ok | {:error, any()}
   def set_system_date_and_time(device, date_and_time) do
     body = element(:"s:Body", [SystemDateAndTime.encode(date_and_time)])
-    do_request(device, "SetSystemDateAndTime", body, fn _body -> "" end)
+    do_request(device, "SetSystemDateAndTime", body, fn _body -> :ok end)
+  end
+
+  @doc """
+  This operation reboots the device.
+  """
+  @spec system_reboot(Onvif.Device.t()) :: {:ok, %{message: String.t()}} | {:error, any()}
+  def system_reboot(device) do
+    body = element(:"s:Body", [element(:"tds:SystemReboot")])
+    do_request(device, "SystemReboot", body, &parse_system_reboot_response/1)
   end
 
   defp do_request(device, action, content, parser_fn) do
@@ -383,5 +391,19 @@ defmodule Onvif.Devices2 do
     )
     |> SystemDateAndTime.parse()
     |> SystemDateAndTime.to_struct()
+  end
+
+  defp parse_system_reboot_response(xml_response_body) do
+    parsed_result =
+      xml_response_body
+      |> parse(namespace_conformant: true, quiet: true)
+      |> xpath(
+        ~x"//s:Envelope/s:Body/tds:SystemRebootResponse"
+        |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+        |> add_namespace("tds", "http://www.onvif.org/ver10/device/wsdl"),
+        message: ~x"./tds:Message/text()"s
+      )
+
+    {:ok, parsed_result}
   end
 end

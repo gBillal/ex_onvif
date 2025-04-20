@@ -1,4 +1,4 @@
-defmodule Onvif.Devices.Schemas.DeviceInformation do
+defmodule Onvif.Devices.DeviceInformation do
   @moduledoc """
   DeviceInformation schema
   """

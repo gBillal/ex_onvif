@@ -3,7 +3,7 @@ defmodule Onvif.DevicesTest do
 
   @moduletag capture_log: true
 
-  alias Onvif.Devices.Schemas.{
+  alias Onvif.Devices.{
     DeviceInformation,
     HostnameInformation,
     NetworkProtocol,
@@ -20,7 +20,7 @@ defmodule Onvif.DevicesTest do
       {:ok, %{status: 200, body: xml_response}}
     end)
 
-    assert {:ok, response} = Onvif.Devices2.get_device_information(device)
+    assert {:ok, response} = Onvif.Devices.get_device_information(device)
 
     assert response == %DeviceInformation{
              manufacturer: "Milesight Technology Co.,Ltd.",
@@ -42,7 +42,7 @@ defmodule Onvif.DevicesTest do
       {:ok, %{status: 200, body: xml_response}}
     end)
 
-    assert {:ok, response} = Onvif.Devices2.get_hostname(device)
+    assert {:ok, response} = Onvif.Devices.get_hostname(device)
 
     assert response == %HostnameInformation{name: nil, from_dhcp: false}
     assert {:ok, _json} = Jason.encode(response)
@@ -57,7 +57,7 @@ defmodule Onvif.DevicesTest do
       {:ok, %{status: 200, body: xml_response}}
     end)
 
-    assert {:ok, network_protocols} = Onvif.Devices2.get_network_protocols(device)
+    assert {:ok, network_protocols} = Onvif.Devices.get_network_protocols(device)
 
     assert network_protocols == [
              %NetworkProtocol{name: :http, enabled: true, port: 80},
@@ -77,7 +77,7 @@ defmodule Onvif.DevicesTest do
       {:ok, %{status: 200, body: xml_response}}
     end)
 
-    assert {:ok, ntp} = Onvif.Devices2.get_ntp(device)
+    assert {:ok, ntp} = Onvif.Devices.get_ntp(device)
 
     assert ntp == %NTP{
              from_dhcp: false,
@@ -102,7 +102,7 @@ defmodule Onvif.DevicesTest do
       {:ok, %{status: 200, body: xml_response}}
     end)
 
-    assert {:ok, scopes} = Onvif.Devices2.get_scopes(device)
+    assert {:ok, scopes} = Onvif.Devices.get_scopes(device)
 
     assert scopes == [
              %Onvif.Devices.Scope{
@@ -163,7 +163,7 @@ defmodule Onvif.DevicesTest do
       ~U[2024-07-09 20:00:00.227234Z]
     end)
 
-    {:ok, service_capabilities} = Onvif.Devices2.get_system_date_and_time(device)
+    {:ok, service_capabilities} = Onvif.Devices.get_system_date_and_time(device)
 
     assert service_capabilities == %SystemDateAndTime{
              current_diff: -654,
