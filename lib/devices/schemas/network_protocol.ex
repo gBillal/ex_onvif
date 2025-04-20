@@ -7,6 +7,7 @@ defmodule Onvif.Devices.Schemas.NetworkProtocol do
 
   import Ecto.Changeset
   import SweetXml
+  import XmlBuilder
 
   @required [:name, :enabled, :port]
 
@@ -20,14 +21,26 @@ defmodule Onvif.Devices.Schemas.NetworkProtocol do
     field(:port, :integer)
   end
 
-  def to_json(%__MODULE__{} = schema) do
-    Jason.encode(schema)
+  def encode(parsed) do
+    %__MODULE__{}
+    |> changeset(parsed)
+    |> apply_action(:validate)
+  end
+
+  def to_xml(%__MODULE__{} = network_protocol) do
+    element(:"tds:NetworkProtocols", [
+      element(
+        :"tt:Name",
+        Keyword.fetch!(Ecto.Enum.mappings(__MODULE__, :name), network_protocol.name)
+      ),
+      element(:"tt:Enabled", network_protocol.enabled),
+      element(:"tt:Port", network_protocol.port)
+    ])
   end
 
   def to_struct(parsed) do
     %__MODULE__{}
     |> changeset(parsed)
-    |> validate_required(@required)
     |> apply_action(:validate)
   end
 

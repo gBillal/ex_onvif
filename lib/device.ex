@@ -261,7 +261,7 @@ defmodule Onvif.Device do
   end
 
   defp get_date_time(device) do
-    with {:ok, res} <- Onvif.Devices.GetSystemDateAndTime.request(device) do
+    with {:ok, res} <- Onvif.Devices2.get_system_date_and_time(device) do
       updated_device = %{
         device
         | time_diff_from_system_secs: res.current_diff,
@@ -289,8 +289,7 @@ defmodule Onvif.Device do
   end
 
   defp get_device_information(device) do
-    with {:ok, res} <-
-           Onvif.Devices.GetDeviceInformation.request(device) do
+    with {:ok, res} <- Onvif.Devices2.get_device_information(device) do
       {:ok,
        %{
          device
@@ -304,8 +303,7 @@ defmodule Onvif.Device do
   end
 
   defp get_services(device) do
-    with {:ok, services} <-
-           Onvif.Devices.GetServices.request(device) do
+    with {:ok, services} <- Onvif.Devices2.get_services(device) do
       Map.put(device, :services, services)
     end
   end

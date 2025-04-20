@@ -1,13 +1,17 @@
 defmodule Onvif.Devices.Schemas.SystemDateAndTime do
   use Ecto.Schema
+
   import Ecto.Changeset
   import SweetXml
+  import XmlBuilder
 
-  @primary_key false
-  @derive Jason.Encoder
   @required [:date_time_type, :daylight_savings]
   @optional []
 
+  @type t :: %__MODULE__{}
+
+  @primary_key false
+  @derive Jason.Encoder
   embedded_schema do
     field(:date_time_type, Ecto.Enum, values: [manual: "Manual", ntp: "NTP"])
     field(:daylight_savings, :boolean, default: true)
@@ -70,6 +74,43 @@ defmodule Onvif.Devices.Schemas.SystemDateAndTime do
     )
   end
 
+  def encode(%__MODULE__{} = datetime) do
+    element(:"tds:SetSystemDateAndTime", [
+      element(
+        :"tds:DateTimeType",
+        Keyword.fetch!(
+          Ecto.Enum.mappings(datetime.__struct__, :date_time_type),
+          datetime.date_time_type
+        )
+      ),
+      element(:"tds:DaylightSavings", datetime.daylight_savings),
+      element(
+        :"tds:TimeZone",
+        [
+          element(:"tt:TZ", datetime.time_zone.tz)
+        ]
+      ),
+      List.flatten([utc_date_time_element(datetime.utc_date_time)])
+    ])
+  end
+
+  def to_struct(parsed) do
+    %__MODULE__{}
+    |> changeset(parsed)
+    |> apply_action(:validate)
+  end
+
+  def changeset(module, attrs) do
+    module
+    |> cast(attrs, @required ++ @optional)
+    |> validate_required(@required)
+    |> cast_embed(:time_zone, with: &time_zone_changeset/2)
+    |> cast_embed(:utc_date_time, with: &date_time_changeset/2)
+    |> cast_embed(:local_date_time, with: &date_time_changeset/2)
+    |> put_datetime
+    |> put_current_diff
+  end
+
   defp parse_time_zone([]), do: nil
   defp parse_time_zone(nil), do: nil
 
@@ -113,35 +154,6 @@ defmodule Onvif.Devices.Schemas.SystemDateAndTime do
       month: ~x"./tt:Month/text()"i,
       day: ~x"./tt:Day/text()"i
     )
-  end
-
-  def to_struct(parsed) do
-    %__MODULE__{}
-    |> changeset(parsed)
-    |> apply_action(:validate)
-  end
-
-  @spec to_json(%__MODULE__{}) ::
-          {:error,
-           %{
-             :__exception__ => any,
-             :__struct__ => Jason.EncodeError | Protocol.UndefinedError,
-             optional(atom) => any
-           }}
-          | {:ok, binary}
-  def to_json(%__MODULE__{} = schema) do
-    Jason.encode(schema)
-  end
-
-  def changeset(module, attrs) do
-    module
-    |> cast(attrs, @required ++ @optional)
-    |> validate_required(@required)
-    |> cast_embed(:time_zone, with: &time_zone_changeset/2)
-    |> cast_embed(:utc_date_time, with: &date_time_changeset/2)
-    |> cast_embed(:local_date_time, with: &date_time_changeset/2)
-    |> put_datetime
-    |> put_current_diff
   end
 
   defp put_datetime(changeset) do
@@ -189,5 +201,25 @@ defmodule Onvif.Devices.Schemas.SystemDateAndTime do
 
   defp time_changeset(module, attrs) do
     cast(module, attrs, [:hour, :minute, :second])
+  end
+
+  defp utc_date_time_element(nil), do: []
+
+  defp utc_date_time_element(utc_date_time) do
+    element(
+      :"tds:UTCDateTime",
+      [
+        element(:"tt:Time", [
+          element(:"tt:Hour", utc_date_time.time.hour),
+          element(:"tt:Minute", utc_date_time.time.minute),
+          element(:"tt:Second", utc_date_time.time.second)
+        ]),
+        element(:"tt:Date", [
+          element(:"tt:Year", utc_date_time.date.year),
+          element(:"tt:Month", utc_date_time.date.month),
+          element(:"tt:Day", utc_date_time.date.day)
+        ])
+      ]
+    )
   end
 end

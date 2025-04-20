@@ -8,6 +8,8 @@ defmodule Onvif.Devices.Schemas.DeviceInformation do
 
   @required [:manufacturer, :model, :firmware_version, :serial_number, :hardware_id]
 
+  @type t :: %__MODULE__{}
+
   @primary_key false
   @derive Jason.Encoder
   embedded_schema do

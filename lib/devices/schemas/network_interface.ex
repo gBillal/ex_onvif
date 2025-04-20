@@ -146,10 +146,6 @@ defmodule Onvif.Devices.Schemas.NetworkInterface do
     |> apply_action(:validate)
   end
 
-  def to_json(%__MODULE__{} = schema) do
-    Jason.encode(schema)
-  end
-
   defp parse_info(nil), do: nil
   defp parse_info([]), do: nil
 
