@@ -22,13 +22,6 @@ defmodule Onvif.Devices do
     SystemDateAndTime
   }
 
-  @action_prefix "http://www.onvif.org/ver10/device/wsdl/"
-
-  @namespaces [
-    "xmlns:tds": "http://www.onvif.org/ver10/device/wsdl",
-    "xmlns:tt": "http://www.onvif.org/ver10/schema"
-  ]
-
   @doc """
   This operation gets basic device information from the device.
   """

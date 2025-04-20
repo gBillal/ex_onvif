@@ -6,9 +6,27 @@ defmodule Onvif.ApiUtils do
     "xmlns:tt": "http://www.onvif.org/ver10/schema"
   ]
 
+  @recording_namespaces [
+    "xmlns:trc": "http://www.onvif.org/ver10/recording/wsdl",
+    "xmlns:tt": "http://www.onvif.org/ver10/schema"
+  ]
+
   def devicemgmt_request(device, action, content, parser_fn) do
     action = "http://www.onvif.org/ver10/device/wsdl/" <> action
     do_request(device, :device_service_path, @devicemgmt_namespaces, action, content, parser_fn)
+  end
+
+  def recording_request(device, action, content, parser_fn) do
+    action = "http://www.onvif.org/ver10/recording/wsdl/" <> action
+
+    do_request(
+      device,
+      :recording_ver10_service_path,
+      @recording_namespaces,
+      action,
+      content,
+      parser_fn
+    )
   end
 
   defp do_request(device, service_path, namespaces, action, content, parser_fn) do
