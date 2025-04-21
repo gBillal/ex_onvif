@@ -1,46 +1,45 @@
 defmodule Onvif.Search.FindRecordings do
   @moduledoc """
-  FindRecordings starts a search session, looking for recordings that matches the scope defined in the request.
-  Results from the search are acquired using the `Onvif.Search.GetRecordingSearchResults/2` request,
-  specifying the search token returned from this request.
-
-  The device shall continue searching until one of the following occurs:
-    * The entire time range from StartPoint to EndPoint has been searched through.
-    * The total number of matches has been found, defined by the MaxMatches parameter.
-    * The session has been ended by a client EndSession request.
-    * The session has been ended because KeepAliveTime since the last request related to this session has expired.
-
-  The order of the results is undefined, to allow the device to return results in any order they are found.
+  Module describing the FindRecordings schema.
   """
 
-  import SweetXml
-  import XmlBuilder
+  use Ecto.Schema
 
-  require Logger
+  import Ecto.Changeset
+  import Onvif.Utils.XmlBuilder
 
-  alias Onvif.Search.Schemas.FindRecordings
+  alias Onvif.Search.SearchScope
 
-  def soap_action, do: "http://www.onvif.org/ver10/search/wsdl/FindRecordings"
+  @type t :: %__MODULE__{}
 
-  @spec request(Onvif.Device.t(), FindRecordings.t()) :: any()
-  def request(device, args) do
-    Onvif.Search.request(device, args, __MODULE__)
+  @primary_key false
+  @derive Jason.Encoder
+  embedded_schema do
+    field(:max_matches, :integer)
+    field(:keep_alive_time, :integer)
+
+    embeds_one(:scope, SearchScope)
   end
 
-  def request_body(%FindRecordings{} = find_recordings) do
-    element(:"s:Body", [FindRecordings.to_xml(find_recordings)])
+  def to_struct(parsed) do
+    %__MODULE__{}
+    |> changeset(parsed)
+    |> apply_action(:validate)
   end
 
-  def response(xml_response_body) do
-    parsed_result =
-      xml_response_body
-      |> parse(namespace_conformant: true, quiet: true)
-      |> xpath(
-        ~x"//tse:SearchToken/text()"s
-        |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
-        |> add_namespace("tse", "http://www.onvif.org/ver10/search/wsdl")
-      )
+  def encode(%__MODULE__{} = schema) do
+    element(
+      :"tse:FindRecordings",
+      [SearchScope.encode(schema.scope)]
+      |> element("tse:MaxMatches", schema.max_matches)
+      |> element("tse:KeepAliveTime", {:duration, schema.keep_alive_time})
+    )
+  end
 
-    {:ok, parsed_result}
+  def changeset(module, attrs) do
+    module
+    |> cast(attrs, [:max_matches, :keep_alive_time])
+    |> validate_required([:keep_alive_time])
+    |> cast_embed(:scope)
   end
 end

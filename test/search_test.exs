@@ -3,8 +3,7 @@ defmodule Onvif.SearchTest do
 
   @moduletag capture_log: true
 
-  alias Onvif.Search.FindEvents
-  alias Onvif.Search.Schemas.SearchScope
+  alias Onvif.Search.{FindEvents, FindRecordings, SearchScope}
 
   test "find events" do
     xml_response = File.read!("test/fixtures/find_events.xml")
@@ -24,5 +23,23 @@ defmodule Onvif.SearchTest do
       })
 
     assert response == "SearchToken[1]"
+  end
+
+  test "find recordings" do
+    xml_response = File.read!("test/fixtures/find_recordings.xml")
+
+    device = Onvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+    {:ok, response} =
+      Onvif.Search.find_recordings(device, %FindRecordings{
+        max_matches: 10,
+        keep_alive_time: 5
+      })
+
+    assert response == "RecordingSearchToken_1"
   end
 end

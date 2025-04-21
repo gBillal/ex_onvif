@@ -1,4 +1,4 @@
-defmodule Onvif.Search.Schemas.SearchScope do
+defmodule Onvif.Search.SearchScope do
   @moduledoc """
   A module representing a schema for search scope.
   """

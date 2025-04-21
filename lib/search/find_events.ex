@@ -8,7 +8,7 @@ defmodule Onvif.Search.FindEvents do
   import Ecto.Changeset
   import Onvif.Utils.XmlBuilder
 
-  alias Onvif.Search.Schemas.SearchScope
+  alias Onvif.Search.SearchScope
 
   @type t :: %__MODULE__{}
 
