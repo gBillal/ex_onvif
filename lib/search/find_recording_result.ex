@@ -1,4 +1,4 @@
-defmodule Onvif.Search.Schemas.FindRecordingResult do
+defmodule Onvif.Search.FindRecordingResult do
   @moduledoc """
   A module describing results from `Onvif.Search.GetRecordingSearchResults.request/2`.
   """
@@ -8,7 +8,7 @@ defmodule Onvif.Search.Schemas.FindRecordingResult do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Search.Schemas.RecordingInformation
+  alias Onvif.Search.RecordingInformation
 
   @type t :: %__MODULE__{}
 
@@ -41,11 +41,6 @@ defmodule Onvif.Search.Schemas.FindRecordingResult do
     %__MODULE__{}
     |> changeset(parsed)
     |> apply_action(:validate)
-  end
-
-  @spec to_json(__MODULE__.t()) :: {:error, Jason.EncodeError.t() | Exception.t()} | {:ok, binary}
-  def to_json(%__MODULE__{} = schema) do
-    Jason.encode(schema)
   end
 
   defp changeset(module, attrs) do

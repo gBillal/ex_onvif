@@ -1,48 +1,43 @@
 defmodule Onvif.Search.GetRecordingSearchResults do
   @moduledoc """
-  GetRecordingSearchResults acquires the results from a recording search session previously initiated
-  by a `Onvif.Search.FindRecordings.request/2` operation. The response shall not include results already
-  returned in previous requests for the same session.
-
-  If MaxResults is specified, the response shall not contain more than MaxResults results.
-  The number of results relates to the number of recordings. For viewing individual recorded data
-  for a signal track use the FindEvents method.
-
-  GetRecordingSearchResults shall block until:
-    * MaxResults results are available for the response if MaxResults is specified.
-    * MinResults results are available for the response if MinResults is specified.
-    * WaitTime has expired.
-    * Search is completed or stopped.
+  Module describing the request to `Onvif.Search.GetRecordingSearchResults`.
   """
 
-  import SweetXml
-  import XmlBuilder
+  use Ecto.Schema
 
-  require Logger
+  import Ecto.Changeset
+  import Onvif.Utils.XmlBuilder
 
-  alias Onvif.Search.Schemas.{FindRecordingResult, GetRecordingSearchResults}
+  @type t :: %__MODULE__{}
 
-  def soap_action, do: "http://www.onvif.org/ver10/search/wsdl/GetRecordingSearchResults"
-
-  @spec request(Onvif.Device.t(), GetRecordingSearchResults.t()) :: any()
-  def request(device, args) do
-    Onvif.Search.request(device, args, __MODULE__)
+  @primary_key false
+  @derive Jason.Encoder
+  embedded_schema do
+    field(:search_token, :string)
+    field(:min_results, :integer)
+    field(:max_results, :integer)
+    field(:wait_time, :integer)
   end
 
-  def request_body(%GetRecordingSearchResults{} = find_recordings) do
-    element(:"s:Body", [GetRecordingSearchResults.to_xml(find_recordings)])
+  def to_struct(parsed) do
+    %__MODULE__{}
+    |> changeset(parsed)
+    |> apply_action(:validate)
   end
 
-  def response(xml_response_body) do
-    xml_response_body
-    |> parse(namespace_conformant: true, quiet: true)
-    |> xpath(
-      ~x"//tse:ResultList"e
-      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
-      |> add_namespace("tse", "http://www.onvif.org/ver10/search/wsdl")
-      |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+  def encode(%__MODULE__{} = schema) do
+    element(
+      :"tse:GetRecordingSearchResults",
+      element("tse:SearchToken", schema.search_token)
+      |> element("tse:MinResults", schema.min_results)
+      |> element("tse:MaxResults", schema.max_results)
+      |> element("tse:WaitTime", {:duration, schema.wait_time})
     )
-    |> FindRecordingResult.parse()
-    |> FindRecordingResult.to_struct()
+  end
+
+  def changeset(module, attrs) do
+    module
+    |> cast(attrs, __MODULE__.__schema__(:fields))
+    |> validate_required([:search_token])
   end
 end

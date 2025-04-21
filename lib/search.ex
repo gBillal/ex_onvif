@@ -8,7 +8,7 @@ defmodule Onvif.Search do
   import SweetXml
   import XmlBuilder
 
-  alias Onvif.Search.{FindEvents, FindRecordings}
+  alias Onvif.Search.{FindEvents, FindRecordingResult, FindRecordings, GetRecordingSearchResults}
 
   @doc """
   FindEvents starts a search session, looking for recording events (in the scope that matches the search filter defined in the request).
@@ -50,6 +50,34 @@ defmodule Onvif.Search do
     search_request(device, "FindRecordings", body, &parse_find_token_response/1)
   end
 
+  @doc """
+  GetRecordingSearchResults acquires the results from a recording search session previously initiated
+  by a `Onvif.Search.find_recordings/2` operation. The response shall not include results already
+  returned in previous requests for the same session.
+
+  If MaxResults is specified, the response shall not contain more than MaxResults results.
+  The number of results relates to the number of recordings. For viewing individual recorded data
+  for a signal track use the FindEvents method.
+
+  GetRecordingSearchResults shall block until:
+    * MaxResults results are available for the response if MaxResults is specified.
+    * MinResults results are available for the response if MinResults is specified.
+    * WaitTime has expired.
+    * Search is completed or stopped.
+  """
+  @spec get_recording_search_results(Onvif.Device.t(), GetRecordingSearchResults.t()) ::
+          {:ok, FindRecordingResult.t()} | {:error, any()}
+  def get_recording_search_results(device, recording_search_result) do
+    body = element(:"s:Body", [GetRecordingSearchResults.encode(recording_search_result)])
+
+    search_request(
+      device,
+      "GetRecordingSearchResults",
+      body,
+      &parse_get_recording_search_results/1
+    )
+  end
+
   defp parse_find_token_response(xml_response_body) do
     search_token =
       xml_response_body
@@ -61,5 +89,18 @@ defmodule Onvif.Search do
       )
 
     {:ok, search_token}
+  end
+
+  defp parse_get_recording_search_results(xml_response_body) do
+    xml_response_body
+    |> parse(namespace_conformant: true, quiet: true)
+    |> xpath(
+      ~x"//tse:GetRecordingSearchResultsResponse/tse:ResultList"e
+      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+      |> add_namespace("tse", "http://www.onvif.org/ver10/search/wsdl")
+      |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+    )
+    |> FindRecordingResult.parse()
+    |> FindRecordingResult.to_struct()
   end
 end
