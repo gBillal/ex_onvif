@@ -9,7 +9,33 @@ defmodule Onvif.Recording2 do
   import SweetXml
   import XmlBuilder
 
+  alias Onvif.Recording.RecordingConfiguration
   alias Onvif.Recording.Schemas.{Recording, RecordingJob}
+
+  @doc """
+  CreateRecording shall create a new recording. The new recording shall be created with a track for each supported
+  TrackType see Recording Control Spec.
+
+  This method is optional. It shall be available if the Recording/DynamicRecordings capability is TRUE.
+
+  When successfully completed, CreateRecording shall have created three tracks with the following configurations:
+    * TrackToken TrackType
+    * VIDEO001 Video
+    * AUDIO001 Audio
+    * META001 Metadata
+
+  All TrackConfigurations shall have the MaximumRetentionTime set to 0 (unlimited), and the Description set to the empty string.
+  """
+  @spec create_recording(Onvif.Device.t(), RecordingConfiguration.t()) ::
+          {:ok, String.t()} | {:error, any()}
+  def create_recording(device, recording_configuration) do
+    body =
+      element(:"s:Body", [
+        element(:"trc:CreateRecording", [RecordingConfiguration.encode(recording_configuration)])
+      ])
+
+    recording_request(device, "CreateRecording", body, &parse_create_recording_response/1)
+  end
 
   @doc """
   GetRecordings shall return a description of all the recordings in the device.
@@ -73,5 +99,18 @@ defmodule Onvif.Recording2 do
       {:error, _reason} = err -> err
       jobs -> {:ok, Enum.reverse(jobs)}
     end
+  end
+
+  defp parse_create_recording_response(xml_response_body) do
+    recording_token =
+      xml_response_body
+      |> parse(namespace_conformant: true, quiet: true)
+      |> xpath(
+        ~x"//s:Envelope/s:Body/trc:CreateRecordingResponse/trc:RecordingToken/text()"s
+        |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+        |> add_namespace("trc", "http://www.onvif.org/ver10/recording/wsdl")
+      )
+
+    {:ok, recording_token}
   end
 end

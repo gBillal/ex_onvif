@@ -3,9 +3,28 @@ defmodule Onvif.DevicesTest do
 
   @moduletag capture_log: true
 
-  alias Onvif.Recording.Schemas.{
-    Recording
-  }
+  alias Onvif.Recording.RecordingConfiguration
+
+  test "create recording" do
+    xml_response = File.read!("test/fixtures/create_recording.xml")
+
+    device = Onvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+    {:ok, response_uri} =
+      Onvif.Recording2.create_recording(device, %RecordingConfiguration{
+        content: "test",
+        maximum_retention_time: "PT1H",
+        source: %RecordingConfiguration.Source{
+          name: "test"
+        }
+      })
+
+    assert response_uri == "SD_DISK_20200422_123501_A2388AB3"
+  end
 
   test "get recordings" do
     xml_response = File.read!("test/fixtures/get_recordings.xml")
