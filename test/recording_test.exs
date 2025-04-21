@@ -3,7 +3,12 @@ defmodule Onvif.RecordingTest do
 
   @moduletag capture_log: true
 
-  alias Onvif.Recording.{JobConfiguration, RecordingConfiguration, RecordingJob}
+  alias Onvif.Recording.{
+    JobConfiguration,
+    RecordingConfiguration,
+    RecordingJob,
+    ServiceCapabilities
+  }
 
   test "create recording" do
     xml_response = File.read!("test/fixtures/create_recording.xml")
@@ -82,5 +87,36 @@ defmodule Onvif.RecordingTest do
     {:ok, response} = Onvif.Recording.get_recording_jobs(device)
 
     assert hd(response).job_token == "SD_DISK_20241120_211729_9C896594"
+  end
+
+  test "get service capabilities" do
+    xml_response = File.read!("test/fixtures/get_recording_service_capabilities.xml")
+
+    device = Onvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+    {:ok, response} = Onvif.Recording.get_service_capabilities(device)
+
+    assert response == %ServiceCapabilities{
+             dynamic_tracks: false,
+             dynamic_recordings: false,
+             encoding: ["G711", "G726", "AAC", "H264", "JPEG", "H265"],
+             max_rate: 16384.0,
+             max_total_rate: 16384.0,
+             max_recordings: 1.0,
+             max_recording_jobs: 1.0,
+             options: true,
+             metadata_recording: false,
+             supported_export_file_formats: [],
+             event_recording: false,
+             before_event_limit: nil,
+             after_event_limit: nil,
+             supported_target_formats: [],
+             encryption_entry_limit: nil,
+             supported_encryption_modes: []
+           }
   end
 end

@@ -9,7 +9,13 @@ defmodule Onvif.Recording do
   import SweetXml
   import XmlBuilder
 
-  alias Onvif.Recording.{JobConfiguration, Recording, RecordingConfiguration, RecordingJob}
+  alias Onvif.Recording.{
+    JobConfiguration,
+    Recording,
+    RecordingConfiguration,
+    RecordingJob,
+    ServiceCapabilities
+  }
 
   @doc """
   CreateRecording shall create a new recording. The new recording shall be created with a track for each supported
@@ -72,6 +78,21 @@ defmodule Onvif.Recording do
   def get_recording_jobs(device) do
     body = element(:"s:Body", [element(:"trc:GetRecordingJobs")])
     recording_request(device, "GetRecordingJobs", body, &parse_recording_jobs_response/1)
+  end
+
+  @doc """
+  Returns the capabilities of the recording service.
+  """
+  @spec get_service_capabilities(Onvif.Device.t()) :: {:ok, ServiceCapabilities.t()} | {:error, any()}
+  def get_service_capabilities(device) do
+    body = element(:"s:Body", [element(:"trc:GetServiceCapabilities")])
+
+    recording_request(
+      device,
+      "GetServiceCapabilities",
+      body,
+      &parse_service_capabilities_response/1
+    )
   end
 
   defp parse_recordings_response(xml_response_body) do
@@ -141,5 +162,17 @@ defmodule Onvif.Recording do
     )
     |> RecordingJob.parse()
     |> RecordingJob.to_struct()
+  end
+
+  defp parse_service_capabilities_response(xml_response_body) do
+    xml_response_body
+    |> parse(namespace_conformant: true, quiet: true)
+    |> xpath(
+      ~x"//s:Envelope/s:Body/trc:GetServiceCapabilitiesResponse/trc:Capabilities"e
+      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+      |> add_namespace("trc", "http://www.onvif.org/ver10/recording/wsdl")
+    )
+    |> ServiceCapabilities.parse()
+    |> ServiceCapabilities.to_struct()
   end
 end
