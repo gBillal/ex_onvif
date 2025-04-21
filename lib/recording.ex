@@ -1,4 +1,4 @@
-defmodule Onvif.Recording2 do
+defmodule Onvif.Recording do
   @moduledoc """
   Interface for making requests to the Onvif recording service
 
@@ -9,9 +9,7 @@ defmodule Onvif.Recording2 do
   import SweetXml
   import XmlBuilder
 
-  alias Onvif.Recording.JobConfiguration
-  alias Onvif.Recording.RecordingConfiguration
-  alias Onvif.Recording.Schemas.{Recording, RecordingJob}
+  alias Onvif.Recording.{JobConfiguration, Recording, RecordingConfiguration, RecordingJob}
 
   @doc """
   CreateRecording shall create a new recording. The new recording shall be created with a track for each supported
