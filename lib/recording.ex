@@ -85,7 +85,8 @@ defmodule Onvif.Recording do
   @doc """
   Returns the capabilities of the recording service.
   """
-  @spec get_service_capabilities(Onvif.Device.t()) :: {:ok, ServiceCapabilities.t()} | {:error, any()}
+  @spec get_service_capabilities(Onvif.Device.t()) ::
+          {:ok, ServiceCapabilities.t()} | {:error, any()}
   def get_service_capabilities(device) do
     body = element(:"s:Body", [element(:"trc:GetServiceCapabilities")])
 

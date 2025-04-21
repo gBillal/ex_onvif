@@ -34,11 +34,9 @@ defmodule Onvif.Search.Schemas.SearchScope do
     Jason.encode(schema)
   end
 
-  def to_xml(nil) do
-    element(:"tse:Scope", [])
-  end
+  def encode(nil), do: element(:"tse:Scope", [])
 
-  def to_xml(%__MODULE__{} = schema) do
+  def encode(%__MODULE__{} = schema) do
     element(:"tse:Scope", [
       Enum.map(schema.included_sources, fn is ->
         element(:"tt:IncludedSources", [
@@ -51,7 +49,7 @@ defmodule Onvif.Search.Schemas.SearchScope do
     ])
   end
 
-  defp changeset(module, attrs) do
+  def changeset(module, attrs) do
     module
     |> cast(attrs, [:included_recordings, :recording_information_format])
     |> cast_embed(:included_sources, with: &included_sources_changeset/2)
