@@ -25,12 +25,15 @@ defmodule Onvif.Recording.RecordingConfiguration do
     end
   end
 
+  def parse([]), do: nil
+  def parse(nil), do: nil
+
   def parse(doc) do
     xmap(
       doc,
-      recording_token: ~x"./tt:RecordingToken/text()"so,
-      configuration: ~x"./tt:Configuration"eo |> transform_by(&parse_configuration/1),
-      tracks: ~x"./tt:Tracks"eo |> transform_by(&parse_tracks/1)
+      content: ~x"./tt:Content/text()"so,
+      maximum_retention_time: ~x"./tt:MaximumRetentionTime/text()"so,
+      source: ~x"./tt:Source"eo |> transform_by(&parse_source/1)
     )
   end
 
@@ -60,18 +63,6 @@ defmodule Onvif.Recording.RecordingConfiguration do
     |> cast_embed(:source, with: &source_changeset/2)
   end
 
-  defp parse_configuration([]), do: nil
-  defp parse_configuration(nil), do: nil
-
-  defp parse_configuration(doc) do
-    xmap(
-      doc,
-      content: ~x"./tt:Content/text()"so,
-      maximum_retention_time: ~x"./tt:MaximumRetentionTime/text()"so,
-      source: ~x"./tt:Source"eo |> transform_by(&parse_source/1)
-    )
-  end
-
   defp parse_source([]), do: nil
   defp parse_source(nil), do: nil
 
@@ -86,49 +77,15 @@ defmodule Onvif.Recording.RecordingConfiguration do
     )
   end
 
-  defp parse_tracks([]), do: nil
-  defp parse_tracks(nil), do: nil
-
-  defp parse_tracks(doc) do
-    xmap(
-      doc,
-      track: ~x"./tt:Track"elo |> transform_by(&parse_track/1)
-    )
-  end
-
-  defp parse_track([]), do: nil
-  defp parse_track(nil), do: nil
-
-  defp parse_track(docs) do
-    Enum.map(docs, fn doc ->
-      xmap(
-        doc,
-        track_token: ~x"./tt:TrackToken/text()"so,
-        configuration: ~x"./tt:Configuration"eo |> transform_by(&parse_track_configuration/1)
-      )
-    end)
-  end
-
-  defp parse_track_configuration([]), do: nil
-  defp parse_track_configuration(nil), do: nil
-
-  defp parse_track_configuration(doc) do
-    xmap(
-      doc,
-      track_type: ~x"./tt:TrackType/text()"so,
-      description: ~x"./tt:Description/text()"so
-    )
-  end
-
   defp source_changeset(module, attrs) do
     cast(module, attrs, [:source_id, :name, :location, :description, :address])
   end
 
-  def gen_content(nil), do: []
-  def gen_content(content), do: element(:"tt:Content", content)
+  defp gen_content(nil), do: []
+  defp gen_content(content), do: element(:"tt:Content", content)
 
-  def gen_maximum_retention_time(nil), do: []
+  defp gen_maximum_retention_time(nil), do: []
 
-  def gen_maximum_retention_time(maximum_retention_time),
+  defp gen_maximum_retention_time(maximum_retention_time),
     do: element(:"tt:MaximumRetentionTime", maximum_retention_time)
 end

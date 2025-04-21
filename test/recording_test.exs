@@ -3,7 +3,8 @@ defmodule Onvif.DevicesTest do
 
   @moduletag capture_log: true
 
-  alias Onvif.Recording.RecordingConfiguration
+  alias Onvif.Recording.Schemas.RecordingJob
+  alias Onvif.Recording.{JobConfiguration, RecordingConfiguration}
 
   test "create recording" do
     xml_response = File.read!("test/fixtures/create_recording.xml")
@@ -24,6 +25,32 @@ defmodule Onvif.DevicesTest do
       })
 
     assert response_uri == "SD_DISK_20200422_123501_A2388AB3"
+  end
+
+  test "create recording job" do
+    xml_response = File.read!("test/fixtures/create_recording_job.xml")
+
+    device = Onvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+    assert {:ok, response} =
+             Onvif.Recording2.create_recording_job(device, %JobConfiguration{
+               recording_token: "SD_DISK_20241120_211729_9C896594",
+               priority: 9,
+               mode: :active
+             })
+
+    assert %RecordingJob{
+             job_token: "SD_DISK_20241120_211729_9C896594",
+             job_configuration: %JobConfiguration{
+               recording_token: "SD_DISK_20241120_211729_9C896594",
+               priority: 9,
+               mode: :active
+             }
+           } = response
   end
 
   test "get recordings" do

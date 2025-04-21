@@ -9,6 +9,7 @@ defmodule Onvif.Recording2 do
   import SweetXml
   import XmlBuilder
 
+  alias Onvif.Recording.JobConfiguration
   alias Onvif.Recording.RecordingConfiguration
   alias Onvif.Recording.Schemas.{Recording, RecordingJob}
 
@@ -35,6 +36,24 @@ defmodule Onvif.Recording2 do
       ])
 
     recording_request(device, "CreateRecording", body, &parse_create_recording_response/1)
+  end
+
+  @doc """
+  CreateRecordingJob shall create a new recording job.
+
+  The JobConfiguration returned from CreateRecordingJob shall be identical to the JobConfiguration passed into CreateRecordingJob,
+  except for the ReceiverToken and the AutoCreateReceiver. In the returned structure, the ReceiverToken shall be present and valid
+  and the AutoCreateReceiver field shall be omitted.
+  """
+  @spec create_recording_job(Onvif.Device.t(), JobConfiguration.t()) ::
+          {:ok, RecordingJob.t()} | {:error, any()}
+  def create_recording_job(device, job_configuration) do
+    body =
+      element(:"s:Body", [
+        element(:"trc:CreateRecordingJob", [JobConfiguration.encode(job_configuration)])
+      ])
+
+    recording_request(device, "CreateRecordingJob", body, &parse_create_recording_job_response/1)
   end
 
   @doc """
@@ -112,5 +131,17 @@ defmodule Onvif.Recording2 do
       )
 
     {:ok, recording_token}
+  end
+
+  defp parse_create_recording_job_response(xml_response_body) do
+    xml_response_body
+    |> parse(namespace_conformant: true, quiet: true)
+    |> xpath(
+      ~x"//s:Envelope/s:Body/trc:CreateRecordingJobResponse"e
+      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+      |> add_namespace("trc", "http://www.onvif.org/ver10/recording/wsdl")
+    )
+    |> RecordingJob.parse()
+    |> RecordingJob.to_struct()
   end
 end
