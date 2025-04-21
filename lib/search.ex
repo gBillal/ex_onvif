@@ -4,7 +4,7 @@ defmodule Onvif.Search do
 
   https://www.onvif.org/ver10/search.wsdl
   """
-  import Onvif.ApiUtils, only: [search_request: 4]
+  import Onvif.Utils.ApiClient, only: [search_request: 4]
   import SweetXml
   import XmlBuilder
 

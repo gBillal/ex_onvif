@@ -5,7 +5,7 @@ defmodule Onvif.Recording do
   http://www.onvif.org/onvif/ver10/recording.wsdl
   """
 
-  import Onvif.ApiUtils, only: [recording_request: 4]
+  import Onvif.Utils.ApiClient, only: [recording_request: 4]
   import SweetXml
   import XmlBuilder
 

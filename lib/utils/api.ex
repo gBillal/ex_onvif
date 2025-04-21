@@ -1,4 +1,4 @@
-defmodule Onvif.ApiUtils do
+defmodule Onvif.Utils.ApiClient do
   @moduledoc false
 
   @devicemgmt_namespaces [
