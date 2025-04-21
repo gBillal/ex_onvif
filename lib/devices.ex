@@ -6,6 +6,7 @@ defmodule Onvif.Devices do
   """
   require Logger
 
+  import Onvif.ApiUtils, only: [devicemgmt_request: 4]
   import SweetXml
   import XmlBuilder
 
@@ -21,13 +22,6 @@ defmodule Onvif.Devices do
     SystemDateAndTime
   }
 
-  @action_prefix "http://www.onvif.org/ver10/device/wsdl/"
-
-  @namespaces [
-    "xmlns:tds": "http://www.onvif.org/ver10/device/wsdl",
-    "xmlns:tt": "http://www.onvif.org/ver10/schema"
-  ]
-
   @doc """
   This operation gets basic device information from the device.
   """
@@ -35,7 +29,7 @@ defmodule Onvif.Devices do
   def get_device_information(device) do
     body = element(:"s:Body", [element(:"tds:GetDeviceInformation")])
 
-    do_request(
+    devicemgmt_request(
       device,
       "GetDeviceInformation",
       body,
@@ -49,7 +43,7 @@ defmodule Onvif.Devices do
   @spec get_hostname(Onvif.Device.t()) :: {:ok, HostnameInformation.t()} | {:error, any()}
   def get_hostname(device) do
     body = element(:"s:Body", [element(:"tds:GetHostname")])
-    do_request(device, "GetHostname", body, &parse_hostname_response/1)
+    devicemgmt_request(device, "GetHostname", body, &parse_hostname_response/1)
   end
 
   @doc """
@@ -59,7 +53,7 @@ defmodule Onvif.Devices do
   def get_network_protocols(device) do
     body = element(:"s:Body", [element(:"tds:GetNetworkProtocols")])
 
-    do_request(
+    devicemgmt_request(
       device,
       "GetNetworkProtocols",
       body,
@@ -75,7 +69,7 @@ defmodule Onvif.Devices do
   def get_network_interfaces(device) do
     body = element(:"s:Body", [element(:"tds:GetNetworkInterfaces")])
 
-    do_request(
+    devicemgmt_request(
       device,
       "GetNetworkInterfaces",
       body,
@@ -89,7 +83,7 @@ defmodule Onvif.Devices do
   @spec get_ntp(Onvif.Device.t()) :: {:ok, NTP.t()} | {:error, any()}
   def get_ntp(device) do
     body = element(:"s:Body", [element(:"tds:GetNTP")])
-    do_request(device, "GetNTP", body, &parse_ntp_response/1)
+    devicemgmt_request(device, "GetNTP", body, &parse_ntp_response/1)
   end
 
   @doc """
@@ -108,7 +102,7 @@ defmodule Onvif.Devices do
   @spec get_scopes(Onvif.Device.t()) :: {:ok, [Scope.t()]} | {:error, any()}
   def get_scopes(device) do
     body = element(:"s:Body", [element(:"tds:GetScopes")])
-    do_request(device, "GetScopes", body, &parse_scopes_response/1)
+    devicemgmt_request(device, "GetScopes", body, &parse_scopes_response/1)
   end
 
   @doc """
@@ -118,7 +112,13 @@ defmodule Onvif.Devices do
           {:ok, ServiceCapabilities.t()} | {:error, any()}
   def get_service_capabilities(device) do
     body = element(:"s:Body", [element(:"tds:GetServiceCapabilities")])
-    do_request(device, "GetServiceCapabilities", body, &parse_service_capabilities_response/1)
+
+    devicemgmt_request(
+      device,
+      "GetServiceCapabilities",
+      body,
+      &parse_service_capabilities_response/1
+    )
   end
 
   @doc """
@@ -129,7 +129,7 @@ defmodule Onvif.Devices do
     body =
       element(:"s:Body", [element(:"tds:GetServices", [element(:"tds:IncludeCapability", false)])])
 
-    do_request(device, "GetServices", body, &parse_services_response/1)
+    devicemgmt_request(device, "GetServices", body, &parse_services_response/1)
   end
 
   @doc """
@@ -142,7 +142,7 @@ defmodule Onvif.Devices do
     body = element(:"s:Body", [element(:"tds:GetSystemDateAndTime")])
     updated_device = %{device | auth_type: :no_auth}
 
-    do_request(
+    devicemgmt_request(
       updated_device,
       "GetSystemDateAndTime",
       body,
@@ -165,7 +165,7 @@ defmodule Onvif.Devices do
         ])
       ])
 
-    do_request(device, "SetNetworkProtocols", body, fn _body -> :ok end)
+    devicemgmt_request(device, "SetNetworkProtocols", body, fn _body -> :ok end)
   end
 
   @doc """
@@ -180,7 +180,7 @@ defmodule Onvif.Devices do
   @spec set_ntp(Onvif.Device.t(), NTP.t()) :: :ok | {:error, any()}
   def set_ntp(device, ntp) do
     body = element(:"s:Body", [element(:"tds:SetNTP", NTP.encode(ntp))])
-    do_request(device, "SetNTP", body, fn _body -> :ok end)
+    devicemgmt_request(device, "SetNTP", body, fn _body -> :ok end)
   end
 
   @doc """
@@ -197,7 +197,7 @@ defmodule Onvif.Devices do
   @spec set_system_date_and_time(Onvif.Device.t(), SystemDateAndTime.t()) :: :ok | {:error, any()}
   def set_system_date_and_time(device, date_and_time) do
     body = element(:"s:Body", [SystemDateAndTime.encode(date_and_time)])
-    do_request(device, "SetSystemDateAndTime", body, fn _body -> :ok end)
+    devicemgmt_request(device, "SetSystemDateAndTime", body, fn _body -> :ok end)
   end
 
   @doc """
@@ -206,34 +206,7 @@ defmodule Onvif.Devices do
   @spec system_reboot(Onvif.Device.t()) :: {:ok, %{message: String.t()}} | {:error, any()}
   def system_reboot(device) do
     body = element(:"s:Body", [element(:"tds:SystemReboot")])
-    do_request(device, "SystemReboot", body, &parse_system_reboot_response/1)
-  end
-
-  defp do_request(device, action, content, parser_fn) do
-    device
-    |> Onvif.API.client()
-    |> Tesla.request(
-      method: :post,
-      headers: [
-        {"Content-Type", "application/soap+xml"},
-        {"SOAPAction", @action_prefix <> action}
-      ],
-      body: %Onvif.Request{content: content, namespaces: @namespaces}
-    )
-    |> parse_response(parser_fn)
-  end
-
-  defp parse_response({:ok, %{status: 200, body: body}}, parser_fn) do
-    parser_fn.(body)
-  end
-
-  defp parse_response({:ok, %{status: status_code, body: body}}, _parser_fn)
-       when status_code >= 400 do
-    {:error, %{status: status_code, response: body}}
-  end
-
-  defp parse_response({:error, response}, _parser_fn) do
-    {:error, %{status: nil, response: response}}
+    devicemgmt_request(device, "SystemReboot", body, &parse_system_reboot_response/1)
   end
 
   defp parse_device_information_response(xml_response_body) do
