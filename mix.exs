@@ -9,6 +9,7 @@ defmodule Onvif.MixProject do
       version: "0.5.0",
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
       deps: deps(),
 
       # ex_doc / hex
@@ -103,4 +104,7 @@ defmodule Onvif.MixProject do
       ]
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 end
