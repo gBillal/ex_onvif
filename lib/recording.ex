@@ -18,7 +18,9 @@ defmodule Onvif.Recording do
   }
 
   @doc """
-  CreateRecording shall create a new recording. The new recording shall be created with a track for each supported
+  CreateRecording shall create a new recording.
+
+  The new recording shall be created with a track for each supported
   TrackType see Recording Control Spec.
 
   This method is optional. It shall be available if the Recording/DynamicRecordings capability is TRUE.

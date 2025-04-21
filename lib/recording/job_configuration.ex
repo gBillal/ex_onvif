@@ -9,6 +9,8 @@ defmodule Onvif.Recording.JobConfiguration do
   import SweetXml
   import XmlBuilder
 
+  @type t :: %__MODULE__{}
+
   @primary_key false
   @derive Jason.Encoder
   embedded_schema do
