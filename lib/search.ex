@@ -8,7 +8,13 @@ defmodule Onvif.Search do
   import SweetXml
   import XmlBuilder
 
-  alias Onvif.Search.{FindEvents, FindRecordingResult, FindRecordings, GetRecordingSearchResults}
+  alias Onvif.Search.{
+    FindEvents,
+    FindRecordingResult,
+    FindRecordings,
+    GetRecordingSearchResults,
+    RecordingSummary
+  }
 
   @doc """
   FindEvents starts a search session, looking for recording events (in the scope that matches the search filter defined in the request).
@@ -78,6 +84,15 @@ defmodule Onvif.Search do
     )
   end
 
+  @doc """
+  GetRecordingSummary is used to get a summary description of all recorded data.
+  """
+  @spec get_recording_summary(Onvif.Device.t()) :: {:ok, RecordingSummary.t()} | {:error, any()}
+  def get_recording_summary(device) do
+    body = element(:"s:Body", [element(:"tse:GetRecordingSummary")])
+    search_request(device, "GetRecordingSummary", body, &parse_get_recording_summary/1)
+  end
+
   defp parse_find_token_response(xml_response_body) do
     search_token =
       xml_response_body
@@ -102,5 +117,18 @@ defmodule Onvif.Search do
     )
     |> FindRecordingResult.parse()
     |> FindRecordingResult.to_struct()
+  end
+
+  defp parse_get_recording_summary(xml_response_body) do
+    xml_response_body
+    |> parse(namespace_conformant: true, quiet: true)
+    |> xpath(
+      ~x"//tse:GetRecordingSummaryResponse/tse:Summary"e
+      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+      |> add_namespace("tse", "http://www.onvif.org/ver10/search/wsdl")
+      |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+    )
+    |> RecordingSummary.parse()
+    |> RecordingSummary.to_struct()
   end
 end

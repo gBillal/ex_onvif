@@ -110,4 +110,22 @@ defmodule Onvif.SearchTest do
              ]
            }
   end
+
+  test "get recording summary" do
+    xml_response = File.read!("test/fixtures/get_recording_summary.xml")
+
+    device = Onvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+    {:ok, response} = Onvif.Search.get_recording_summary(device)
+
+    assert response == %Onvif.Search.RecordingSummary{
+             data_from: ~U(1970-01-01 00:00:00Z),
+             data_until: ~U(2024-12-13 08:08:49Z),
+             number_recordings: 8
+           }
+  end
 end
