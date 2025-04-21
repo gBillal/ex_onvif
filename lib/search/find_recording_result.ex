@@ -1,6 +1,6 @@
 defmodule Onvif.Search.FindRecordingResult do
   @moduledoc """
-  A module describing results from `Onvif.Search.GetRecordingSearchResults.request/2`.
+  A module describing results from `Onvif.Search.get_recording_search_results/2`.
   """
 
   use Ecto.Schema
