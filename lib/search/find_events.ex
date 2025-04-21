@@ -1,39 +1,51 @@
 defmodule Onvif.Search.FindEvents do
-  import SweetXml
-  import XmlBuilder
-  require Logger
+  @moduledoc """
+  Schema describing a find events request.
+  """
 
-  def soap_action, do: "http://www.onvif.org/ver10/search/wsdl/FindEvents"
+  use Ecto.Schema
 
-  def request(device, args) do
-    Onvif.Search.request(device, args, __MODULE__)
+  import Ecto.Changeset
+  import Onvif.Utils.XmlBuilder
+
+  alias Onvif.Search.SearchScope
+
+  @type t :: %__MODULE__{}
+
+  @primary_key false
+  @derive Jason.Encoder
+  embedded_schema do
+    field(:start_point, :utc_datetime)
+    field(:end_point, :utc_datetime)
+
+    embeds_one(:search_scope, SearchScope)
+
+    field(:include_start_state, :boolean, default: false)
+    field(:max_matches, :integer)
+    field(:keep_alive_time, :integer)
   end
 
-  def request_body([included_recordings, start_point, end_point, search_filter, keep_alive_time]) do
-    element(:"s:Body", [
-      element(:"tse:FindEvents", [
-        element(:"tse:StartPoint", start_point),
-        element(:"tse:EndPoint", end_point),
-        element(:"tse:scope", [
-          Enum.map(included_recordings, fn ir -> element(:"tt:IncludedRecordings", [ir]) end)
-        ]),
-        element(:"tt:SearchFilter", [search_filter]),
-        element(:"tse:IncludeStartState", false),
-        element(:"tse:KeepAliveTime", keep_alive_time)
-      ])
+  def encode(%__MODULE__{} = find_events) do
+    element(
+      "tse:FindEvents",
+      element("tt:StartPoint", find_events.start_point)
+      |> element("tt:EndPoint", find_events.end_point)
+      |> element("tt:IncludeStartState", find_events.include_start_state)
+      |> element("tt:MaxMatches", find_events.max_matches)
+      |> element("tt:KeepAliveTime", {:duration, find_events.keep_alive_time})
+      |> Kernel.++([SearchScope.encode(find_events.search_scope)])
+    )
+  end
+
+  def changeset(module, attrs) do
+    module
+    |> cast(attrs, [
+      :start_point,
+      :end_point,
+      :include_start_state,
+      :max_matches,
+      :keep_alive_time
     ])
-  end
-
-  def response(xml_response_body) do
-    parsed_result =
-      xml_response_body
-      |> parse(namespace_conformant: true, quiet: true)
-      |> xpath(
-        ~x"//tse:SearchToken/text()"s
-        |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
-        |> add_namespace("tse", "http://www.onvif.org/ver10/search/wsdl")
-      )
-
-    {:ok, parsed_result}
+    |> cast_embed(:search_scope, with: &SearchScope.changeset/2)
   end
 end

@@ -5,7 +5,7 @@ defmodule Onvif.Recording do
   http://www.onvif.org/onvif/ver10/recording.wsdl
   """
 
-  import Onvif.ApiUtils, only: [recording_request: 4]
+  import Onvif.Utils.ApiClient, only: [recording_request: 4]
   import SweetXml
   import XmlBuilder
 
@@ -85,7 +85,8 @@ defmodule Onvif.Recording do
   @doc """
   Returns the capabilities of the recording service.
   """
-  @spec get_service_capabilities(Onvif.Device.t()) :: {:ok, ServiceCapabilities.t()} | {:error, any()}
+  @spec get_service_capabilities(Onvif.Device.t()) ::
+          {:ok, ServiceCapabilities.t()} | {:error, any()}
   def get_service_capabilities(device) do
     body = element(:"s:Body", [element(:"trc:GetServiceCapabilities")])
 

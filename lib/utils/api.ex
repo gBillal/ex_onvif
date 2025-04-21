@@ -1,4 +1,4 @@
-defmodule Onvif.ApiUtils do
+defmodule Onvif.Utils.ApiClient do
   @moduledoc false
 
   @devicemgmt_namespaces [
@@ -8,6 +8,11 @@ defmodule Onvif.ApiUtils do
 
   @recording_namespaces [
     "xmlns:trc": "http://www.onvif.org/ver10/recording/wsdl",
+    "xmlns:tt": "http://www.onvif.org/ver10/schema"
+  ]
+
+  @search_namespaces [
+    "xmlns:tse": "http://www.onvif.org/ver10/search/wsdl",
     "xmlns:tt": "http://www.onvif.org/ver10/schema"
   ]
 
@@ -23,6 +28,19 @@ defmodule Onvif.ApiUtils do
       device,
       :recording_ver10_service_path,
       @recording_namespaces,
+      action,
+      content,
+      parser_fn
+    )
+  end
+
+  def search_request(device, action, content, parser_fn) do
+    action = "http://www.onvif.org/ver10/search/wsdl/" <> action
+
+    do_request(
+      device,
+      :search_ver10_service_path,
+      @search_namespaces,
       action,
       content,
       parser_fn

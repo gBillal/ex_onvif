@@ -80,7 +80,8 @@ defmodule Onvif.MixProject do
         ],
         Interfaces: [
           Onvif.Devices,
-          Onvif.Recording
+          Onvif.Recording,
+          Onvif.Search
         ],
         Media10: [
           ~r/^Onvif.Media.Ver10.*/
@@ -91,15 +92,13 @@ defmodule Onvif.MixProject do
         Replay: [
           ~r/^Onvif.Replay.*/
         ],
-        Search: [
-          ~r/^Onvif.Search.*/
-        ],
         PTZ: [
           ~r/^Onvif.PTZ.*/
         ],
         Schemas: [
           ~r/^Onvif.Devices.*/,
-          ~r/^Onvif.Recording.*/
+          ~r/^Onvif.Recording.*/,
+          ~r/^Onvif.Search.*/
         ]
       ]
     ]

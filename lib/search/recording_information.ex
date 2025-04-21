@@ -1,4 +1,4 @@
-defmodule Onvif.Search.Schemas.RecordingInformation do
+defmodule Onvif.Search.RecordingInformation do
   @moduledoc """
   A module describing recording information.
   """

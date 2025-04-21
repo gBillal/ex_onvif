@@ -6,7 +6,7 @@ defmodule Onvif.Devices do
   """
   require Logger
 
-  import Onvif.ApiUtils, only: [devicemgmt_request: 4]
+  import Onvif.Utils.ApiClient, only: [devicemgmt_request: 4]
   import SweetXml
   import XmlBuilder
 
