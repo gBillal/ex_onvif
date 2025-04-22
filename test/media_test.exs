@@ -3,7 +3,8 @@ defmodule Onvif.SearchTest do
 
   @moduletag capture_log: true
 
-  alias Onvif.Media.OSD.Color
+  alias Onvif.Media.OSDOptions
+  alias Onvif.Media.OSD.{Color, ColorOptions}
   alias Onvif.Media.Ver10.Schemas.OSD
 
   test "create osd" do
@@ -103,6 +104,54 @@ defmodule Onvif.SearchTest do
                plain_text: nil
              },
              image: nil
+           }
+  end
+
+  test "get osd options" do
+    xml_response = File.read!("test/fixtures/get_osd_options.xml")
+
+    device = Onvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+    {:ok, osdoptions} = Onvif.Media.get_osd_options(device, "token")
+
+    assert osdoptions == %OSDOptions{
+             image_option: nil,
+             maximum_number_of_osds: %OSDOptions.MaximumNumberOfOSDs{
+               date: 1,
+               date_and_time: 1,
+               image: 4,
+               plaintext: 9,
+               time: 1,
+               total: 14
+             },
+             position_option: ["UpperLeft", "LowerLeft", "Custom"],
+             text_option: %OSDOptions.TextOption{
+               background_color: nil,
+               date_format: ["MM/dd/yyyy", "dd/MM/yyyy", "yyyy/MM/dd", "yyyy-MM-dd"],
+               font_color: %ColorOptions{
+                 color: %ColorOptions.Color{
+                   color_list: [],
+                   color_space_range: %ColorOptions.Color.ColorSpaceRange{
+                     color_space: "http://www.onvif.org/ver10/colorspace/YCbCr",
+                     x: %Onvif.Schemas.FloatRange{min: 0.0, max: 255.0},
+                     y: %Onvif.Schemas.FloatRange{min: 0.0, max: 255.0},
+                     z: %Onvif.Schemas.FloatRange{min: 0.0, max: 255.0}
+                   }
+                 },
+                 transparent: nil
+               },
+               font_size_range: %Onvif.Schemas.IntRange{
+                 max: 64,
+                 min: 16
+               },
+               time_format: ["hh:mm:ss tt", "HH:mm:ss"],
+               type: ["Plain", "Date", "Time", "DateAndTime"]
+             },
+             type: ["Text"]
            }
   end
 end

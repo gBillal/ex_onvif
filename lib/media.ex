@@ -9,6 +9,7 @@ defmodule Onvif.Media do
   import Onvif.Utils.XmlBuilder
   import SweetXml
 
+  alias Onvif.Media.OSDOptions
   alias Onvif.Media.Ver10.Schemas.{OSD, Profile}
 
   @doc """
@@ -36,6 +37,21 @@ defmodule Onvif.Media do
   def get_osd(device, token) do
     body = element(:"s:Body", element(:"trt:GetOSD", element(:"trt:OSDToken", token)))
     media_request(device, "GetOSD", body, &parse_osd_response/1)
+  end
+
+  @doc """
+  Get the OSD Options.
+  """
+  @spec get_osd_options(Onvif.Device.t()) :: {:ok, OSDOptions.t()} | {:error, any()}
+  @spec get_osd_options(Onvif.Device.t(), String.t() | nil) ::
+          {:ok, OSDOptions.t()} | {:error, any()}
+  def get_osd_options(device, token \\ nil) do
+    body =
+      element(:"s:Body", [
+        element(:"trt:GetOSDOptions", element(:"trt:ConfigurationToken", token))
+      ])
+
+    media_request(device, "GetOSDOptions", body, &parse_osd_options_response/1)
   end
 
   @doc """
@@ -133,6 +149,19 @@ defmodule Onvif.Media do
     )
     |> OSD.parse()
     |> OSD.to_struct()
+  end
+
+  defp parse_osd_options_response(xml_response_body) do
+    xml_response_body
+    |> parse(namespace_conformant: true, quiet: true)
+    |> xpath(
+      ~x"//s:Envelope/s:Body/trt:GetOSDOptionsResponse/trt:OSDOptions"e
+      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+      |> add_namespace("trt", "http://www.onvif.org/ver10/media/wsdl")
+      |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+    )
+    |> OSDOptions.parse()
+    |> OSDOptions.to_struct()
   end
 
   defp parse_osds_response(xml_response_body) do
