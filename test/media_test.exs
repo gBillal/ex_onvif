@@ -183,4 +183,47 @@ defmodule Onvif.SearchTest do
              video_source_mode: false
            }
   end
+
+  test "set osd" do
+    xml_response = File.read!("test/fixtures/set_osd_response.xml")
+
+    device = Onvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+    assert :ok =
+             Onvif.Media.set_osd(
+               device,
+               %OSD{
+                 image: nil,
+                 position: %OSD.Position{
+                   pos: %{x: "-1.000000", y: "0.866667"},
+                   type: :custom
+                 },
+                 text_string: %OSD.TextString{
+                   background_color: nil,
+                   date_format: "MM/dd/yyyy",
+                   font_color: %Color{
+                     color: %{
+                       colorspace: "http://www.onvif.org/ver10/colorspace/YCbCr",
+                       x: "0.000000",
+                       y: "0.000000",
+                       z: "0.000000"
+                     },
+                     transparent: nil
+                   },
+                   font_size: 30,
+                   is_persistent_text: nil,
+                   plain_text: nil,
+                   time_format: "HH:mm:ss",
+                   type: :date_and_time
+                 },
+                 token: "OsdToken_101",
+                 type: :text,
+                 video_source_configuration_token: "VideoSourceToken"
+               }
+             )
+  end
 end

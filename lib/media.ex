@@ -125,7 +125,8 @@ defmodule Onvif.Media do
   If a multicast stream is requested at least one of VideoEncoderConfiguration, AudioEncoderConfiguration and MetadataConfiguration shall have a valid
   multicast setting.
   """
-  @spec get_stream_uri(Onvif.Device.t(), String.t(), String.t(), String.t()) :: {:ok, String.t()} | {:error, any()}
+  @spec get_stream_uri(Onvif.Device.t(), String.t(), String.t(), String.t()) ::
+          {:ok, String.t()} | {:error, any()}
   def get_stream_uri(device, profile_token, stream \\ "RTP-Unicast", transport_protocol \\ "UDP") do
     stream_setup =
       element(:"tt:Stream", stream)
@@ -141,6 +142,15 @@ defmodule Onvif.Media do
       )
 
     media_request(device, "GetStreamUri", body, &parse_stream_uri_response/1)
+  end
+
+  @doc """
+  Set the OSD
+  """
+  @spec set_osd(Onvif.Device.t(), OSD.t()) :: :ok | {:error, any()}
+  def set_osd(device, osd) do
+    body = element(:"s:Body", element(:"trt:SetOSD", OSD.encode(osd)))
+    media_request(device, "SetOSD", body, fn _body -> :ok end)
   end
 
   defp parse_create_osd_response(xml_response_body) do
