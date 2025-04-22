@@ -18,8 +18,7 @@ defmodule Onvif.Media do
     VideoEncoderConfigurationOptions
   }
 
-  alias Onvif.Media.Profile.VideoEncoderConfiguration
-  alias Onvif.Media.Ver10.Schemas.Profile.AudioEncoderConfiguration
+  alias Onvif.Media.Profile.{AudioEncoderConfiguration, VideoEncoderConfiguration}
 
   @type encoder_options_opts :: [configuration_token: String.t(), profile_token: String.t()]
 
@@ -255,6 +254,28 @@ defmodule Onvif.Media do
       body,
       &parse_video_encoder_configuration_options_response/1
     )
+  end
+
+  @doc """
+  This operation modifies an audio encoder configuration.
+
+  The ForcePersistence flag indicates if the changes shall remain after reboot of the device. Running streams using this configuration may be immediately updated according to the new settings. The changes are not guaranteed to take effect unless the client requests a new stream URI and restarts any affected streams. NVC methods for changing a running stream are out of scope for this specification.
+  """
+  @spec set_audio_encoder_configuration(
+          Onvif.Device.t(),
+          AudioEncoderConfiguration.t()
+        ) :: :ok | {:error, any()}
+  def set_audio_encoder_configuration(device, encoder_config) do
+    body =
+      element(:"s:Body", [
+        element(
+          :"trt:SetAudioEncoderConfiguration",
+          AudioEncoderConfiguration.encode(encoder_config, "tt:Configuration")
+        )
+        |> element("trt:ForcePeristence", true)
+      ])
+
+    media_request(device, "SetAudioEncoderConfiguration", body, fn _body -> :ok end)
   end
 
   @doc """

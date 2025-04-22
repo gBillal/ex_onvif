@@ -1,9 +1,11 @@
-defmodule Onvif.Media.Ver10.Schemas.Profile.AudioEncoderConfiguration do
+defmodule Onvif.Media.Profile.AudioEncoderConfiguration do
   @moduledoc """
   Optional configuration of the Audio encoder.
   """
 
   use Ecto.Schema
+
+  import Onvif.Utils.XmlBuilder
   import Ecto.Changeset
   import SweetXml
 
@@ -26,7 +28,7 @@ defmodule Onvif.Media.Ver10.Schemas.Profile.AudioEncoderConfiguration do
     field(:sample_rate, :integer)
     field(:session_timeout, :string)
 
-    embeds_one(:multicast_configuration, MulticastConfiguration)
+    embeds_one(:multicast, MulticastConfiguration)
   end
 
   def parse(nil), do: nil
@@ -44,6 +46,27 @@ defmodule Onvif.Media.Ver10.Schemas.Profile.AudioEncoderConfiguration do
       session_timeout: ~x"./tt:SessionTimeout/text()"s,
       multicast_configuration:
         ~x"./tt:Multicast"e |> transform_by(&MulticastConfiguration.parse/1)
+    )
+  end
+
+  def encode(%__MODULE__{} = audio_encoder_config, name) do
+    element(
+      [],
+      name,
+      %{"token" => audio_encoder_config.reference_token},
+      element("tt:Name", audio_encoder_config.name)
+      |> element("tt:UseCount", audio_encoder_config.use_count)
+      |> element(
+        "tt:Encoding",
+        Keyword.fetch!(
+          Ecto.Enum.mappings(audio_encoder_config.__struct__, :encoding),
+          audio_encoder_config.encoding
+        )
+      )
+      |> element("tt:Bitrate", audio_encoder_config.bitrate)
+      |> element("tt:SampleRate", audio_encoder_config.sample_rate)
+      |> element("tt:Multicast", MulticastConfiguration.encode(audio_encoder_config.multicast))
+      |> element("tt:SessionTimeout", audio_encoder_config.session_timeout)
     )
   end
 
