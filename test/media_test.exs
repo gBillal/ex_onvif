@@ -3,7 +3,15 @@ defmodule Onvif.SearchTest do
 
   @moduletag capture_log: true
 
-  alias Onvif.Media.{OSDOptions, ServiceCapabilities}
+  alias Onvif.Schemas.IntRange
+
+  alias Onvif.Media.{
+    OSDOptions,
+    ServiceCapabilities,
+    VideoEncoderConfigurationOptions,
+    VideoResolution
+  }
+
   alias Onvif.Media.OSD.{Color, ColorOptions}
   alias Onvif.Media.Ver10.Schemas.OSD
 
@@ -182,6 +190,45 @@ defmodule Onvif.SearchTest do
              temporary_osd_text: false,
              video_source_mode: false
            }
+  end
+
+  test "get video encoder configuration options" do
+    xml_response = File.read!("test/fixtures/get_video_encoder_configuration_options.xml")
+
+    device = Onvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+    assert {:ok, response} = Onvif.Media.get_video_encoder_configuration_options(device)
+
+    assert %VideoEncoderConfigurationOptions{
+             extension: nil,
+             guranteed_frame_rate_supported: nil,
+             h264: %VideoEncoderConfigurationOptions.H264Options{
+               encoding_interval_range: %IntRange{max: 6, min: 1},
+               frame_rate_range: %IntRange{max: 25, min: 1},
+               gov_length_range: %IntRange{max: 150, min: 25},
+               h264_profiles_supported: ["Baseline", "Main", "High"],
+               resolutions_available: [
+                 %VideoResolution{height: 576, width: 704},
+                 %VideoResolution{height: 480, width: 640},
+                 %VideoResolution{height: 288, width: 352}
+               ]
+             },
+             jpeg: %VideoEncoderConfigurationOptions.JpegOptions{
+               encoding_interval_range: %IntRange{max: 6, min: 1},
+               frame_rate_range: %IntRange{max: 25, min: 1},
+               resolutions_available: [
+                 %VideoResolution{height: 576, width: 704},
+                 %VideoResolution{height: 480, width: 640},
+                 %VideoResolution{height: 288, width: 352}
+               ]
+             },
+             mpeg4: nil,
+             quality_range: %IntRange{max: 6, min: 1}
+           } = response
   end
 
   test "set osd" do

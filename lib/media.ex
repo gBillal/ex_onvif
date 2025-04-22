@@ -9,7 +9,7 @@ defmodule Onvif.Media do
   import Onvif.Utils.XmlBuilder
   import SweetXml
 
-  alias Onvif.Media.{OSDOptions, ServiceCapabilities}
+  alias Onvif.Media.{OSDOptions, ServiceCapabilities, VideoEncoderConfigurationOptions}
   alias Onvif.Media.Ver10.Schemas.{OSD, Profile}
 
   @doc """
@@ -142,6 +142,41 @@ defmodule Onvif.Media do
       )
 
     media_request(device, "GetStreamUri", body, &parse_stream_uri_response/1)
+  end
+
+  @doc """
+  This operation returns the available options (supported values and ranges for video encoder configuration parameters) when the video encoder parameters
+  are reconfigured.
+
+  For JPEG, MPEG4 and H264 extension elements have been defined that provide additional information. A device must provide the XxxOption information
+  for all encodings supported and should additionally provide the corresponding XxxOption2 information.
+
+  This response contains the available video encoder configuration options. If a video encoder configuration is specified,
+  the options shall concern that particular configuration. If a media profile is specified, the options shall be compatible
+  with that media profile. If no tokens are specified, the options shall be considered generic for the device.
+  """
+  @spec get_video_encoder_configuration_options(
+          Onvif.Device.t(),
+          configuration_token: String.t(),
+          profile_token: String.t()
+        ) :: {:ok, [VideoEncoderConfigurationOptions.t()]} | {:error, any()}
+  def get_video_encoder_configuration_options(device, opts \\ []) do
+    body =
+      element(
+        :"s:Body",
+        element(
+          :"trt:GetVideoEncoderConfigurationOptions",
+          element(:"trt:ConfigurationToken", opts[:configuration_token])
+          |> element(:"trt:ProfileToken", opts[:profile_token])
+        )
+      )
+
+    media_request(
+      device,
+      "GetVideoEncoderConfigurationOptions",
+      body,
+      &parse_video_encoder_configuration_options_response/1
+    )
   end
 
   @doc """
@@ -289,5 +324,18 @@ defmodule Onvif.Media do
       )
 
     {:ok, uri}
+  end
+
+  defp parse_video_encoder_configuration_options_response(xml_response_body) do
+    xml_response_body
+    |> parse(namespace_conformant: true, quiet: true)
+    |> xpath(
+      ~x"//s:Envelope/s:Body/trt:GetVideoEncoderConfigurationOptionsResponse/trt:Options"e
+      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+      |> add_namespace("trt", "http://www.onvif.org/ver10/media/wsdl")
+      |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+    )
+    |> VideoEncoderConfigurationOptions.parse()
+    |> VideoEncoderConfigurationOptions.to_struct()
   end
 end
