@@ -9,8 +9,16 @@ defmodule Onvif.Media do
   import Onvif.Utils.XmlBuilder
   import SweetXml
 
-  alias Onvif.Media.{OSDOptions, ServiceCapabilities, VideoEncoderConfigurationOptions}
+  alias Onvif.Media.{
+    AudioEncoderConfigurationOptions,
+    OSDOptions,
+    ServiceCapabilities,
+    VideoEncoderConfigurationOptions
+  }
+
   alias Onvif.Media.Ver10.Schemas.{OSD, Profile}
+
+  @type encoder_options_opts :: [configuration_token: String.t(), profile_token: String.t()]
 
   @doc """
   Create the OSD.
@@ -28,6 +36,30 @@ defmodule Onvif.Media do
   def delete_osd(device, token) do
     body = element(:"s:Body", element(:"trt:DeleteOSD", element(:"trt:OSDToken", token)))
     media_request(device, "DeleteOSD", body, fn _body -> :ok end)
+  end
+
+  @doc """
+  This operation returns the available options (supported values and ranges for audio encoder configuration parameters) when the audio encoder
+  parameters are reconfigured.
+  """
+  @spec get_audio_configuration_options(Onvif.Device.t(), encoder_options_opts()) ::
+          {:ok, AudioEncoderConfigurationOptions.t()} | {:error, any()}
+  def get_audio_configuration_options(device, opts \\ []) do
+    body =
+      element(:"s:Body", [
+        element(
+          :"trt:GetAudioEncoderConfigurationOptions",
+          element(:"trt:ConfigurationToken", opts[:configuration_token])
+          |> element(:"trt:ProfileToken", opts[:profile_token])
+        )
+      ])
+
+    media_request(
+      device,
+      "GetAudioEncoderConfigurationOptions",
+      body,
+      &parse_audio_encoder_configuration_options_response/1
+    )
   end
 
   @doc """
@@ -155,11 +187,8 @@ defmodule Onvif.Media do
   the options shall concern that particular configuration. If a media profile is specified, the options shall be compatible
   with that media profile. If no tokens are specified, the options shall be considered generic for the device.
   """
-  @spec get_video_encoder_configuration_options(
-          Onvif.Device.t(),
-          configuration_token: String.t(),
-          profile_token: String.t()
-        ) :: {:ok, [VideoEncoderConfigurationOptions.t()]} | {:error, any()}
+  @spec get_video_encoder_configuration_options(Onvif.Device.t(), encoder_options_opts()) ::
+          {:ok, [VideoEncoderConfigurationOptions.t()]} | {:error, any()}
   def get_video_encoder_configuration_options(device, opts \\ []) do
     body =
       element(
@@ -337,5 +366,18 @@ defmodule Onvif.Media do
     )
     |> VideoEncoderConfigurationOptions.parse()
     |> VideoEncoderConfigurationOptions.to_struct()
+  end
+
+  defp parse_audio_encoder_configuration_options_response(xml_response_body) do
+    xml_response_body
+    |> parse(namespace_conformant: true, quiet: true)
+    |> xpath(
+      ~x"//s:Envelope/s:Body/trt:GetAudioEncoderConfigurationOptionsResponse/trt:Options"e
+      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+      |> add_namespace("trt", "http://www.onvif.org/ver10/media/wsdl")
+      |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+    )
+    |> AudioEncoderConfigurationOptions.parse()
+    |> AudioEncoderConfigurationOptions.to_struct()
   end
 end

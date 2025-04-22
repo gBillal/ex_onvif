@@ -6,6 +6,7 @@ defmodule Onvif.SearchTest do
   alias Onvif.Schemas.IntRange
 
   alias Onvif.Media.{
+    AudioEncoderConfigurationOptions,
     OSDOptions,
     ServiceCapabilities,
     VideoEncoderConfigurationOptions,
@@ -70,6 +71,38 @@ defmodule Onvif.SearchTest do
     end)
 
     assert :ok = Onvif.Media.delete_osd(device, "token")
+  end
+
+  test "get audio encoder configuration options" do
+    xml_response = File.read!("test/fixtures/get_audio_encoder_configuration_options.xml")
+
+    device = Onvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+    assert {:ok, response} = Onvif.Media.get_audio_configuration_options(device)
+
+    assert response == %AudioEncoderConfigurationOptions{
+             options: [
+               %AudioEncoderConfigurationOptions.Options{
+                 bitrates: [32],
+                 encoding: :G711,
+                 sample_rates: [8]
+               },
+               %AudioEncoderConfigurationOptions.Options{
+                 bitrates: [32],
+                 encoding: :G726,
+                 sample_rates: [8]
+               },
+               %AudioEncoderConfigurationOptions.Options{
+                 bitrates: [32, 64],
+                 encoding: :AAC,
+                 sample_rates: [8, 16]
+               }
+             ]
+           }
   end
 
   test "get osds" do
