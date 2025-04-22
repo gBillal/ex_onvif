@@ -47,9 +47,7 @@ defmodule Onvif.Media do
           {:ok, OSDOptions.t()} | {:error, any()}
   def get_osd_options(device, token \\ nil) do
     body =
-      element(:"s:Body", [
-        element(:"trt:GetOSDOptions", element(:"trt:ConfigurationToken", token))
-      ])
+      element(:"s:Body", element(:"trt:GetOSDOptions", element(:"trt:ConfigurationToken", token)))
 
     media_request(device, "GetOSDOptions", body, &parse_osd_options_response/1)
   end
@@ -114,6 +112,35 @@ defmodule Onvif.Media do
       )
 
     media_request(device, "GetSnapshotUri", body, &parse_snapshot_uri_response/1)
+  end
+
+  @doc """
+  This operation requests a URI that can be used to initiate a live media stream using RTSP as the control protocol.
+
+  The correct syntax for the StreamSetup element for these media stream setups defined in 5.1.1 of the streaming specification are as follows:
+    * RTP unicast over UDP: StreamType = "RTP_unicast", TransportProtocol = "UDP"
+    * RTP over RTSP over HTTP over TCP: StreamType = "RTP_unicast", TransportProtocol = "HTTP"
+    * RTP over RTSP over TCP: StreamType = "RTP_unicast", TransportProtocol = "RTSP"
+
+  If a multicast stream is requested at least one of VideoEncoderConfiguration, AudioEncoderConfiguration and MetadataConfiguration shall have a valid
+  multicast setting.
+  """
+  @spec get_stream_uri(Onvif.Device.t(), String.t(), String.t(), String.t()) :: {:ok, String.t()} | {:error, any()}
+  def get_stream_uri(device, profile_token, stream \\ "RTP-Unicast", transport_protocol \\ "UDP") do
+    stream_setup =
+      element(:"tt:Stream", stream)
+      |> element(:"tt:Transport", element(:"tt:Protocol", transport_protocol))
+
+    body =
+      element(
+        "s:Body",
+        element(
+          :"trt:GetStreamUri",
+          element(:"trt:ProfileToken", profile_token) |> element(:"trt:StreamSetup", stream_setup)
+        )
+      )
+
+    media_request(device, "GetStreamUri", body, &parse_stream_uri_response/1)
   end
 
   defp parse_create_osd_response(xml_response_body) do
@@ -232,6 +259,20 @@ defmodule Onvif.Media do
       |> parse(namespace_conformant: true, quiet: true)
       |> xpath(
         ~x"//s:Envelope/s:Body/trt:GetSnapshotUriResponse/trt:MediaUri/tt:Uri/text()"s
+        |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+        |> add_namespace("trt", "http://www.onvif.org/ver10/media/wsdl")
+        |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+      )
+
+    {:ok, uri}
+  end
+
+  defp parse_stream_uri_response(xml_response_body) do
+    uri =
+      xml_response_body
+      |> parse(namespace_conformant: true, quiet: true)
+      |> xpath(
+        ~x"//s:Envelope/s:Body/trt:GetStreamUriResponse/trt:MediaUri/tt:Uri/text()"s
         |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
         |> add_namespace("trt", "http://www.onvif.org/ver10/media/wsdl")
         |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
