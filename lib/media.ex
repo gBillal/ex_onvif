@@ -44,6 +44,14 @@ defmodule Onvif.Media do
   end
 
   @doc """
+  Get profile by token.
+  """
+  def get_profile(device, token) do
+    body = element(:"s:Body", element(:"trt:GetProfile", element(:"trt:ProfileToken", token)))
+    media_request(device, "GetProfile", body, &parse_profile_response/1)
+  end
+
+  @doc """
   Get existing media profiles of a device.
 
   Pre-configured or dynamically configured profiles can be retrieved using this command. This command lists all configured
@@ -67,6 +75,19 @@ defmodule Onvif.Media do
       )
 
     {:ok, token}
+  end
+
+  defp parse_profile_response(xml_response_body) do
+    xml_response_body
+    |> parse(namespace_conformant: true, quiet: true)
+    |> xpath(
+      ~x"//s:Envelope/s:Body/trt:GetProfileResponse/trt:Profile"e
+      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+      |> add_namespace("trt", "http://www.onvif.org/ver10/media/wsdl")
+      |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+    )
+    |> Profile.parse()
+    |> Profile.to_struct()
   end
 
   defp parse_profiles_response(xml_response_body) do
