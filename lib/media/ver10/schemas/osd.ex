@@ -4,8 +4,12 @@ defmodule Onvif.Media.Ver10.Schemas.OSD do
   """
 
   use Ecto.Schema
+
   import Ecto.Changeset
+  import Onvif.Utils.XmlBuilder
   import SweetXml
+
+  alias Onvif.Media.OSD.Color
 
   @required [:token, :video_source_configuration_token, :type]
   @optional []
@@ -46,17 +50,8 @@ defmodule Onvif.Media.Ver10.Schemas.OSD do
       field(:time_format, :string)
       field(:font_size, :integer)
 
-      embeds_one :font_color, FontColor, primary_key: false, on_replace: :update do
-        @derive Jason.Encoder
-        field(:transparent, :boolean)
-        field(:color, :map)
-      end
-
-      embeds_one :background_color, BackgroundColor, primary_key: false, on_replace: :update do
-        @derive Jason.Encoder
-        field(:transparent, :boolean)
-        field(:color, :string)
-      end
+      embeds_one(:font_color, Color, on_replace: :update)
+      embeds_one(:background_color, Color, on_replace: :update)
 
       field(:plain_text, :string)
     end
@@ -82,74 +77,23 @@ defmodule Onvif.Media.Ver10.Schemas.OSD do
     )
   end
 
-  def parse_position([]), do: nil
-  def parse_position(nil), do: nil
-
-  def parse_position(doc) do
-    xmap(
-      doc,
-      type: ~x"./tt:Type/text()"so,
-      pos: ~x"./tt:Pos"eo |> transform_by(&parse_pos/1)
-    )
-  end
-
-  def parse_pos([]), do: nil
-  def parse_pos(nil), do: nil
-
-  def parse_pos(doc) do
-    %{
-      x: doc |> xpath(~x"./@x"s),
-      y: doc |> xpath(~x"./@y"s)
-    }
-  end
-
-  def parse_text_string([]), do: nil
-  def parse_text_string(nil), do: nil
-
-  def parse_text_string(doc) do
-    xmap(
-      doc,
-      is_persistent_text: ~x"./tt:IsPersistentText/text()"so,
-      type: ~x"./tt:Type/text()"so,
-      date_format: ~x"./tt:DateFormat/text()"so,
-      time_format: ~x"./tt:TimeFormat/text()"so,
-      font_size: ~x"./tt:FontSize/text()"io,
-      font_color: ~x"./tt:FontColor"eo |> transform_by(&parse_color/1),
-      background_color: ~x"./tt:BackgroundColor"eo |> transform_by(&parse_color/1),
-      plain_text: ~x"./tt:PlainText/text()"so
-    )
-  end
-
-  def parse_color([]), do: nil
-  def parse_color(nil), do: nil
-
-  def parse_color(doc) do
-    xmap(
-      doc,
-      transparent: ~x"./tt:Transparent/text()"so,
-      color: ~x"./tt:Color"eo |> transform_by(&parse_inner_color/1)
-    )
-  end
-
-  def parse_inner_color([]), do: nil
-  def parse_inner_color(nil), do: nil
-
-  def parse_inner_color(doc) do
-    %{
-      x: doc |> xpath(~x"./@X"s),
-      y: doc |> xpath(~x"./@Y"s),
-      z: doc |> xpath(~x"./@Z"s),
-      colorspace: doc |> xpath(~x"./@Colorspace"s)
-    }
-  end
-
-  def parse_image([]), do: nil
-  def parse_image(nil), do: nil
-
-  def parse_image(doc) do
-    xmap(
-      doc,
-      image_path: ~x"./tt:ImagePath/text()"so
+  def encode(%__MODULE__{} = osd) do
+    element(
+      [],
+      :"trt:OSD",
+      %{token: osd.token},
+      element(:"tt:VideoSourceConfigurationToken", osd.video_source_configuration_token)
+      |> element(:"tt:Type", Keyword.fetch!(Ecto.Enum.mappings(osd.__struct__, :type), osd.type))
+      |> element(
+        "tt:Position",
+        []
+        |> element("tt:Pos", %{x: osd.position.pos.x, y: osd.position.pos.y}, nil)
+        |> element(
+          "tt:Type",
+          Keyword.fetch!(Ecto.Enum.mappings(osd.position.__struct__, :type), osd.position.type)
+        )
+      )
+      |> gen_element_type(osd.type, osd)
     )
   end
 
@@ -157,18 +101,6 @@ defmodule Onvif.Media.Ver10.Schemas.OSD do
     %__MODULE__{}
     |> changeset(parsed)
     |> apply_action(:validate)
-  end
-
-  @spec to_json(__MODULE__.t()) ::
-          {:error,
-           %{
-             :__exception__ => any,
-             :__struct__ => Jason.EncodeError | Protocol.UndefinedError,
-             optional(atom) => any
-           }}
-          | {:ok, binary}
-  def to_json(%__MODULE__{} = schema) do
-    Jason.encode(schema)
   end
 
   def changeset(module, attrs) do
@@ -180,11 +112,59 @@ defmodule Onvif.Media.Ver10.Schemas.OSD do
     |> cast_embed(:image, with: &image_changeset/2)
   end
 
-  def position_changeset(module, attrs) do
+  defp parse_position([]), do: nil
+  defp parse_position(nil), do: nil
+
+  defp parse_position(doc) do
+    xmap(
+      doc,
+      type: ~x"./tt:Type/text()"so,
+      pos: ~x"./tt:Pos"eo |> transform_by(&parse_pos/1)
+    )
+  end
+
+  defp parse_pos([]), do: nil
+  defp parse_pos(nil), do: nil
+
+  defp parse_pos(doc) do
+    %{
+      x: doc |> xpath(~x"./@x"s),
+      y: doc |> xpath(~x"./@y"s)
+    }
+  end
+
+  defp parse_text_string([]), do: nil
+  defp parse_text_string(nil), do: nil
+
+  defp parse_text_string(doc) do
+    xmap(
+      doc,
+      is_persistent_text: ~x"./tt:IsPersistentText/text()"so,
+      type: ~x"./tt:Type/text()"so,
+      date_format: ~x"./tt:DateFormat/text()"so,
+      time_format: ~x"./tt:TimeFormat/text()"so,
+      font_size: ~x"./tt:FontSize/text()"io,
+      font_color: ~x"./tt:FontColor"eo |> transform_by(&Color.parse/1),
+      background_color: ~x"./tt:BackgroundColor"eo |> transform_by(&Color.parse/1),
+      plain_text: ~x"./tt:PlainText/text()"so
+    )
+  end
+
+  defp parse_image([]), do: nil
+  defp parse_image(nil), do: nil
+
+  defp parse_image(doc) do
+    xmap(
+      doc,
+      image_path: ~x"./tt:ImagePath/text()"so
+    )
+  end
+
+  defp position_changeset(module, attrs) do
     cast(module, attrs, [:type, :pos])
   end
 
-  def text_string_changeset(module, attrs) do
+  defp text_string_changeset(module, attrs) do
     cast(module, attrs, [
       :is_persistent_text,
       :type,
@@ -213,11 +193,58 @@ defmodule Onvif.Media.Ver10.Schemas.OSD do
     ])
   end
 
-  def color_changeset(module, attrs) do
+  defp color_changeset(module, attrs) do
     cast(module, attrs, [:transparent, :color])
   end
 
-  def image_changeset(module, attrs) do
+  defp image_changeset(module, attrs) do
     cast(module, attrs, [:image_path])
+  end
+
+  defp gen_element_type(builder, :text, osd) do
+    element(
+      builder,
+      :"tt:TextString",
+      element("tt:IsPersistentText", osd.text_string.is_persistent_text)
+      |> element(
+        :"tt:Type",
+        Keyword.fetch!(
+          Ecto.Enum.mappings(osd.text_string.__struct__, :type),
+          osd.text_string.type
+        )
+      )
+      |> element("tt:FontSize", osd.text_string.font_size)
+      |> element("tt:FontColor", Color.encode(osd.text_string.font_color))
+      |> element("tt:BackgroundColor", Color.encode(osd.text_string.background_color))
+      |> gen_text_type(osd.text_string.type, osd)
+    )
+  end
+
+  defp gen_element_type(builder, :image, osd) do
+    image_element(builder, osd.image)
+  end
+
+  defp gen_text_type(builder, :plain, osd) do
+    element(builder, "tt:PlainText", osd.text_string.plain_text)
+  end
+
+  defp gen_text_type(builder, :date, osd) do
+    element(builder, "tt:DateFormat", osd.text_string.date_format)
+  end
+
+  defp gen_text_type(builder, :time, osd) do
+    element(builder, "tt:TimeFormat", osd.text_string.time_format)
+  end
+
+  defp gen_text_type(builder, :date_and_time, osd) do
+    builder
+    |> element("tt:DateFormat", osd.text_string.date_format)
+    |> element("tt:TimeFormat", osd.text_string.time_format)
+  end
+
+  defp image_element(builder, nil), do: builder
+
+  defp image_element(builder, %__MODULE__.Image{} = image) do
+    element(builder, "tt:Image", element("tt:ImagePath", image.image_path))
   end
 end

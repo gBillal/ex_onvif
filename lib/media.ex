@@ -12,6 +12,15 @@ defmodule Onvif.Media do
   alias Onvif.Media.Ver10.Schemas.{OSD, Profile}
 
   @doc """
+  Create the OSD.
+  """
+  @spec create_osd(Onvif.Device.t(), OSD.t()) :: {:ok, String.t()} | {:error, any()}
+  def create_osd(device, osd) do
+    body = element(:"s:Body", element(:"trt:CreateOSD", OSD.encode(osd)))
+    media_request(device, "CreateOSD", body, &parse_create_osd_response/1)
+  end
+
+  @doc """
   Get the OSDs.
   """
   @spec get_osds(Onvif.Device.t()) :: {:ok, [OSD.t()]} | {:error, any()}
@@ -35,6 +44,20 @@ defmodule Onvif.Media do
   def get_profiles(device) do
     body = element(:"s:Body", [element(:"trt:GetProfiles")])
     media_request(device, "GetProfiles", body, &parse_profiles_response/1)
+  end
+
+  defp parse_create_osd_response(xml_response_body) do
+    token =
+      xml_response_body
+      |> parse(namespace_conformant: true, quiet: true)
+      |> xpath(
+        ~x"//s:Envelope/s:Body/trt:CreateOSDResponse/trt:OSDToken/text()"s
+        |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+        |> add_namespace("trt", "http://www.onvif.org/ver10/media/wsdl")
+        |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+      )
+
+    {:ok, token}
   end
 
   defp parse_profiles_response(xml_response_body) do
