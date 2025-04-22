@@ -1,4 +1,4 @@
-defmodule Onvif.Media.Ver10.Schemas.OSD do
+defmodule Onvif.Media.OSD do
   @moduledoc """
   OSD (On-Screen Display) specification.
   """
@@ -9,7 +9,7 @@ defmodule Onvif.Media.Ver10.Schemas.OSD do
   import Onvif.Utils.XmlBuilder
   import SweetXml
 
-  alias Onvif.Media.OSD.Color
+  alias __MODULE__.Color
 
   @required [:token, :video_source_configuration_token, :type]
   @optional []

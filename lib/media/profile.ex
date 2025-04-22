@@ -1,4 +1,4 @@
-defmodule Onvif.Media.Ver10.Schemas.Profile do
+defmodule Onvif.Media.Profile do
   @moduledoc """
   A media profile, or a standard definition of media configurations for video
   """
@@ -7,11 +7,11 @@ defmodule Onvif.Media.Ver10.Schemas.Profile do
   import Ecto.Changeset
   import SweetXml
 
+  alias __MODULE__.VideoEncoderConfiguration
   alias Onvif.Media.Ver10.Schemas.Profile.AudioSourceConfiguration
   alias Onvif.Media.Ver10.Schemas.Profile.AudioEncoderConfiguration
   alias Onvif.Media.Ver10.Schemas.Profile.MetadataConfiguration
   alias Onvif.Media.Ver10.Schemas.Profile.VideoAnalyticsConfiguration
-  alias Onvif.Media.Ver10.Schemas.Profile.VideoEncoderConfiguration
   alias Onvif.Media.Ver10.Schemas.Profile.VideoSourceConfiguration
 
   @profile_permitted [:reference_token, :fixed, :name]

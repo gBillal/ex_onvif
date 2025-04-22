@@ -1,4 +1,4 @@
-defmodule Onvif.SearchTest do
+defmodule Onvif.MediaTest do
   use ExUnit.Case, async: true
 
   @moduletag capture_log: true
@@ -7,6 +7,7 @@ defmodule Onvif.SearchTest do
 
   alias Onvif.Media.{
     AudioEncoderConfigurationOptions,
+    OSD,
     OSDOptions,
     ServiceCapabilities,
     VideoEncoderConfigurationOptions,
@@ -14,7 +15,6 @@ defmodule Onvif.SearchTest do
   }
 
   alias Onvif.Media.OSD.{Color, ColorOptions}
-  alias Onvif.Media.Ver10.Schemas.OSD
 
   test "create osd" do
     xml_response = File.read!("test/fixtures/create_osd.xml")

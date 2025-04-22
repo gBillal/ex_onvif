@@ -1,4 +1,4 @@
-defmodule Onvif.Media.Ver10.Schemas.Profile.VideoEncoderConfiguration do
+defmodule Onvif.Media.Profile.VideoEncoderConfiguration do
   @moduledoc """
   Configurations for the video encoding
   """
@@ -7,6 +7,7 @@ defmodule Onvif.Media.Ver10.Schemas.Profile.VideoEncoderConfiguration do
   import Ecto.Changeset
   import SweetXml
 
+  alias Onvif.Media.VideoResolution
   alias Onvif.Media.Ver10.Schemas.Profile.MulticastConfiguration
 
   @required [:reference_token, :name, :encoding]
@@ -25,11 +26,7 @@ defmodule Onvif.Media.Ver10.Schemas.Profile.VideoEncoderConfiguration do
     field(:quality, :float)
     field(:session_timeout, :string)
 
-    embeds_one :resolution, Resolution, primary_key: false, on_replace: :update do
-      @derive Jason.Encoder
-      field(:width, :integer)
-      field(:height, :integer)
-    end
+    embeds_one :resolution, VideoResolution, on_replace: :update
 
     embeds_one :rate_control, RateControl, primary_key: false, on_replace: :update do
       @derive Jason.Encoder
@@ -69,7 +66,7 @@ defmodule Onvif.Media.Ver10.Schemas.Profile.VideoEncoderConfiguration do
       encoding: ~x"./tt:Encoding/text()"so,
       session_timeout: ~x"./tt:SessionTimeout/text()"so,
       quality: ~x"./tt:Quality/text()"fo,
-      resolution: ~x"./tt:Resolution"eo |> transform_by(&parse_resolution/1),
+      resolution: ~x"./tt:Resolution"eo |> transform_by(&VideoResolution.parse/1),
       rate_control: ~x"./tt:RateControl"eo |> transform_by(&parse_rate_control/1),
       mpeg4_configuration: ~x"./tt:Mpeg4"eo |> transform_by(&parse_mpeg4_configuration/1),
       h264_configuration: ~x"./tt:H264"eo |> transform_by(&parse_h264_configuration/1),
@@ -78,15 +75,21 @@ defmodule Onvif.Media.Ver10.Schemas.Profile.VideoEncoderConfiguration do
     )
   end
 
-  defp parse_resolution([]), do: nil
-  defp parse_resolution(nil), do: nil
+  def to_struct(parsed) do
+    %__MODULE__{}
+    |> changeset(parsed)
+    |> apply_action(:validate)
+  end
 
-  defp parse_resolution(doc) do
-    xmap(
-      doc,
-      width: ~x"./tt:Width/text()"i,
-      height: ~x"./tt:Height/text()"i
-    )
+  def changeset(module, attrs) do
+    module
+    |> cast(attrs, @required ++ @optional)
+    |> validate_required(@required)
+    |> cast_embed(:resolution, with: &VideoResolution.changeset/2)
+    |> cast_embed(:rate_control, with: &rate_control_changeset/2)
+    |> cast_embed(:mpeg4_configuration, with: &mpeg4_configuration_changeset/2)
+    |> cast_embed(:h264_configuration, with: &h264_configuration_changeset/2)
+    |> cast_embed(:multicast_configuration)
   end
 
   defp parse_rate_control([]), do: nil
@@ -121,39 +124,6 @@ defmodule Onvif.Media.Ver10.Schemas.Profile.VideoEncoderConfiguration do
       gov_length: ~x"./tt:GovLength/text()"i,
       h264_profile: ~x"./tt:H264Profile/text()"s
     )
-  end
-
-  def to_struct(parsed) do
-    %__MODULE__{}
-    |> changeset(parsed)
-    |> apply_action(:validate)
-  end
-
-  @spec to_json(__MODULE__.t()) ::
-          {:error,
-           %{
-             :__exception__ => any,
-             :__struct__ => Jason.EncodeError | Protocol.UndefinedError,
-             optional(atom) => any
-           }}
-          | {:ok, binary}
-  def to_json(%__MODULE__{} = schema) do
-    Jason.encode(schema)
-  end
-
-  def changeset(module, attrs) do
-    module
-    |> cast(attrs, @required ++ @optional)
-    |> validate_required(@required)
-    |> cast_embed(:resolution, with: &resolution_changeset/2)
-    |> cast_embed(:rate_control, with: &rate_control_changeset/2)
-    |> cast_embed(:mpeg4_configuration, with: &mpeg4_configuration_changeset/2)
-    |> cast_embed(:h264_configuration, with: &h264_configuration_changeset/2)
-    |> cast_embed(:multicast_configuration)
-  end
-
-  defp resolution_changeset(module, attrs) do
-    cast(module, attrs, [:width, :height])
   end
 
   defp rate_control_changeset(module, attrs) do

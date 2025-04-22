@@ -11,12 +11,14 @@ defmodule Onvif.Media do
 
   alias Onvif.Media.{
     AudioEncoderConfigurationOptions,
+    OSD,
     OSDOptions,
+    Profile,
     ServiceCapabilities,
     VideoEncoderConfigurationOptions
   }
 
-  alias Onvif.Media.Ver10.Schemas.{OSD, Profile}
+  alias Onvif.Media.Profile.VideoEncoderConfiguration
 
   @type encoder_options_opts :: [configuration_token: String.t(), profile_token: String.t()]
 
@@ -174,6 +176,28 @@ defmodule Onvif.Media do
       )
 
     media_request(device, "GetStreamUri", body, &parse_stream_uri_response/1)
+  end
+
+  @doc """
+  """
+  @spec get_video_encoder_configuration(Onvif.Device.t(), String.t()) ::
+          {:ok, VideoEncoderConfiguration.t()} | {:error, any()}
+  def get_video_encoder_configuration(device, config_token) do
+    body =
+      element(
+        :"s:Body",
+        element(
+          :"trt:GetVideoEncoderConfiguration",
+          element(:"trt:ConfigurationToken", config_token)
+        )
+      )
+
+    media_request(
+      device,
+      "GetVideoEncoderConfiguration",
+      body,
+      &parse_video_encoder_configuration_response/1
+    )
   end
 
   @doc """
@@ -353,6 +377,19 @@ defmodule Onvif.Media do
       )
 
     {:ok, uri}
+  end
+
+  defp parse_video_encoder_configuration_response(xml_response_body) do
+    xml_response_body
+    |> parse(namespace_conformant: true, quiet: true)
+    |> xpath(
+      ~x"//s:Envelope/s:Body/trt:GetVideoEncoderConfigurationResponse/trt:Configuration"e
+      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+      |> add_namespace("trt", "http://www.onvif.org/ver10/media/wsdl")
+      |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+    )
+    |> VideoEncoderConfiguration.parse()
+    |> VideoEncoderConfiguration.to_struct()
   end
 
   defp parse_video_encoder_configuration_options_response(xml_response_body) do
