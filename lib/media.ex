@@ -99,6 +99,23 @@ defmodule Onvif.Media do
     media_request(device, "GetServiceCapabilities", body, &parse_service_capabilities_response/1)
   end
 
+  @doc """
+  A client uses the GetSnapshotUri command to obtain a JPEG snapshot from the device.
+
+  The URI can be used for acquiring a JPEG image through a HTTP GET operation. The image encoding will always be JPEG regardless
+  of the encoding setting in the media profile. The Jpeg settings (like resolution or quality) may be taken from the profile if suitable.
+  """
+  @spec get_snapshot_uri(Onvif.Device.t(), String.t()) :: {:ok, String.t()} | {:error, any()}
+  def get_snapshot_uri(device, profile_token) do
+    body =
+      element(
+        :"s:Body",
+        element(:"trt:GetSnapshotUri", element(:"trt:ProfileToken", profile_token))
+      )
+
+    media_request(device, "GetSnapshotUri", body, &parse_snapshot_uri_response/1)
+  end
+
   defp parse_create_osd_response(xml_response_body) do
     token =
       xml_response_body
@@ -207,5 +224,19 @@ defmodule Onvif.Media do
     )
     |> ServiceCapabilities.parse()
     |> ServiceCapabilities.to_struct()
+  end
+
+  defp parse_snapshot_uri_response(xml_response_body) do
+    uri =
+      xml_response_body
+      |> parse(namespace_conformant: true, quiet: true)
+      |> xpath(
+        ~x"//s:Envelope/s:Body/trt:GetSnapshotUriResponse/trt:MediaUri/tt:Uri/text()"s
+        |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+        |> add_namespace("trt", "http://www.onvif.org/ver10/media/wsdl")
+        |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+      )
+
+    {:ok, uri}
   end
 end
