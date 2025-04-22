@@ -9,7 +9,7 @@ defmodule Onvif.Media do
   import Onvif.Utils.XmlBuilder
   import SweetXml
 
-  alias Onvif.Media.OSDOptions
+  alias Onvif.Media.{OSDOptions, ServiceCapabilities}
   alias Onvif.Media.Ver10.Schemas.{OSD, Profile}
 
   @doc """
@@ -87,6 +87,16 @@ defmodule Onvif.Media do
   def get_profiles(device) do
     body = element(:"s:Body", [element(:"trt:GetProfiles")])
     media_request(device, "GetProfiles", body, &parse_profiles_response/1)
+  end
+
+  @doc """
+  Returns the capabilities of the media service.
+  """
+  @spec get_service_capabilities(Onvif.Device.t()) ::
+          {:ok, ServiceCapabilities.t()} | {:error, any()}
+  def get_service_capabilities(device) do
+    body = element(:"s:Body", [element(:"trt:GetServiceCapabilities")])
+    media_request(device, "GetServiceCapabilities", body, &parse_service_capabilities_response/1)
   end
 
   defp parse_create_osd_response(xml_response_body) do
@@ -184,5 +194,18 @@ defmodule Onvif.Media do
       {:error, _reason} = err -> err
       osds -> {:ok, Enum.reverse(osds)}
     end
+  end
+
+  defp parse_service_capabilities_response(xml_response_body) do
+    xml_response_body
+    |> parse(namespace_conformant: true, quiet: true)
+    |> xpath(
+      ~x"//s:Envelope/s:Body/trt:GetServiceCapabilitiesResponse/trt:Capabilities"e
+      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+      |> add_namespace("trt", "http://www.onvif.org/ver10/media/wsdl")
+      |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+    )
+    |> ServiceCapabilities.parse()
+    |> ServiceCapabilities.to_struct()
   end
 end

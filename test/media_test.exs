@@ -3,7 +3,7 @@ defmodule Onvif.SearchTest do
 
   @moduletag capture_log: true
 
-  alias Onvif.Media.OSDOptions
+  alias Onvif.Media.{OSDOptions, ServiceCapabilities}
   alias Onvif.Media.OSD.{Color, ColorOptions}
   alias Onvif.Media.Ver10.Schemas.OSD
 
@@ -152,6 +152,35 @@ defmodule Onvif.SearchTest do
                type: ["Plain", "Date", "Time", "DateAndTime"]
              },
              type: ["Text"]
+           }
+  end
+
+  test "get service capabilities" do
+    xml_response = File.read!("test/fixtures/get_media_service_capabilities.xml")
+
+    device = Onvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+    {:ok, service_capabilities} = Onvif.Media.get_service_capabilities(device)
+
+    assert service_capabilities == %ServiceCapabilities{
+             exi_compression: false,
+             osd: true,
+             maximum_number_of_profiles: 24,
+             rotation: false,
+             snapshot_uri: true,
+             streaming_capabilities: %ServiceCapabilities.StreamingCapabilities{
+               no_rtsp_streaming: false,
+               non_aggregated_control: false,
+               rtp_rtsp_tcp: true,
+               rtp_tcp: false,
+               rtsp_multicast: false
+             },
+             temporary_osd_text: false,
+             video_source_mode: false
            }
   end
 end

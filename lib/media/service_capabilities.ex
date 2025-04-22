@@ -1,4 +1,4 @@
-defmodule Onvif.Media.Ver10.Schemas.ServiceCapabilities do
+defmodule Onvif.Media.ServiceCapabilities do
   @moduledoc false
 
   use Ecto.Schema
@@ -12,7 +12,8 @@ defmodule Onvif.Media.Ver10.Schemas.ServiceCapabilities do
     :video_source_mode,
     :osd,
     :temporary_osd_text,
-    :exi_compression
+    :exi_compression,
+    :maximum_number_of_profiles
   ]
 
   @type t :: %__MODULE__{}
@@ -26,11 +27,7 @@ defmodule Onvif.Media.Ver10.Schemas.ServiceCapabilities do
     field(:osd, :boolean, default: false)
     field(:temporary_osd_text, :boolean, default: false)
     field(:exi_compression, :boolean, default: false)
-
-    embeds_one :profile_capabilities, ProfileCapabilities, primary_key: false, on_replace: :update do
-      @derive Jason.Encoder
-      field(:maximum_number_of_profiles, :integer)
-    end
+    field(:maximum_number_of_profiles, :integer)
 
     embeds_one :streaming_capabilities, StreamingCapabilities,
       primary_key: false,
@@ -50,23 +47,10 @@ defmodule Onvif.Media.Ver10.Schemas.ServiceCapabilities do
     |> apply_action(:validate)
   end
 
-  @spec to_json(__MODULE__.t()) ::
-          {:error,
-           %{
-             :__exception__ => any,
-             :__struct__ => Jason.EncodeError | Protocol.UndefinedError,
-             optional(atom) => any
-           }}
-          | {:ok, binary}
-  def to_json(%__MODULE__{} = schema) do
-    Jason.encode(schema)
-  end
-
   def changeset(module, attrs) do
     module
     |> cast(attrs, @required ++ @optional)
     |> validate_required(@required)
-    |> cast_embed(:profile_capabilities, with: &profile_capabilities_changeset/2)
     |> cast_embed(:streaming_capabilities,
       with: &streaming_capabilities_changeset/2
     )
@@ -84,15 +68,10 @@ defmodule Onvif.Media.Ver10.Schemas.ServiceCapabilities do
       osd: ~x"./@OSD"so,
       temporary_osd_text: ~x"./@TemporaryOSDText"so,
       exi_compression: ~x"./@EXICompression"so,
-      profile_capabilities:
-        ~x"./trt:ProfileCapabilities"eo |> transform_by(&parse_profile_capabilities/1),
+      maximum_number_of_profiles: ~x"./trt:ProfileCapabilities/@MaximumNumberOfProfiles"so,
       streaming_capabilities:
         ~x"./trt:StreamingCapabilities"eo |> transform_by(&parse_streaming_capabilities/1)
     )
-  end
-
-  defp profile_capabilities_changeset(module, attrs) do
-    cast(module, attrs, [:maximum_number_of_profiles])
   end
 
   defp streaming_capabilities_changeset(module, attrs) do
@@ -103,16 +82,6 @@ defmodule Onvif.Media.Ver10.Schemas.ServiceCapabilities do
       :non_aggregated_control,
       :no_rtsp_streaming
     ])
-  end
-
-  defp parse_profile_capabilities([]), do: nil
-  defp parse_profile_capabilities(nil), do: nil
-
-  defp parse_profile_capabilities(doc) do
-    xmap(
-      doc,
-      maximum_number_of_profiles: ~x"./@MaximumNumberOfProfiles"i
-    )
   end
 
   defp parse_streaming_capabilities([]), do: nil
