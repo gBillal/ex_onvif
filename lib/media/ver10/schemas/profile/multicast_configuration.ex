@@ -4,7 +4,9 @@ defmodule Onvif.Media.Ver10.Schemas.Profile.MulticastConfiguration do
   """
 
   use Ecto.Schema
+
   import Ecto.Changeset
+  import Onvif.Utils.XmlBuilder
   import SweetXml
 
   @type t :: %__MODULE__{}
@@ -37,6 +39,52 @@ defmodule Onvif.Media.Ver10.Schemas.Profile.MulticastConfiguration do
     )
   end
 
+  def encode(%__MODULE__{ip_address: %{type: :ipv4}} = multicast_configuration) do
+    element(
+      :"tt:Address",
+      element(
+        :"tt:Type",
+        Keyword.fetch!(
+          Ecto.Enum.mappings(multicast_configuration.ip_address.__struct__, :type),
+          multicast_configuration.ip_address.type
+        )
+      )
+      |> element(:"tt:IPv4Address", multicast_configuration.ip_address.ipv4_address)
+    )
+    |> element(:"tt:Port", multicast_configuration.port)
+    |> element(:"tt:TTL", multicast_configuration.ttl)
+    |> element(:"tt:AutoStart", multicast_configuration.auto_start)
+  end
+
+  def encode(%__MODULE__{ip_address: %{type: :ipv6}} = multicast_configuration) do
+    element(
+      :"tt:Address",
+      element(
+        :"tt:Type",
+        Keyword.fetch!(
+          Ecto.Enum.mappings(multicast_configuration.ip_address.__struct__, :type),
+          multicast_configuration.ip_address.type
+        )
+      )
+      |> element(:"tt:IPv6Address", multicast_configuration.ip_address.ipv6_address)
+    )
+    |> element(:"tt:Port", multicast_configuration.port)
+    |> element(:"tt:TTL", multicast_configuration.ttl)
+    |> element(:"tt:AutoStart", multicast_configuration.auto_start)
+  end
+
+  def to_struct(parsed) do
+    %__MODULE__{}
+    |> changeset(parsed)
+    |> apply_action(:validate)
+  end
+
+  def changeset(module, attrs) do
+    module
+    |> cast(attrs, [:port, :ttl, :auto_start])
+    |> cast_embed(:ip_address, with: &ip_address_changeset/2)
+  end
+
   defp parse_address(nil), do: nil
   defp parse_address([]), do: nil
 
@@ -47,30 +95,6 @@ defmodule Onvif.Media.Ver10.Schemas.Profile.MulticastConfiguration do
       ipv4_address: ~x"./tt:IPv4Address/text()"s,
       ipv6_address: ~x"./tt:IPv6Address/text()"s
     )
-  end
-
-  def to_struct(parsed) do
-    %__MODULE__{}
-    |> changeset(parsed)
-    |> apply_action(:validate)
-  end
-
-  @spec to_json(__MODULE__.t()) ::
-          {:error,
-           %{
-             :__exception__ => any,
-             :__struct__ => Jason.EncodeError | Protocol.UndefinedError,
-             optional(atom) => any
-           }}
-          | {:ok, binary}
-  def to_json(%__MODULE__{} = schema) do
-    Jason.encode(schema)
-  end
-
-  def changeset(module, attrs) do
-    module
-    |> cast(attrs, [:port, :ttl, :auto_start])
-    |> cast_embed(:ip_address, with: &ip_address_changeset/2)
   end
 
   defp ip_address_changeset(module, attrs) do

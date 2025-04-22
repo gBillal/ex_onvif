@@ -62,10 +62,8 @@ defmodule Onvif.Media.Ver10.Schemas.Profile.VideoAnalyticsConfiguration do
     )
   end
 
-  defp parse_rule(nil), do: nil
-  defp parse_rule([]), do: nil
-
-  defp parse_rule([_ | _] = rules), do: Enum.map(rules, &parse_rule/1)
+  defp parse_rule(nil), do: []
+  defp parse_rule(rules) when is_list(rules), do: Enum.map(rules, &parse_rule/1)
 
   defp parse_rule(doc) do
     xmap(

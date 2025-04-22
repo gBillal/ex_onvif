@@ -179,6 +179,7 @@ defmodule Onvif.Media do
   end
 
   @doc """
+  If the video encoder configuration token is already known, the encoder configuration can be fetched through the GetVideoEncoderConfiguration command.
   """
   @spec get_video_encoder_configuration(Onvif.Device.t(), String.t()) ::
           {:ok, VideoEncoderConfiguration.t()} | {:error, any()}
@@ -239,6 +240,34 @@ defmodule Onvif.Media do
   def set_osd(device, osd) do
     body = element(:"s:Body", element(:"trt:SetOSD", OSD.encode(osd)))
     media_request(device, "SetOSD", body, fn _body -> :ok end)
+  end
+
+  @doc """
+  This operation modifies a video encoder configuration.
+
+  The ForcePersistence flag indicates if the changes shall remain after reboot of the device. Changes in the Multicast settings
+  shall always be persistent. Running streams using this configuration may be immediately updated according to the new settings.
+  The changes are not guaranteed to take effect unless the client requests a new stream URI and restarts any affected stream.
+  NVC methods for changing a running stream are out of scope for this specification.
+
+  SessionTimeout is provided as a hint for keeping rtsp session by a device. If necessary the device may adapt parameter
+  values for SessionTimeout elements without returning an error. For the time between keep alive calls the client shall adhere
+  to the timeout value signaled via RTSP.
+  """
+  @spec set_video_encoder_configuration(
+          Onvif.Device.t(),
+          VideoEncoderConfiguration.t()
+        ) :: :ok | {:error, any()}
+  def set_video_encoder_configuration(device, encoder_config) do
+    body =
+      element(:"s:Body", [
+        element(
+          :"trt:SetVideoEncoderConfiguration",
+          VideoEncoderConfiguration.encode(encoder_config, "tt:Configuration")
+        )
+      ])
+
+    media_request(device, "SetVideoEncoderConfiguration", body, fn _body -> :ok end)
   end
 
   defp parse_create_osd_response(xml_response_body) do

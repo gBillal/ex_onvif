@@ -4,7 +4,9 @@ defmodule Onvif.Media.Profile.VideoEncoderConfiguration do
   """
 
   use Ecto.Schema
+
   import Ecto.Changeset
+  import Onvif.Utils.XmlBuilder
   import SweetXml
 
   alias Onvif.Media.VideoResolution
@@ -26,7 +28,7 @@ defmodule Onvif.Media.Profile.VideoEncoderConfiguration do
     field(:quality, :float)
     field(:session_timeout, :string)
 
-    embeds_one :resolution, VideoResolution, on_replace: :update
+    embeds_one(:resolution, VideoResolution, on_replace: :update)
 
     embeds_one :rate_control, RateControl, primary_key: false, on_replace: :update do
       @derive Jason.Encoder
@@ -72,6 +74,79 @@ defmodule Onvif.Media.Profile.VideoEncoderConfiguration do
       h264_configuration: ~x"./tt:H264"eo |> transform_by(&parse_h264_configuration/1),
       multicast_configuration:
         ~x"./tt:Multicast"eo |> transform_by(&MulticastConfiguration.parse/1)
+    )
+  end
+
+  def encode(%__MODULE__{} = video_encoder_config, name) do
+    element(
+      [],
+      name,
+      %{token: video_encoder_config.reference_token},
+      element(:"tt:Name", video_encoder_config.name)
+      |> element(:"tt:UseCount", video_encoder_config.use_count)
+      |> element(:"tt:GuaranteedFrameRate", video_encoder_config.guaranteed_frame_rate)
+      |> element(
+        :"tt:Encoding",
+        Keyword.fetch!(Ecto.Enum.mappings(__MODULE__, :encoding), video_encoder_config.encoding)
+      )
+      |> element("tt:Quality", video_encoder_config.quality)
+      |> element("tt:Resolution", VideoResolution.encode(video_encoder_config.resolution))
+      |> element("tt:RateControl", rate_control_element(video_encoder_config.rate_control))
+      |> encoder_config_element(video_encoder_config)
+      |> element(
+        "tt:Multicast",
+        MulticastConfiguration.encode(video_encoder_config.multicast_configuration)
+      )
+      |> element(:"tt:SessionTimeout", video_encoder_config.session_timeout)
+    )
+  end
+
+  defp rate_control_element(rate_control) do
+    element(:"tt:FrameRateLimit", rate_control.frame_rate_limit)
+    |> element(:"tt:EncodingInterval", rate_control.encoding_interval)
+    |> element(:"tt:BitrateLimit", rate_control.bitrate_limit)
+  end
+
+  defp encoder_config_element(builder, %__MODULE__{
+         h264_configuration: nil,
+         mpeg4_configuration: nil
+       }) do
+    builder
+  end
+
+  defp encoder_config_element(builder, %__MODULE__{
+         h264_configuration: h264_configuration,
+         mpeg4_configuration: nil
+       }) do
+    element(
+      builder,
+      :"tt:H264",
+      element(:"tt:GovLength", h264_configuration.gov_length)
+      |> element(
+        :"tt:H264Profile",
+        Keyword.fetch!(
+          Ecto.Enum.mappings(h264_configuration.__struct__, :h264_profile),
+          h264_configuration.h264_profile
+        )
+      )
+    )
+  end
+
+  defp encoder_config_element(builder, %__MODULE__{
+         h264_configuration: nil,
+         mpeg4_configuration: mpeg4_configuration
+       }) do
+    element(
+      builder,
+      :"tt:MPEG4",
+      element(:"tt:GovLength", mpeg4_configuration.gov_length)
+      |> element(
+        :"tt:Mpeg4Profile",
+        Keyword.fetch!(
+          Ecto.Enum.mappings(mpeg4_configuration.__struct__, :mpeg4_profile),
+          mpeg4_configuration.mpeg4_profile
+        )
+      )
     )
   end
 

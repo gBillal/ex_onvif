@@ -27,6 +27,13 @@ defmodule Onvif.Media.VideoResolution do
     )
   end
 
+  def encode(%__MODULE__{} = video_resolution) do
+    [
+      XmlBuilder.element("tt:Width", video_resolution.width),
+      XmlBuilder.element("tt:Height", video_resolution.height)
+    ]
+  end
+
   def changeset(video_resolution, attrs) do
     video_resolution
     |> cast(attrs, [:width, :height])
