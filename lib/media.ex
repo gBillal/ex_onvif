@@ -21,6 +21,15 @@ defmodule Onvif.Media do
   end
 
   @doc """
+  Delete the OSD with the provided token.
+  """
+  @spec delete_osd(Onvif.Device.t(), String.t()) :: :ok | {:error, any()}
+  def delete_osd(device, token) do
+    body = element(:"s:Body", element(:"trt:DeleteOSD", element(:"trt:OSDToken", token)))
+    media_request(device, "DeleteOSD", body, fn _body -> :ok end)
+  end
+
+  @doc """
   Get the OSDs.
   """
   @spec get_osds(Onvif.Device.t()) :: {:ok, [OSD.t()]} | {:error, any()}

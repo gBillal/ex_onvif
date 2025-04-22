@@ -202,26 +202,26 @@ defmodule Onvif.Media.Ver10.Schemas.OSD do
   end
 
   defp gen_element_type(builder, :text, osd) do
-    element(
-      builder,
-      :"tt:TextString",
-      element("tt:IsPersistentText", osd.text_string.is_persistent_text)
-      |> element(
-        :"tt:Type",
-        Keyword.fetch!(
-          Ecto.Enum.mappings(osd.text_string.__struct__, :type),
-          osd.text_string.type
-        )
-      )
-      |> element("tt:FontSize", osd.text_string.font_size)
-      |> element("tt:FontColor", Color.encode(osd.text_string.font_color))
-      |> element("tt:BackgroundColor", Color.encode(osd.text_string.background_color))
-      |> gen_text_type(osd.text_string.type, osd)
-    )
+    element(builder, :"tt:TextString", gen_text_string(osd))
   end
 
   defp gen_element_type(builder, :image, osd) do
     image_element(builder, osd.image)
+  end
+
+  defp gen_text_string(osd) do
+    element("tt:IsPersistentText", osd.text_string.is_persistent_text)
+    |> element(
+      :"tt:Type",
+      Keyword.fetch!(
+        Ecto.Enum.mappings(osd.text_string.__struct__, :type),
+        osd.text_string.type
+      )
+    )
+    |> element("tt:FontSize", osd.text_string.font_size)
+    |> element("tt:FontColor", Color.encode(osd.text_string.font_color))
+    |> element("tt:BackgroundColor", Color.encode(osd.text_string.background_color))
+    |> gen_text_type(osd.text_string.type, osd)
   end
 
   defp gen_text_type(builder, :plain, osd) do

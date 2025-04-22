@@ -51,6 +51,18 @@ defmodule Onvif.SearchTest do
     assert osdtoken == "OsdToken_102"
   end
 
+  test "delete osd" do
+    xml_response = File.read!("test/fixtures/delete_osd.xml")
+
+    device = Onvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+    assert :ok = Onvif.Media.delete_osd(device, "token")
+  end
+
   test "get osds" do
     xml_response = File.read!("test/fixtures/get_media_osds.xml")
 
