@@ -19,6 +19,7 @@ defmodule Onvif.Media do
   }
 
   alias Onvif.Media.Profile.VideoEncoderConfiguration
+  alias Onvif.Media.Ver10.Schemas.Profile.AudioEncoderConfiguration
 
   @type encoder_options_opts :: [configuration_token: String.t(), profile_token: String.t()]
 
@@ -38,6 +39,29 @@ defmodule Onvif.Media do
   def delete_osd(device, token) do
     body = element(:"s:Body", element(:"trt:DeleteOSD", element(:"trt:OSDToken", token)))
     media_request(device, "DeleteOSD", body, fn _body -> :ok end)
+  end
+
+  @doc """
+  The GetAudioEncoderConfiguration command fetches the encoder configuration if the audio encoder configuration token is known.
+  """
+  @spec get_audio_encoder_configuration(Onvif.Device.t(), String.t()) ::
+          {:ok, AudioEncoderConfiguration.t()} | {:error, any()}
+  def get_audio_encoder_configuration(device, config_token) do
+    body =
+      element(
+        :"s:Body",
+        element(
+          :"trt:GetAudioEncoderConfiguration",
+          element(:"trt:ConfigurationToken", config_token)
+        )
+      )
+
+    media_request(
+      device,
+      "GetAudioEncoderConfiguration",
+      body,
+      &parse_audio_encoder_configuration_response/1
+    )
   end
 
   @doc """
@@ -432,6 +456,19 @@ defmodule Onvif.Media do
     )
     |> VideoEncoderConfigurationOptions.parse()
     |> VideoEncoderConfigurationOptions.to_struct()
+  end
+
+  defp parse_audio_encoder_configuration_response(xml_response_body) do
+    xml_response_body
+    |> parse(namespace_conformant: true, quiet: true)
+    |> xpath(
+      ~x"//s:Envelope/s:Body/trt:GetAudioEncoderConfigurationResponse/trt:Configuration"e
+      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+      |> add_namespace("trt", "http://www.onvif.org/ver10/media/wsdl")
+      |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+    )
+    |> AudioEncoderConfiguration.parse()
+    |> AudioEncoderConfiguration.to_struct()
   end
 
   defp parse_audio_encoder_configuration_options_response(xml_response_body) do

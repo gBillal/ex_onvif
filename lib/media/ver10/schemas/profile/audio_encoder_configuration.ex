@@ -53,18 +53,6 @@ defmodule Onvif.Media.Ver10.Schemas.Profile.AudioEncoderConfiguration do
     |> apply_action(:validate)
   end
 
-  @spec to_json(__MODULE__.t()) ::
-          {:error,
-           %{
-             :__exception__ => any,
-             :__struct__ => Jason.EncodeError | Protocol.UndefinedError,
-             optional(atom) => any
-           }}
-          | {:ok, binary}
-  def to_json(%__MODULE__{} = schema) do
-    Jason.encode(schema)
-  end
-
   def changeset(module, attrs) do
     module
     |> cast(attrs, [
