@@ -1,5 +1,7 @@
 defmodule Onvif.Media.ServiceCapabilities do
-  @moduledoc false
+  @moduledoc """
+  Schema describing the capabilities of media service.
+  """
 
   use Ecto.Schema
   import Ecto.Changeset
