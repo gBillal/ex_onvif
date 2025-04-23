@@ -42,6 +42,34 @@ defmodule Onvif.Media2 do
   end
 
   @doc """
+  This operation requests a URI that can be used to initiate a live media stream using RTSP as the control protocol.
+
+  The returned URI shall remain valid indefinitely even if the profile is changed.
+
+  Defined stream types are
+    * RtspUnicast RTSP streaming RTP as UDP Unicast.
+    * RtspMulticast RTSP streaming RTP as UDP Multicast.
+    * RTSP RTSP streaming RTP over TCP.
+    * RtspOverHttp Tunneling both the RTSP control channel and the RTP stream over HTTP or HTTPS.
+
+  If a multicast stream is requested at least one of VideoEncoder2Configuration, AudioEncoder2Configuration and MetadataConfiguration
+  shall have a valid multicast setting.
+  """
+  @spec get_stream_uri(Onvif.Device.t(), String.t()) :: {:ok, String.t()} | {:error, any()}
+  def get_stream_uri(device, profile_token) do
+    body =
+      element(
+        "s:Body",
+        element(
+          "tr2:GetStreamUri",
+          element("tr2:ProfileToken", profile_token) |> element("tr2:Protocol", "RTSP")
+        )
+      )
+
+    media2_request(device, "GetStreamUri", body, &parse_get_stream_uri_response/1)
+  end
+
+  @doc """
   Retrieve the profile with the specified token or all defined media profiles.
 
     * If no Type is provided the returned profiles shall contain no configuration information.
@@ -84,6 +112,19 @@ defmodule Onvif.Media2 do
       {:error, _reason} = err -> err
       configs -> {:ok, Enum.reverse(configs)}
     end
+  end
+
+  defp parse_get_stream_uri_response(xml_response_body) do
+    uri =
+      xml_response_body
+      |> parse(namespace_conformant: true, quiet: true)
+      |> xpath(
+        ~x"//s:Envelope/s:Body/tr2:GetStreamUriResponse/tr2:Uri/text()"s
+        |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+        |> add_namespace("tr2", "http://www.onvif.org/ver20/media/wsdl")
+      )
+
+    {:ok, uri}
   end
 
   defp parse_get_profiles_response(xml_response_body) do
