@@ -53,17 +53,17 @@ defmodule Onvif.Media.Ver20.SetVideoEncoderConfiguration do
                   :"tt:Type",
                   Keyword.fetch!(
                     Ecto.Enum.mappings(
-                      video_encoder_config.multicast_configuration.ip_address.__struct__,
+                      video_encoder_config.multicast.ip_address.__struct__,
                       :type
                     ),
-                    video_encoder_config.multicast_configuration.ip_address.type
+                    video_encoder_config.multicast.ip_address.type
                   )
                 ),
-                ip_address_element(video_encoder_config.multicast_configuration)
+                ip_address_element(video_encoder_config.multicast)
               ]),
-              element(:"tt:Port", video_encoder_config.multicast_configuration.port),
-              element(:"tt:TTL", video_encoder_config.multicast_configuration.ttl),
-              element(:"tt:AutoStart", video_encoder_config.multicast_configuration.auto_start)
+              element(:"tt:Port", video_encoder_config.multicast.port),
+              element(:"tt:TTL", video_encoder_config.multicast.ttl),
+              element(:"tt:AutoStart", video_encoder_config.multicast.auto_start)
             ])
           ]
         )

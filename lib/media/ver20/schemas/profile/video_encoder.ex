@@ -7,7 +7,7 @@ defmodule Onvif.Media.Ver20.Schemas.Profile.VideoEncoder do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Media.Ver10.Schemas.Profile.MulticastConfiguration
+  alias Onvif.Media.Profile.MulticastConfiguration
 
   @type t :: %__MODULE__{}
 
@@ -38,7 +38,7 @@ defmodule Onvif.Media.Ver20.Schemas.Profile.VideoEncoder do
       field(:bitrate_limit, :integer)
     end
 
-    embeds_one(:multicast_configuration, MulticastConfiguration)
+    embeds_one(:multicast, MulticastConfiguration)
   end
 
   def parse(nil), do: nil
@@ -57,8 +57,7 @@ defmodule Onvif.Media.Ver20.Schemas.Profile.VideoEncoder do
       quality: ~x"./tt:Quality/text()"f,
       resolution: ~x"./tt:Resolution"e |> transform_by(&parse_resolution/1),
       rate_control: ~x"./tt:RateControl"e |> transform_by(&parse_rate_control/1),
-      multicast_configuration:
-        ~x"./tt:Multicast"e |> transform_by(&MulticastConfiguration.parse/1)
+      multicast: ~x"./tt:Multicast"e |> transform_by(&MulticastConfiguration.parse/1)
     )
   end
 
@@ -85,18 +84,6 @@ defmodule Onvif.Media.Ver20.Schemas.Profile.VideoEncoder do
     |> apply_action(:validate)
   end
 
-  @spec to_json(__MODULE__.t()) ::
-          {:error,
-           %{
-             :__exception__ => any,
-             :__struct__ => Jason.EncodeError | Protocol.UndefinedError,
-             optional(atom) => any
-           }}
-          | {:ok, binary}
-  def to_json(%__MODULE__{} = schema) do
-    Jason.encode(schema)
-  end
-
   def changeset(module, attrs) do
     module
     |> cast(attrs, [
@@ -111,7 +98,7 @@ defmodule Onvif.Media.Ver20.Schemas.Profile.VideoEncoder do
     ])
     |> cast_embed(:resolution, with: &resolution_changeset/2)
     |> cast_embed(:rate_control, with: &rate_control_changeset/2)
-    |> cast_embed(:multicast_configuration)
+    |> cast_embed(:multicast)
   end
 
   defp resolution_changeset(module, attrs) do

@@ -4,8 +4,11 @@ defmodule Onvif.Devices.NetworkInterface do
   """
 
   use Ecto.Schema
+
   import Ecto.Changeset
   import SweetXml
+
+  alias Onvif.Devices.NetworkInterface.{ConnectionSetting, PrefixedIPAddress}
 
   @required [:token, :enabled]
 
@@ -30,21 +33,8 @@ defmodule Onvif.Devices.NetworkInterface do
 
       field(:interface_type, :integer)
 
-      embeds_one :admin_settings, AdminSettings, primary_key: false do
-        @derive Jason.Encoder
-
-        field(:auto_negotiation, :boolean)
-        field(:speed, :integer)
-        field(:duplex, Ecto.Enum, values: [half: "Half", full: "Full"])
-      end
-
-      embeds_one :oper_settings, OperSettings, primary_key: false do
-        @derive Jason.Encoder
-
-        field(:auto_negotiation, :boolean)
-        field(:speed, :integer)
-        field(:duplex, Ecto.Enum, values: [half: "Half", full: "Full"])
-      end
+      embeds_one(:admin_settings, ConnectionSetting)
+      embeds_one(:oper_settings, ConnectionSetting)
     end
 
     embeds_one :ipv4, IPv4, primary_key: false do
@@ -57,26 +47,9 @@ defmodule Onvif.Devices.NetworkInterface do
 
         field(:dhcp, :boolean)
 
-        embeds_one :manual, Manual, primary_key: false do
-          @derive Jason.Encoder
-
-          field(:address, :string)
-          field(:prefix_length, :integer)
-        end
-
-        embeds_one :link_local, LinkLocal, primary_key: false do
-          @derive Jason.Encoder
-
-          field(:address, :string)
-          field(:prefix_length, :integer)
-        end
-
-        embeds_one :from_dhcp, FromDHCP, primary_key: false do
-          @derive Jason.Encoder
-
-          field(:address, :string)
-          field(:prefix_length, :integer)
-        end
+        embeds_one(:manual, PrefixedIPAddress)
+        embeds_one(:link_local, PrefixedIPAddress)
+        embeds_one(:from_dhcp, PrefixedIPAddress)
       end
     end
 
@@ -94,33 +67,10 @@ defmodule Onvif.Devices.NetworkInterface do
           values: [auto: "Auto", stateful: "Stateful", stateless: "Stateless", off: "Off"]
         )
 
-        embeds_one :manual, Manual, primary_key: false do
-          @derive Jason.Encoder
-
-          field(:address, :string)
-          field(:prefix_length, :integer)
-        end
-
-        embeds_one :link_local, LinkLocal, primary_key: false do
-          @derive Jason.Encoder
-
-          field(:address, :string)
-          field(:prefix_length, :integer)
-        end
-
-        embeds_one :from_dhcp, FromDHCP, primary_key: false do
-          @derive Jason.Encoder
-
-          field(:address, :string)
-          field(:prefix_length, :integer)
-        end
-
-        embeds_one :from_ra, FromRA, primary_key: false do
-          @derive Jason.Encoder
-
-          field(:address, :string)
-          field(:prefix_length, :integer)
-        end
+        embeds_one(:manual, PrefixedIPAddress)
+        embeds_one(:link_local, PrefixedIPAddress)
+        embeds_one(:from_dhcp, PrefixedIPAddress)
+        embeds_one(:from_ra, PrefixedIPAddress)
       end
     end
   end
@@ -165,8 +115,8 @@ defmodule Onvif.Devices.NetworkInterface do
     xmap(
       doc,
       interface_type: ~x"./tt:InterfaceType/text()"i,
-      admin_settings: ~x"./tt:AdminSettings"e |> transform_by(&parse_connection_settings/1),
-      oper_settings: ~x"./tt:OperSettings"e |> transform_by(&parse_connection_settings/1)
+      admin_settings: ~x"./tt:AdminSettings"e |> transform_by(&ConnectionSetting.parse/1),
+      oper_settings: ~x"./tt:OperSettings"e |> transform_by(&ConnectionSetting.parse/1)
     )
   end
 
@@ -192,18 +142,6 @@ defmodule Onvif.Devices.NetworkInterface do
     )
   end
 
-  defp parse_connection_settings(nil), do: nil
-  defp parse_connection_settings([]), do: nil
-
-  defp parse_connection_settings(doc) do
-    xmap(
-      doc,
-      auto_negotiation: ~x"./tt:AutoNegotiation/text()"s,
-      speed: ~x"./tt:Speed/text()"i,
-      duplex: ~x"./tt:Duplex/text()"s
-    )
-  end
-
   defp parse_ipv4_config(nil), do: nil
   defp parse_ipv4_config([]), do: nil
 
@@ -211,9 +149,9 @@ defmodule Onvif.Devices.NetworkInterface do
     xmap(
       doc,
       dhcp: ~x"./tt:DHCP/text()"s,
-      manual: ~x"./tt:Manual"e |> transform_by(&parse_address/1),
-      link_local: ~x"./tt:LinkLocal"e |> transform_by(&parse_address/1),
-      from_dhcp: ~x"./tt:FromDHCP"e |> transform_by(&parse_address/1)
+      manual: ~x"./tt:Manual"e |> transform_by(&PrefixedIPAddress.parse/1),
+      link_local: ~x"./tt:LinkLocal"e |> transform_by(&PrefixedIPAddress.parse/1),
+      from_dhcp: ~x"./tt:FromDHCP"e |> transform_by(&PrefixedIPAddress.parse/1)
     )
   end
 
@@ -225,21 +163,10 @@ defmodule Onvif.Devices.NetworkInterface do
       doc,
       accept_router_advert: ~x"./tt:AcceptRouterAdvert/text()"so,
       dhcp: ~x"./tt:DHCP/text()"s,
-      manual: ~x"./tt:Manual"e |> transform_by(&parse_address/1),
-      link_local: ~x"./tt:LinkLocal"e |> transform_by(&parse_address/1),
-      from_dhcp: ~x"./tt:FromDHCP"e |> transform_by(&parse_address/1),
-      from_ra: ~x"./tt:FromRA"e |> transform_by(&parse_address/1)
-    )
-  end
-
-  defp parse_address(nil), do: nil
-  defp parse_address([]), do: nil
-
-  defp parse_address(doc) do
-    xmap(
-      doc,
-      address: ~x"./tt:Address/text()"s,
-      prefix_length: ~x"./tt:PrefixLength/text()"i
+      manual: ~x"./tt:Manual"e |> transform_by(&PrefixedIPAddress.parse/1),
+      link_local: ~x"./tt:LinkLocal"e |> transform_by(&PrefixedIPAddress.parse/1),
+      from_dhcp: ~x"./tt:FromDHCP"e |> transform_by(&PrefixedIPAddress.parse/1),
+      from_ra: ~x"./tt:FromRA"e |> transform_by(&PrefixedIPAddress.parse/1)
     )
   end
 
@@ -259,12 +186,8 @@ defmodule Onvif.Devices.NetworkInterface do
   defp link_changeset(module, attrs) do
     module
     |> cast(attrs, [:interface_type])
-    |> cast_embed(:admin_settings, with: &settings_changeset/2)
-    |> cast_embed(:oper_settings, with: &settings_changeset/2)
-  end
-
-  defp settings_changeset(module, attrs) do
-    cast(module, attrs, [:auto_negotiation, :speed, :duplex])
+    |> cast_embed(:admin_settings)
+    |> cast_embed(:oper_settings)
   end
 
   defp ipv4_changeset(module, attrs) do
@@ -276,13 +199,9 @@ defmodule Onvif.Devices.NetworkInterface do
   defp ipv4_config_changeset(module, attrs) do
     module
     |> cast(attrs, [:dhcp])
-    |> cast_embed(:manual, with: &address_changeset/2)
-    |> cast_embed(:link_local, with: &address_changeset/2)
-    |> cast_embed(:from_dhcp, with: &address_changeset/2)
-  end
-
-  defp address_changeset(module, attrs) do
-    cast(module, attrs, [:address, :prefix_length])
+    |> cast_embed(:manual)
+    |> cast_embed(:link_local)
+    |> cast_embed(:from_dhcp)
   end
 
   defp ipv6_changeset(module, attrs) do
@@ -294,9 +213,9 @@ defmodule Onvif.Devices.NetworkInterface do
   defp ipv6_config_changeset(module, attrs) do
     module
     |> cast(attrs, [:accept_router_advert, :dhcp])
-    |> cast_embed(:manual, with: &address_changeset/2)
-    |> cast_embed(:link_local, with: &address_changeset/2)
-    |> cast_embed(:from_dhcp, with: &address_changeset/2)
-    |> cast_embed(:from_ra, with: &address_changeset/2)
+    |> cast_embed(:manual)
+    |> cast_embed(:link_local)
+    |> cast_embed(:from_dhcp)
+    |> cast_embed(:from_ra)
   end
 end

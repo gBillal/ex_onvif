@@ -3,7 +3,7 @@ defmodule Onvif.Media.Ver20.SetAudioEncoderConfiguration do
   import XmlBuilder
 
   alias Onvif.Device
-  alias Onvif.Media.Ver10.Schemas.Profile.AudioEncoderConfiguration
+  alias Onvif.Media.Profile.AudioEncoderConfiguration
 
   def soap_action, do: "http://www.onvif.org/ver20/media/wsdl/SetAudioEncoderConfiguration"
 
@@ -31,17 +31,17 @@ defmodule Onvif.Media.Ver20.SetAudioEncoderConfiguration do
                 :"tt:Type",
                 Keyword.fetch!(
                   Ecto.Enum.mappings(
-                    audio_encoder_config.multicast_configuration.ip_address.__struct__,
+                    audio_encoder_config.multicast.ip_address.__struct__,
                     :type
                   ),
-                  audio_encoder_config.multicast_configuration.ip_address.type
+                  audio_encoder_config.multicast.ip_address.type
                 )
               ),
-              ip_address_element(audio_encoder_config.multicast_configuration)
+              ip_address_element(audio_encoder_config.multicast)
             ]),
-            element(:"tt:Port", audio_encoder_config.multicast_configuration.port),
-            element(:"tt:TTL", audio_encoder_config.multicast_configuration.ttl),
-            element(:"tt:AutoStart", audio_encoder_config.multicast_configuration.auto_start)
+            element(:"tt:Port", audio_encoder_config.multicast.port),
+            element(:"tt:TTL", audio_encoder_config.multicast.ttl),
+            element(:"tt:AutoStart", audio_encoder_config.multicast.auto_start)
           ]),
           element(:"tt:Bitrate", audio_encoder_config.bitrate),
           element(:"tt:SampleRate", audio_encoder_config.sample_rate)

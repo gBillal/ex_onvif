@@ -1,6 +1,8 @@
 defmodule Onvif.Utils.XmlBuilder do
   @moduledoc false
 
+  def element(name), do: XmlBuilder.element(name)
+
   def element(builder \\ [], name, attrs \\ nil, value)
 
   def element(builder, _name, nil, nil), do: builder

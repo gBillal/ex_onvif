@@ -1,19 +1,19 @@
-defmodule Onvif.Media.Ver20.Schemas.Profile do
+defmodule Onvif.Media.Profile do
   @moduledoc """
-  A media profile
+  A media profile, or a standard definition of media configurations for video
   """
 
   use Ecto.Schema
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Media.Profile.AudioSourceConfiguration
-  alias Onvif.Media.Profile.AudioEncoderConfiguration
-  alias Onvif.Media.Profile.MetadataConfiguration
-  alias Onvif.Media.Profile.PtzConfiguration
-  alias Onvif.Media.Profile.VideoAnalyticsConfiguration
-  alias Onvif.Media.Profile.VideoSourceConfiguration
-  alias Onvif.Media.Ver20.Schemas.Profile.VideoEncoder
+  alias __MODULE__.AudioEncoderConfiguration
+  alias __MODULE__.AudioSourceConfiguration
+  alias __MODULE__.MetadataConfiguration
+  alias __MODULE__.PtzConfiguration
+  alias __MODULE__.VideoAnalyticsConfiguration
+  alias __MODULE__.VideoEncoderConfiguration
+  alias __MODULE__.VideoSourceConfiguration
 
   @profile_permitted [:reference_token, :fixed, :name]
 
@@ -31,7 +31,7 @@ defmodule Onvif.Media.Ver20.Schemas.Profile do
     embeds_one(:metadata_configuration, MetadataConfiguration)
     embeds_one(:ptz_configuration, PtzConfiguration)
     embeds_one(:video_analytics_configuration, VideoAnalyticsConfiguration)
-    embeds_one(:video_encoder_configuration, VideoEncoder)
+    embeds_one(:video_encoder_configuration, VideoEncoderConfiguration)
     embeds_one(:video_source_configuration, VideoSourceConfiguration)
 
     embeds_one :extension, Extension, primary_key: false do
@@ -55,30 +55,26 @@ defmodule Onvif.Media.Ver20.Schemas.Profile do
     end
   end
 
-  def parse(nil), do: nil
   def parse([]), do: nil
 
   def parse(doc) do
     xmap(
       doc,
       reference_token: ~x"./@token"s,
-      name: ~x"./tr2:Name/text()"s,
+      name: ~x"./tt:Name/text()"s,
       fixed: ~x"./@fixed"s,
       audio_encoder_configuration:
-        ~x"./tr2:Configurations/tr2:AudioEncoder"e
-        |> transform_by(&AudioEncoderConfiguration.parse/1),
+        ~x"./tt:AudioEncoderConfiguration"e |> transform_by(&AudioEncoderConfiguration.parse/1),
       audio_source_configuration:
-        ~x"./tr2:Configurations/tr2:AudioSource"e
-        |> transform_by(&AudioSourceConfiguration.parse/1),
+        ~x"./tt:AudioSourceConfiguration"e |> transform_by(&AudioSourceConfiguration.parse/1),
       metadata_configuration:
-        ~x"./tr2:Configurations/tr2:Metadata"e |> transform_by(&MetadataConfiguration.parse/1),
+        ~x"./tt:MetadataConfiguration"e |> transform_by(&MetadataConfiguration.parse/1),
       video_encoder_configuration:
-        ~x"./tr2:Configurations/tr2:VideoEncoder"e |> transform_by(&VideoEncoder.parse/1),
+        ~x"./tt:VideoEncoderConfiguration"e |> transform_by(&VideoEncoderConfiguration.parse/1),
       video_source_configuration:
-        ~x"./tr2:Configurations/tr2:VideoSource"e
-        |> transform_by(&VideoSourceConfiguration.parse/1),
+        ~x"./tt:VideoSourceConfiguration"e |> transform_by(&VideoSourceConfiguration.parse/1),
       video_analytics_configuration:
-        ~x"./tr2:Configurations/tr2:Analytics"e
+        ~x"./tt:VideoAnalyticsConfiguration"e
         |> transform_by(&VideoAnalyticsConfiguration.parse/1)
     )
   end
