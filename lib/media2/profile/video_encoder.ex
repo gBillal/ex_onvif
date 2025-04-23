@@ -1,4 +1,4 @@
-defmodule Onvif.Media.Ver20.Schemas.Profile.VideoEncoder do
+defmodule Onvif.Media2.Profile.VideoEncoder do
   @moduledoc """
   VideoEncoder schema for Media Ver20
   """
@@ -8,6 +8,7 @@ defmodule Onvif.Media.Ver20.Schemas.Profile.VideoEncoder do
   import SweetXml
 
   alias Onvif.Media.Profile.MulticastConfiguration
+  alias Onvif.Media.VideoResolution
 
   @type t :: %__MODULE__{}
 
@@ -25,11 +26,7 @@ defmodule Onvif.Media.Ver20.Schemas.Profile.VideoEncoder do
 
     field(:quality, :float)
 
-    embeds_one :resolution, Resolution, primary_key: false, on_replace: :update do
-      @derive Jason.Encoder
-      field(:width, :integer)
-      field(:height, :integer)
-    end
+    embeds_one :resolution, VideoResolution, on_replace: :update
 
     embeds_one :rate_control, RateControl, primary_key: false, on_replace: :update do
       @derive Jason.Encoder
@@ -55,17 +52,9 @@ defmodule Onvif.Media.Ver20.Schemas.Profile.VideoEncoder do
       guaranteed_frame_rate: ~x"./tt:GuaranteedFrameRate/text()"s,
       encoding: ~x"./tt:Encoding/text()"s,
       quality: ~x"./tt:Quality/text()"f,
-      resolution: ~x"./tt:Resolution"e |> transform_by(&parse_resolution/1),
+      resolution: ~x"./tt:Resolution"e |> transform_by(&VideoResolution.parse/1),
       rate_control: ~x"./tt:RateControl"e |> transform_by(&parse_rate_control/1),
       multicast: ~x"./tt:Multicast"e |> transform_by(&MulticastConfiguration.parse/1)
-    )
-  end
-
-  defp parse_resolution(doc) do
-    xmap(
-      doc,
-      width: ~x"./tt:Width/text()"i,
-      height: ~x"./tt:Height/text()"i
     )
   end
 
@@ -96,13 +85,9 @@ defmodule Onvif.Media.Ver20.Schemas.Profile.VideoEncoder do
       :encoding,
       :quality
     ])
-    |> cast_embed(:resolution, with: &resolution_changeset/2)
+    |> cast_embed(:resolution)
     |> cast_embed(:rate_control, with: &rate_control_changeset/2)
     |> cast_embed(:multicast)
-  end
-
-  defp resolution_changeset(module, attrs) do
-    cast(module, attrs, [:width, :height])
   end
 
   defp rate_control_changeset(module, attrs) do

@@ -11,6 +11,7 @@ defmodule Onvif.Media2 do
 
   alias Onvif.Media.Profile.AudioEncoderConfiguration
   alias Onvif.Media2.{Profile, VideoEncoderConfigurationOption}
+  alias Onvif.Media2.Profile.VideoEncoder
 
   @type encoder_options_opts :: [configuration_token: String.t(), profile_token: String.t()]
 
@@ -41,6 +42,28 @@ defmodule Onvif.Media2 do
       body,
       &parse_get_audio_encoder_configurations_response/1
     )
+  end
+
+  @doc """
+  A client uses the GetSnapshotUri command to obtain a JPEG snapshot from the device.
+
+  The returned URI shall remain valid indefinitely even if the profile is changed. The URI can be used for acquiring a JPEG image
+  through an HTTP GET operation. The image encoding will always be JPEG regardless of the encoding setting in the media profile.
+  The Jpeg settings (like resolution or quality) may be taken from the profile if suitable. The provided image will be updated automatically
+  and independent from calls to GetSnapshotUri.
+  """
+  @spec get_snapshot_uri(Device.t(), String.t()) :: {:ok, String.t()} | {:error, any()}
+  def get_snapshot_uri(device, profile_token) do
+    body =
+      element(
+        "s:Body",
+        element(
+          "tr2:GetSnapshotUri",
+          element("tr2:ProfileToken", profile_token)
+        )
+      )
+
+    media2_request(device, "GetSnapshotUri", body, &parse_get_snapshot_uri_response/1)
   end
 
   @doc """
@@ -125,6 +148,35 @@ defmodule Onvif.Media2 do
     )
   end
 
+  @doc """
+  By default this operation lists all existing video encoder configurations for a device.
+
+  Provide a profile token to list only configurations that are compatible with the profile. If a configuration token
+  is provided only a single configuration will be returned.
+  """
+  @spec get_video_encoder_configurations(
+          Onvif.Device.t(),
+          encoder_options_opts()
+        ) :: {:ok, [VideoEncoderConfiguration.t()]} | {:error, any()}
+  def get_video_encoder_configurations(device, opts \\ []) do
+    body =
+      element(
+        "s:Body",
+        element(
+          "tr2:GetVideoEncoderConfigurations",
+          element("tr2:ConfigurationToken", opts[:configuration_token])
+          |> element("tr2:ProfileToken", opts[:profile_token])
+        )
+      )
+
+    media2_request(
+      device,
+      "GetVideoEncoderConfigurations",
+      body,
+      &parse_get_video_encoder_configurations_response/1
+    )
+  end
+
   defp parse_get_audio_encoder_configurations_response(xml_response_body) do
     xml_response_body
     |> parse(namespace_conformant: true, quiet: true)
@@ -145,6 +197,19 @@ defmodule Onvif.Media2 do
       {:error, _reason} = err -> err
       configs -> {:ok, Enum.reverse(configs)}
     end
+  end
+
+  defp parse_get_snapshot_uri_response(xml_response_body) do
+    uri =
+      xml_response_body
+      |> parse(namespace_conformant: true, quiet: true)
+      |> xpath(
+        ~x"//s:Envelope/s:Body/tr2:GetSnapshotUriResponse/tr2:Uri/text()"s
+        |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+        |> add_namespace("tr2", "http://www.onvif.org/ver20/media/wsdl")
+      )
+
+    {:ok, uri}
   end
 
   defp parse_get_stream_uri_response(xml_response_body) do
@@ -179,6 +244,28 @@ defmodule Onvif.Media2 do
     |> case do
       {:error, _reason} = err -> err
       profiles -> {:ok, Enum.reverse(profiles)}
+    end
+  end
+
+  defp parse_get_video_encoder_configurations_response(xml_response_body) do
+    xml_response_body
+    |> parse(namespace_conformant: true, quiet: true)
+    |> xpath(
+      ~x"//s:Envelope/s:Body/tr2:GetVideoEncoderConfigurationsResponse/tr2:Configurations"el
+      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+      |> add_namespace("tr2", "http://www.onvif.org/ver20/media/wsdl")
+      |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+    )
+    |> Enum.map(&VideoEncoder.parse/1)
+    |> Enum.reduce_while([], fn raw_config, acc ->
+      case VideoEncoder.to_struct(raw_config) do
+        {:ok, config} -> {:cont, [config | acc]}
+        error -> {:halt, error}
+      end
+    end)
+    |> case do
+      {:error, _reason} = err -> err
+      configs -> {:ok, Enum.reverse(configs)}
     end
   end
 

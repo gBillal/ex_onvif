@@ -13,7 +13,7 @@ defmodule Onvif.Media2.Profile do
   alias Onvif.Media.Profile.PtzConfiguration
   alias Onvif.Media.Profile.VideoAnalyticsConfiguration
   alias Onvif.Media.Profile.VideoSourceConfiguration
-  alias Onvif.Media.Ver20.Schemas.Profile.VideoEncoder
+  alias Onvif.Media2.Profile.VideoEncoder
 
   @profile_permitted [:reference_token, :fixed, :name]
 
