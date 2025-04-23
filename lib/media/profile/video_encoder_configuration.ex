@@ -10,7 +10,7 @@ defmodule Onvif.Media.Profile.VideoEncoderConfiguration do
   import SweetXml
 
   alias Onvif.Media.VideoResolution
-  alias Onvif.Media.Ver10.Schemas.Profile.MulticastConfiguration
+  alias Onvif.Media.Profile.MulticastConfiguration
 
   @required [:reference_token, :name, :encoding]
   @optional [:use_count, :guaranteed_frame_rate, :quality, :session_timeout]
@@ -52,7 +52,7 @@ defmodule Onvif.Media.Profile.VideoEncoderConfiguration do
       )
     end
 
-    embeds_one(:multicast_configuration, MulticastConfiguration)
+    embeds_one(:multicast, MulticastConfiguration)
   end
 
   def parse(nil), do: nil
@@ -72,8 +72,7 @@ defmodule Onvif.Media.Profile.VideoEncoderConfiguration do
       rate_control: ~x"./tt:RateControl"eo |> transform_by(&parse_rate_control/1),
       mpeg4_configuration: ~x"./tt:Mpeg4"eo |> transform_by(&parse_mpeg4_configuration/1),
       h264_configuration: ~x"./tt:H264"eo |> transform_by(&parse_h264_configuration/1),
-      multicast_configuration:
-        ~x"./tt:Multicast"eo |> transform_by(&MulticastConfiguration.parse/1)
+      multicast: ~x"./tt:Multicast"eo |> transform_by(&MulticastConfiguration.parse/1)
     )
   end
 
@@ -95,10 +94,27 @@ defmodule Onvif.Media.Profile.VideoEncoderConfiguration do
       |> encoder_config_element(video_encoder_config)
       |> element(
         "tt:Multicast",
-        MulticastConfiguration.encode(video_encoder_config.multicast_configuration)
+        MulticastConfiguration.encode(video_encoder_config.multicast)
       )
       |> element(:"tt:SessionTimeout", video_encoder_config.session_timeout)
     )
+  end
+
+  def to_struct(parsed) do
+    %__MODULE__{}
+    |> changeset(parsed)
+    |> apply_action(:validate)
+  end
+
+  def changeset(module, attrs) do
+    module
+    |> cast(attrs, @required ++ @optional)
+    |> validate_required(@required)
+    |> cast_embed(:resolution, with: &VideoResolution.changeset/2)
+    |> cast_embed(:rate_control, with: &rate_control_changeset/2)
+    |> cast_embed(:mpeg4_configuration, with: &mpeg4_configuration_changeset/2)
+    |> cast_embed(:h264_configuration, with: &h264_configuration_changeset/2)
+    |> cast_embed(:multicast)
   end
 
   defp rate_control_element(rate_control) do
@@ -148,23 +164,6 @@ defmodule Onvif.Media.Profile.VideoEncoderConfiguration do
         )
       )
     )
-  end
-
-  def to_struct(parsed) do
-    %__MODULE__{}
-    |> changeset(parsed)
-    |> apply_action(:validate)
-  end
-
-  def changeset(module, attrs) do
-    module
-    |> cast(attrs, @required ++ @optional)
-    |> validate_required(@required)
-    |> cast_embed(:resolution, with: &VideoResolution.changeset/2)
-    |> cast_embed(:rate_control, with: &rate_control_changeset/2)
-    |> cast_embed(:mpeg4_configuration, with: &mpeg4_configuration_changeset/2)
-    |> cast_embed(:h264_configuration, with: &h264_configuration_changeset/2)
-    |> cast_embed(:multicast_configuration)
   end
 
   defp parse_rate_control([]), do: nil

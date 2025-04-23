@@ -1,4 +1,4 @@
-defmodule Onvif.Media.Ver10.Schemas.Profile.Parameters do
+defmodule Onvif.Media.Profile.Parameters do
   @moduledoc """
   Parameters schema for Media Ver10
   """

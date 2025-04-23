@@ -1,4 +1,4 @@
-defmodule Onvif.Media.Ver10.Schemas.Profile.MulticastConfiguration do
+defmodule Onvif.Media.Profile.MulticastConfiguration do
   @moduledoc """
   MulticastConfiguration for Media Ver10
   """

@@ -1,4 +1,4 @@
-defmodule Onvif.Media.Ver10.Schemas.Profile.AudioSourceConfiguration do
+defmodule Onvif.Media.Profile.AudioSourceConfiguration do
   @moduledoc """
   AudioSourceConfiguration schema for Media Ver10
   """

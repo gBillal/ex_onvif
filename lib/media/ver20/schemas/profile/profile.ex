@@ -7,12 +7,12 @@ defmodule Onvif.Media.Ver20.Schemas.Profile do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Media.Ver10.Schemas.Profile.AudioSourceConfiguration
-  alias Onvif.Media.Ver10.Schemas.Profile.AudioEncoderConfiguration
-  alias Onvif.Media.Ver10.Schemas.Profile.MetadataConfiguration
-  alias Onvif.Media.Ver10.Schemas.Profile.PtzConfiguration
-  alias Onvif.Media.Ver10.Schemas.Profile.VideoAnalyticsConfiguration
-  alias Onvif.Media.Ver10.Schemas.Profile.VideoSourceConfiguration
+  alias Onvif.Media.Profile.AudioSourceConfiguration
+  alias Onvif.Media.Profile.AudioEncoderConfiguration
+  alias Onvif.Media.Profile.MetadataConfiguration
+  alias Onvif.Media.Profile.PtzConfiguration
+  alias Onvif.Media.Profile.VideoAnalyticsConfiguration
+  alias Onvif.Media.Profile.VideoSourceConfiguration
   alias Onvif.Media.Ver20.Schemas.Profile.VideoEncoder
 
   @profile_permitted [:reference_token, :fixed, :name]

@@ -7,12 +7,13 @@ defmodule Onvif.Media.Profile do
   import Ecto.Changeset
   import SweetXml
 
+  alias __MODULE__.AudioEncoderConfiguration
+  alias __MODULE__.AudioSourceConfiguration
+  alias __MODULE__.MetadataConfiguration
+  alias __MODULE__.PtzConfiguration
+  alias __MODULE__.VideoAnalyticsConfiguration
   alias __MODULE__.VideoEncoderConfiguration
-  alias Onvif.Media.Ver10.Schemas.Profile.AudioSourceConfiguration
-  alias Onvif.Media.Ver10.Schemas.Profile.AudioEncoderConfiguration
-  alias Onvif.Media.Ver10.Schemas.Profile.MetadataConfiguration
-  alias Onvif.Media.Ver10.Schemas.Profile.VideoAnalyticsConfiguration
-  alias Onvif.Media.Ver10.Schemas.Profile.VideoSourceConfiguration
+  alias __MODULE__.VideoSourceConfiguration
 
   @profile_permitted [:reference_token, :fixed, :name]
 
@@ -28,7 +29,7 @@ defmodule Onvif.Media.Profile do
     embeds_one(:audio_encoder_configuration, AudioEncoderConfiguration)
     embeds_one(:audio_source_configuration, AudioSourceConfiguration)
     embeds_one(:metadata_configuration, MetadataConfiguration)
-    embeds_one(:ptz_configuration, Onvif.Media.Ver10.Schemas.Profile.PtzConfiguration)
+    embeds_one(:ptz_configuration, PtzConfiguration)
     embeds_one(:video_analytics_configuration, VideoAnalyticsConfiguration)
     embeds_one(:video_encoder_configuration, VideoEncoderConfiguration)
     embeds_one(:video_source_configuration, VideoSourceConfiguration)

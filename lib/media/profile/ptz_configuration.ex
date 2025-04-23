@@ -1,4 +1,4 @@
-defmodule Onvif.Media.Ver10.Schemas.Profile.PtzConfiguration do
+defmodule Onvif.Media.Profile.PtzConfiguration do
   @moduledoc """
   Optional configuration of the pan tilt zoom unit.
   """

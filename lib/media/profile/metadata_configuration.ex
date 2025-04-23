@@ -1,4 +1,4 @@
-defmodule Onvif.Media.Ver10.Schemas.Profile.MetadataConfiguration do
+defmodule Onvif.Media.Profile.MetadataConfiguration do
   @moduledoc """
   Optional configuration of the metadata stream.
   """
@@ -7,8 +7,8 @@ defmodule Onvif.Media.Ver10.Schemas.Profile.MetadataConfiguration do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Media.Ver10.Schemas.Profile.AnalyticsEngineConfiguration
-  alias Onvif.Media.Ver10.Schemas.Profile.MulticastConfiguration
+  alias Onvif.Media.Profile.AnalyticsEngineConfiguration
+  alias Onvif.Media.Profile.MulticastConfiguration
 
   @type t :: %__MODULE__{}
 
@@ -30,7 +30,7 @@ defmodule Onvif.Media.Ver10.Schemas.Profile.MetadataConfiguration do
       field(:position, :boolean)
     end
 
-    embeds_one(:multicast_configuration, MulticastConfiguration)
+    embeds_one(:multicast, MulticastConfiguration)
     embeds_one(:analytics_engine_configuration, AnalyticsEngineConfiguration)
   end
 
@@ -49,7 +49,7 @@ defmodule Onvif.Media.Ver10.Schemas.Profile.MetadataConfiguration do
       analytics: ~x"./tt:Analytics/text()"s,
       session_timeout: ~x"./tt:SessionTimeout/text()"s,
       ptz_status: ~x"./tt:PtzStatus"e |> transform_by(&parse_ptz_status/1),
-      multicast_configuration:
+      multicast:
         ~x"./tt:Multicast"e |> transform_by(&MulticastConfiguration.parse/1),
       analytics_engine_configuration:
         ~x"./tt:AnalyticsEngineConfiguration"e
@@ -74,18 +74,6 @@ defmodule Onvif.Media.Ver10.Schemas.Profile.MetadataConfiguration do
     |> apply_action(:validate)
   end
 
-  @spec to_json(__MODULE__.t()) ::
-          {:error,
-           %{
-             :__exception__ => any,
-             :__struct__ => Jason.EncodeError | Protocol.UndefinedError,
-             optional(atom) => any
-           }}
-          | {:ok, binary}
-  def to_json(%__MODULE__{} = schema) do
-    Jason.encode(schema)
-  end
-
   def changeset(module, attrs) do
     module
     |> cast(attrs, [
@@ -99,7 +87,7 @@ defmodule Onvif.Media.Ver10.Schemas.Profile.MetadataConfiguration do
       :session_timeout
     ])
     |> cast_embed(:ptz_status, with: &ptz_status_changeset/2)
-    |> cast_embed(:multicast_configuration)
+    |> cast_embed(:multicast)
     |> cast_embed(:analytics_engine_configuration)
   end
 

@@ -5,7 +5,7 @@ defmodule Onvif.Media.Ver20.GetVideoSourceConfigurations do
   require Logger
 
   alias Onvif.Device
-  alias Onvif.Media.Ver10.Schemas.Profile.VideoSourceConfiguration
+  alias Onvif.Media.Profile.VideoSourceConfiguration
 
   @spec soap_action :: String.t()
   def soap_action, do: "http://www.onvif.org/ver20/media/wsdl/GetVideoSourceConfigurations"

@@ -9,7 +9,7 @@ defmodule Onvif.Media.Profile.AudioEncoderConfiguration do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Media.Ver10.Schemas.Profile.MulticastConfiguration
+  alias Onvif.Media.Profile.MulticastConfiguration
 
   @type t :: %__MODULE__{}
 

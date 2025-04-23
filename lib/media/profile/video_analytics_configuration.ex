@@ -1,4 +1,4 @@
-defmodule Onvif.Media.Ver10.Schemas.Profile.VideoAnalyticsConfiguration do
+defmodule Onvif.Media.Profile.VideoAnalyticsConfiguration do
   @moduledoc """
   This element contains a list of Analytics configurations.
   """
@@ -7,8 +7,8 @@ defmodule Onvif.Media.Ver10.Schemas.Profile.VideoAnalyticsConfiguration do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Media.Ver10.Schemas.Profile.AnalyticsEngineConfiguration
-  alias Onvif.Media.Ver10.Schemas.Profile.Parameters
+  alias Onvif.Media.Profile.AnalyticsEngineConfiguration
+  alias Onvif.Media.Profile.Parameters
 
   @type t :: %__MODULE__{}
 
@@ -78,18 +78,6 @@ defmodule Onvif.Media.Ver10.Schemas.Profile.VideoAnalyticsConfiguration do
     %__MODULE__{}
     |> changeset(parsed)
     |> apply_action(:validate)
-  end
-
-  @spec to_json(__MODULE__.t()) ::
-          {:error,
-           %{
-             :__exception__ => any,
-             :__struct__ => Jason.EncodeError | Protocol.UndefinedError,
-             optional(atom) => any
-           }}
-          | {:ok, binary}
-  def to_json(%__MODULE__{} = schema) do
-    Jason.encode(schema)
   end
 
   def changeset(module, attrs) do
