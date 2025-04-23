@@ -1,4 +1,4 @@
-defmodule Onvif.Media.Ver20.Schemas.Profile do
+defmodule Onvif.Media2.Profile do
   @moduledoc """
   A media profile
   """
