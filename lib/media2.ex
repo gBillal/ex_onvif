@@ -10,7 +10,7 @@ defmodule Onvif.Media2 do
   import SweetXml
 
   alias Onvif.Media.Profile.AudioEncoderConfiguration
-  alias Onvif.Media2.Profile
+  alias Onvif.Media2.{Profile, VideoEncoderConfigurationOption}
 
   @type encoder_options_opts :: [configuration_token: String.t(), profile_token: String.t()]
 
@@ -21,6 +21,8 @@ defmodule Onvif.Media2 do
   token is provided only a single configuration will be returned.
   """
   @spec get_audio_encoder_configurations(Device.t(), encoder_options_opts()) ::
+          {:ok, [AudioEncoderConfiguration.t()]} | {:error, any()}
+  @spec get_audio_encoder_configurations(Device.t()) ::
           {:ok, [AudioEncoderConfiguration.t()]} | {:error, any()}
   def get_audio_encoder_configurations(device, opts \\ []) do
     body =
@@ -92,6 +94,37 @@ defmodule Onvif.Media2 do
     media2_request(device, "GetProfiles", body, &parse_get_profiles_response/1)
   end
 
+  @doc """
+  This operation returns the available options (supported values and ranges for video encoder configuration parameters) when the video encoder
+  parameters are reconfigured.
+
+  This response contains the available video encoder configuration options. If a video encoder configuration is specified,
+  the options shall concern that particular configuration. If a media profile is specified, the options shall be compatible with that media profile.
+  If no tokens are specified, the options shall be considered generic for the device.
+  """
+  @spec get_video_encoder_configuration_options(
+          Device.t(),
+          encoder_options_opts()
+        ) :: {:ok, [VideoEncoderConfigurationOption.t()]} | {:error, any()}
+  def get_video_encoder_configuration_options(device, opts \\ []) do
+    body =
+      element(
+        "s:Body",
+        element(
+          "tr2:GetVideoEncoderConfigurationOptions",
+          element("tr2:ConfigurationToken", opts[:configuration_token])
+          |> element("tr2:ProfileToken", opts[:profile_token])
+        )
+      )
+
+    media2_request(
+      device,
+      "GetVideoEncoderConfigurationOptions",
+      body,
+      &parse_get_video_encoder_configuration_options_response/1
+    )
+  end
+
   defp parse_get_audio_encoder_configurations_response(xml_response_body) do
     xml_response_body
     |> parse(namespace_conformant: true, quiet: true)
@@ -146,6 +179,28 @@ defmodule Onvif.Media2 do
     |> case do
       {:error, _reason} = err -> err
       profiles -> {:ok, Enum.reverse(profiles)}
+    end
+  end
+
+  defp parse_get_video_encoder_configuration_options_response(xml_response_body) do
+    xml_response_body
+    |> parse(namespace_conformant: true, quiet: true)
+    |> xpath(
+      ~x"//s:Envelope/s:Body/tr2:GetVideoEncoderConfigurationOptionsResponse/tr2:Options"el
+      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+      |> add_namespace("tr2", "http://www.onvif.org/ver20/media/wsdl")
+      |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+    )
+    |> Enum.map(&VideoEncoderConfigurationOption.parse/1)
+    |> Enum.reduce_while([], fn raw_config, acc ->
+      case VideoEncoderConfigurationOption.to_struct(raw_config) do
+        {:ok, config} -> {:cont, [config | acc]}
+        error -> {:halt, error}
+      end
+    end)
+    |> case do
+      {:error, _reason} = err -> err
+      options -> {:ok, Enum.reverse(options)}
     end
   end
 end
