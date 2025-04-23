@@ -5,6 +5,8 @@ defmodule Onvif.Media.Profile.PtzConfiguration do
 
   use Ecto.Schema
 
+  alias Onvif.Schemas.FloatRange
+
   @type t :: %__MODULE__{}
 
   @primary_key false
@@ -37,17 +39,8 @@ defmodule Onvif.Media.Profile.PtzConfiguration do
         @derive Jason.Encoder
         field(:uri, :string)
 
-        embeds_one :x_range, XRange do
-          @derive Jason.Encoder
-          field(:min, :float)
-          field(:max, :float)
-        end
-
-        embeds_one :y_range, YRange do
-          @derive Jason.Encoder
-          field(:min, :float)
-          field(:max, :float)
-        end
+        embeds_one(:x_range, FloatRange)
+        embeds_one(:y_range, FloatRange)
       end
     end
 
@@ -57,11 +50,7 @@ defmodule Onvif.Media.Profile.PtzConfiguration do
         @derive Jason.Encoder
         field(:uri, :string)
 
-        embeds_one :x_range, XRange do
-          @derive Jason.Encoder
-          field(:min, :float)
-          field(:max, :float)
-        end
+        embeds_one(:x_range, FloatRange)
       end
     end
 

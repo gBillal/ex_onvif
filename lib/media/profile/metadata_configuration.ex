@@ -49,8 +49,7 @@ defmodule Onvif.Media.Profile.MetadataConfiguration do
       analytics: ~x"./tt:Analytics/text()"s,
       session_timeout: ~x"./tt:SessionTimeout/text()"s,
       ptz_status: ~x"./tt:PtzStatus"e |> transform_by(&parse_ptz_status/1),
-      multicast:
-        ~x"./tt:Multicast"e |> transform_by(&MulticastConfiguration.parse/1),
+      multicast: ~x"./tt:Multicast"e |> transform_by(&MulticastConfiguration.parse/1),
       analytics_engine_configuration:
         ~x"./tt:AnalyticsEngineConfiguration"e
         |> transform_by(&AnalyticsEngineConfiguration.parse/1)

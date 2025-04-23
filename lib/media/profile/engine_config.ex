@@ -1,9 +1,10 @@
-defmodule Onvif.Media.Profile.Parameters do
+defmodule Onvif.Media.Profile.EngineConfig do
   @moduledoc """
-  Parameters schema for Media Ver10
+  Schema for EngineConfig.
   """
 
   use Ecto.Schema
+
   import Ecto.Changeset
   import SweetXml
 
@@ -12,21 +13,46 @@ defmodule Onvif.Media.Profile.Parameters do
   @primary_key false
   @derive Jason.Encoder
   embedded_schema do
-    embeds_many :simple_item, SimpleItem, primary_key: false do
-      @derive Jason.Encoder
-      field(:name, :string)
-      field(:value, :string)
-    end
+    field(:name, :string)
+    field(:type, :string)
 
-    embeds_many :element_item, ElementItem, primary_key: false do
+    embeds_one :parameters, Parameters, primary_key: false do
       @derive Jason.Encoder
-      field(:name, :string)
+
+      embeds_many :simple_item, SimpleItem, primary_key: false do
+        @derive Jason.Encoder
+        field(:name, :string)
+        field(:value, :string)
+      end
+
+      embeds_many :element_item, ElementItem, primary_key: false do
+        @derive Jason.Encoder
+        field(:name, :string)
+      end
     end
   end
 
-  def parse([]), do: []
+  def parse(nil), do: nil
+  def parse([]), do: nil
 
   def parse(doc) do
+    xmap(
+      doc,
+      name: ~x"./@Name"s,
+      type: ~x"./@Type"s,
+      parameters: ~x"./tt:Parameters"e |> transform_by(&parse_parameters/1)
+    )
+  end
+
+  def changeset(module, attrs) do
+    module
+    |> cast(attrs, [:name, :type])
+    |> cast_embed(:parameters, with: &parameters_changeset/2)
+  end
+
+  defp parse_parameters([]), do: []
+
+  defp parse_parameters(doc) do
     xmap(
       doc,
       simple_item: ~x"./tt:SimpleItem"el |> transform_by(&parse_simple_item/1),
@@ -60,7 +86,7 @@ defmodule Onvif.Media.Profile.Parameters do
     )
   end
 
-  def changeset(module, attrs) do
+  defp parameters_changeset(module, attrs) do
     module
     |> cast(attrs, [])
     |> cast_embed(:simple_item, with: &simple_item_changeset/2)

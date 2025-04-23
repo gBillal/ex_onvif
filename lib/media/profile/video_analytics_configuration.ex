@@ -7,8 +7,8 @@ defmodule Onvif.Media.Profile.VideoAnalyticsConfiguration do
   import Ecto.Changeset
   import SweetXml
 
+  alias Onvif.Media.Profile.EngineConfig
   alias Onvif.Media.Profile.AnalyticsEngineConfiguration
-  alias Onvif.Media.Profile.Parameters
 
   @type t :: %__MODULE__{}
 
@@ -25,13 +25,7 @@ defmodule Onvif.Media.Profile.VideoAnalyticsConfiguration do
       primary_key: false,
       on_replace: :update do
       @derive Jason.Encoder
-      embeds_many :rule, Rule, primary_key: false, on_replace: :delete do
-        @derive Jason.Encoder
-        field(:name, :string)
-        field(:type, :string)
-
-        embeds_one(:parameters, Parameters)
-      end
+      embeds_many(:rule, EngineConfig)
     end
   end
 
@@ -52,28 +46,6 @@ defmodule Onvif.Media.Profile.VideoAnalyticsConfiguration do
     )
   end
 
-  defp parse_rule_engine_configuration(nil), do: nil
-  defp parse_rule_engine_configuration([]), do: nil
-
-  defp parse_rule_engine_configuration(doc) do
-    xmap(
-      doc,
-      rule: ~x"./tt:Rule"el |> transform_by(&parse_rule/1)
-    )
-  end
-
-  defp parse_rule(nil), do: []
-  defp parse_rule(rules) when is_list(rules), do: Enum.map(rules, &parse_rule/1)
-
-  defp parse_rule(doc) do
-    xmap(
-      doc,
-      name: ~x"./@Name"s,
-      type: ~x"./@Type"s,
-      parameters: ~x"./tt:Parameters"e |> transform_by(&Parameters.parse/1)
-    )
-  end
-
   def to_struct(parsed) do
     %__MODULE__{}
     |> changeset(parsed)
@@ -87,15 +59,25 @@ defmodule Onvif.Media.Profile.VideoAnalyticsConfiguration do
     |> cast_embed(:rule_engine_configuration, with: &rule_engine_configuration_changeset/2)
   end
 
+  defp parse_rule_engine_configuration(nil), do: nil
+  defp parse_rule_engine_configuration([]), do: nil
+
+  defp parse_rule_engine_configuration(doc) do
+    xmap(
+      doc,
+      rule: ~x"./tt:Rule"el |> transform_by(&parse_rules/1)
+    )
+  end
+
+  defp parse_rules(doc) do
+    doc
+    |> List.wrap()
+    |> Enum.map(&EngineConfig.parse/1)
+  end
+
   defp rule_engine_configuration_changeset(module, attrs) do
     module
     |> cast(attrs, [])
-    |> cast_embed(:rule, with: &rule_changeset/2)
-  end
-
-  defp rule_changeset(module, attrs) do
-    module
-    |> cast(attrs, [:name, :type])
-    |> cast_embed(:parameters)
+    |> cast_embed(:rule)
   end
 end
