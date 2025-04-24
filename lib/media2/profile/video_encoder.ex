@@ -1,13 +1,16 @@
-defmodule Onvif.Media.Ver20.Schemas.Profile.VideoEncoder do
+defmodule Onvif.Media2.Profile.VideoEncoder do
   @moduledoc """
   VideoEncoder schema for Media Ver20
   """
 
   use Ecto.Schema
+
   import Ecto.Changeset
+  import Onvif.Utils.XmlBuilder
   import SweetXml
 
   alias Onvif.Media.Profile.MulticastConfiguration
+  alias Onvif.Media.VideoResolution
 
   @type t :: %__MODULE__{}
 
@@ -25,11 +28,7 @@ defmodule Onvif.Media.Ver20.Schemas.Profile.VideoEncoder do
 
     field(:quality, :float)
 
-    embeds_one :resolution, Resolution, primary_key: false, on_replace: :update do
-      @derive Jason.Encoder
-      field(:width, :integer)
-      field(:height, :integer)
-    end
+    embeds_one :resolution, VideoResolution, on_replace: :update
 
     embeds_one :rate_control, RateControl, primary_key: false, on_replace: :update do
       @derive Jason.Encoder
@@ -55,26 +54,34 @@ defmodule Onvif.Media.Ver20.Schemas.Profile.VideoEncoder do
       guaranteed_frame_rate: ~x"./tt:GuaranteedFrameRate/text()"s,
       encoding: ~x"./tt:Encoding/text()"s,
       quality: ~x"./tt:Quality/text()"f,
-      resolution: ~x"./tt:Resolution"e |> transform_by(&parse_resolution/1),
+      resolution: ~x"./tt:Resolution"e |> transform_by(&VideoResolution.parse/1),
       rate_control: ~x"./tt:RateControl"e |> transform_by(&parse_rate_control/1),
       multicast: ~x"./tt:Multicast"e |> transform_by(&MulticastConfiguration.parse/1)
     )
   end
 
-  defp parse_resolution(doc) do
-    xmap(
-      doc,
-      width: ~x"./tt:Width/text()"i,
-      height: ~x"./tt:Height/text()"i
-    )
-  end
-
-  defp parse_rate_control(doc) do
-    xmap(
-      doc,
-      constant_bitrate: ~x"./@ConstantBitRate"s,
-      frame_rate_limit: ~x"./tt:FrameRateLimit/text()"f,
-      bitrate_limit: ~x"./tt:BitrateLimit/text()"i
+  def encode(video_encoder_config) do
+    element(
+      [],
+      "tr2:Configuration",
+      %{
+        "token" => video_encoder_config.reference_token,
+        "Profile" => video_encoder_config.profile,
+        "GovLength" => video_encoder_config.gov_length
+      },
+      element("tt:Name", video_encoder_config.name)
+      |> element("tt:UseCount", video_encoder_config.use_count)
+      |> element(
+        "tt:Encoding",
+        Keyword.fetch!(
+          Ecto.Enum.mappings(video_encoder_config.__struct__, :encoding),
+          video_encoder_config.encoding
+        )
+      )
+      |> element("tt:Quality", trunc(video_encoder_config.quality))
+      |> element("tt:Resolution", VideoResolution.encode(video_encoder_config.resolution))
+      |> rate_control_xml(video_encoder_config.rate_control)
+      |> element("tt:Multicast", MulticastConfiguration.encode(video_encoder_config.multicast))
     )
   end
 
@@ -96,13 +103,28 @@ defmodule Onvif.Media.Ver20.Schemas.Profile.VideoEncoder do
       :encoding,
       :quality
     ])
-    |> cast_embed(:resolution, with: &resolution_changeset/2)
+    |> cast_embed(:resolution)
     |> cast_embed(:rate_control, with: &rate_control_changeset/2)
     |> cast_embed(:multicast)
   end
 
-  defp resolution_changeset(module, attrs) do
-    cast(module, attrs, [:width, :height])
+  defp rate_control_xml(builder, rate_control) do
+    element(
+      builder,
+      :"tt:RateControl",
+      %{"ConstantBitRate" => rate_control.constant_bitrate},
+      element("tt:FrameRateLimit", rate_control.frame_rate_limit)
+      |> element("tt:BitrateLimit", rate_control.bitrate_limit)
+    )
+  end
+
+  defp parse_rate_control(doc) do
+    xmap(
+      doc,
+      constant_bitrate: ~x"./@ConstantBitRate"s,
+      frame_rate_limit: ~x"./tt:FrameRateLimit/text()"f,
+      bitrate_limit: ~x"./tt:BitrateLimit/text()"i
+    )
   end
 
   defp rate_control_changeset(module, attrs) do

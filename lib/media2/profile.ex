@@ -1,4 +1,4 @@
-defmodule Onvif.Media.Ver20.Schemas.Profile do
+defmodule Onvif.Media2.Profile do
   @moduledoc """
   A media profile
   """
@@ -13,7 +13,7 @@ defmodule Onvif.Media.Ver20.Schemas.Profile do
   alias Onvif.Media.Profile.PtzConfiguration
   alias Onvif.Media.Profile.VideoAnalyticsConfiguration
   alias Onvif.Media.Profile.VideoSourceConfiguration
-  alias Onvif.Media.Ver20.Schemas.Profile.VideoEncoder
+  alias Onvif.Media2.Profile.VideoEncoder
 
   @profile_permitted [:reference_token, :fixed, :name]
 
@@ -22,35 +22,35 @@ defmodule Onvif.Media.Ver20.Schemas.Profile do
   @primary_key false
   @derive Jason.Encoder
   embedded_schema do
-    field(:reference_token, :string)
-    field(:fixed, :boolean)
-    field(:name, :string)
+    field :reference_token, :string
+    field :fixed, :boolean
+    field :name, :string
 
-    embeds_one(:audio_encoder_configuration, AudioEncoderConfiguration)
-    embeds_one(:audio_source_configuration, AudioSourceConfiguration)
-    embeds_one(:metadata_configuration, MetadataConfiguration)
-    embeds_one(:ptz_configuration, PtzConfiguration)
-    embeds_one(:video_analytics_configuration, VideoAnalyticsConfiguration)
-    embeds_one(:video_encoder_configuration, VideoEncoder)
-    embeds_one(:video_source_configuration, VideoSourceConfiguration)
+    embeds_one :audio_encoder_configuration, AudioEncoderConfiguration
+    embeds_one :audio_source_configuration, AudioSourceConfiguration
+    embeds_one :metadata_configuration, MetadataConfiguration
+    embeds_one :ptz_configuration, PtzConfiguration
+    embeds_one :video_analytics_configuration, VideoAnalyticsConfiguration
+    embeds_one :video_encoder_configuration, VideoEncoder
+    embeds_one :video_source_configuration, VideoSourceConfiguration
 
     embeds_one :extension, Extension, primary_key: false do
       @derive Jason.Encoder
       embeds_one :audio_decoder_configuration, AudioDecoderConfiguration, primary_key: false do
         @derive Jason.Encoder
-        field(:reference_token, :string)
-        field(:name, :string)
-        field(:use_count, :integer)
+        field :reference_token, :string
+        field :name, :string
+        field :use_count, :integer
       end
 
       embeds_one :audio_output_configuration, AudioOutputConfiguration do
         @derive Jason.Encoder
-        field(:reference_token, :string)
-        field(:name, :string)
-        field(:use_count, :integer)
-        field(:output_token, :string)
-        field(:send_primacy, :string)
-        field(:output_level, :integer)
+        field :reference_token, :string
+        field :name, :string
+        field :use_count, :integer
+        field :output_token, :string
+        field :send_primacy, :string
+        field :output_level, :integer
       end
     end
   end
@@ -87,18 +87,6 @@ defmodule Onvif.Media.Ver20.Schemas.Profile do
     %__MODULE__{}
     |> changeset(parsed)
     |> apply_action(:validate)
-  end
-
-  @spec to_json(__MODULE__.t()) ::
-          {:error,
-           %{
-             :__exception__ => any,
-             :__struct__ => Jason.EncodeError | Protocol.UndefinedError,
-             optional(atom) => any
-           }}
-          | {:ok, binary}
-  def to_json(%__MODULE__{} = schema) do
-    Jason.encode(schema)
   end
 
   def changeset(module, attrs) do

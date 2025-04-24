@@ -44,8 +44,7 @@ defmodule Onvif.Media.Profile.AudioEncoderConfiguration do
       bitrate: ~x"./tt:Bitrate/text()"i,
       sample_rate: ~x"./tt:SampleRate/text()"i,
       session_timeout: ~x"./tt:SessionTimeout/text()"s,
-      multicast_configuration:
-        ~x"./tt:Multicast"e |> transform_by(&MulticastConfiguration.parse/1)
+      multicast: ~x"./tt:Multicast"e |> transform_by(&MulticastConfiguration.parse/1)
     )
   end
 
@@ -87,6 +86,6 @@ defmodule Onvif.Media.Profile.AudioEncoderConfiguration do
       :sample_rate,
       :session_timeout
     ])
-    |> cast_embed(:multicast_configuration)
+    |> cast_embed(:multicast)
   end
 end
