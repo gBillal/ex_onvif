@@ -1,8 +1,5 @@
 # Onvif
 
-[![Hex.pm](https://img.shields.io/hexpm/v/onvif.svg)](https://hex.pm/packages/onvif)
-[![API Docs](https://img.shields.io/badge/api-docs-yellow.svg?style=flat)](https://hexdocs.pm/onvif)
-
 **Elixir interface for Onvif functions**
 
 ## Installation
@@ -12,7 +9,7 @@ The package can be installed by adding `onvif` to your list of dependencies in `
 ```elixir
 def deps do
   [
-    {:onvif, "~> 0.5.0"}
+    {:onvif, github: "gBillal/onvif", ref: "v0.6.0"}
   ]
 end
 ```
