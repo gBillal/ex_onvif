@@ -4,7 +4,47 @@ defmodule Onvif.Media2Test do
   @moduletag capture_log: true
 
   alias Onvif.Media.Profile.VideoSourceConfiguration
-  alias Onvif.Media2.VideoEncoderConfigurationOption
+  alias Onvif.Media2.{ServiceCapabilities, VideoEncoderConfigurationOption}
+
+  test "get service capabitiies" do
+    xml_response = File.read!("test/fixtures/get_media2_service_capabilities.xml")
+
+    device = Onvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+    {:ok, response} = Onvif.Media2.get_service_capabilities(device)
+
+    assert %ServiceCapabilities{
+             snapshot_uri: true,
+             video_source_mode: false,
+             rotation: false,
+             osd: true,
+             temporary_osd_text: nil,
+             mask: true,
+             source_mask: nil,
+             web_rtc: nil,
+             profile_capabilities: %ServiceCapabilities.ProfileCapabilities{
+               maximum_number_of_profiles: 8,
+               configurations_supported: [
+                 "VideoSource",
+                 "VideoEncoder",
+                 "AudioSource",
+                 "AudioEncoder",
+                 "AudioOutput",
+                 "AudioDecoder",
+                 "Metadata",
+                 "Analytics"
+               ]
+             },
+             streaming_capabilities: nil,
+             media_signing_protocol: nil
+           } == response
+
+    assert {:ok, _json} = Jason.encode(response)
+  end
 
   test "get video encoder configuration options" do
     xml_response = File.read!("test/fixtures/get_media2_video_encoder_configuration_options.xml")

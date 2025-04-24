@@ -72,7 +72,7 @@ defmodule Onvif.Media2.Profile.VideoEncoder do
       element("tt:Name", video_encoder_config.name)
       |> element("tt:UseCount", video_encoder_config.use_count)
       |> element(
-        :"tt:Encoding",
+        "tt:Encoding",
         Keyword.fetch!(
           Ecto.Enum.mappings(video_encoder_config.__struct__, :encoding),
           video_encoder_config.encoding

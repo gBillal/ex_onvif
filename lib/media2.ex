@@ -10,7 +10,7 @@ defmodule Onvif.Media2 do
   import SweetXml
 
   alias Onvif.Media.Profile.{AudioEncoderConfiguration, VideoSourceConfiguration}
-  alias Onvif.Media2.{Profile, VideoEncoderConfigurationOption}
+  alias Onvif.Media2.{Profile, ServiceCapabilities, VideoEncoderConfigurationOption}
   alias Onvif.Media2.Profile.VideoEncoder
 
   @type encoder_options_opts :: [configuration_token: String.t(), profile_token: String.t()]
@@ -107,6 +107,15 @@ defmodule Onvif.Media2 do
       )
 
     media2_request(device, "GetProfiles", body, &parse_get_profiles_response/1)
+  end
+
+  @doc """
+  Returns the capabilities of the media service.
+  """
+  @spec get_service_capabilities(Device.t()) :: {:ok, ServiceCapabilities.t()} | {:error, any()}
+  def get_service_capabilities(device) do
+    body = element(:"s:Body", [element(:"tr2:GetServiceCapabilities")])
+    media2_request(device, "GetServiceCapabilities", body, &parse_service_capabilities/1)
   end
 
   @doc """
@@ -302,6 +311,19 @@ defmodule Onvif.Media2 do
       |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
     )
     |> map_reduce(VideoEncoderConfigurationOption)
+  end
+
+  defp parse_service_capabilities(xml_response_body) do
+    xml_response_body
+    |> parse(namespace_conformant: true, quiet: true)
+    |> xpath(
+      ~x"//s:Envelope/s:Body/tr2:GetServiceCapabilitiesResponse/tr2:Capabilities"e
+      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+      |> add_namespace("tr2", "http://www.onvif.org/ver20/media/wsdl")
+      |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+    )
+    |> ServiceCapabilities.parse()
+    |> ServiceCapabilities.to_struct()
   end
 
   defp parse_video_source_configurations_response(xml_response_body) do

@@ -58,8 +58,7 @@ defmodule Onvif.MixProject do
         Onvif.Devices,
         Onvif.Devices.Schemas,
         Onvif.Media,
-        Onvif.Media.Ver20,
-        Onvif.Media.Ver20.Schemas,
+        Onvif.Media2,
         Onvif.Recording,
         Onvif.Replay,
         Onvif.Replay.Schemas,
@@ -79,11 +78,9 @@ defmodule Onvif.MixProject do
         Interfaces: [
           Onvif.Devices,
           Onvif.Media,
+          Onvif.Media2,
           Onvif.Recording,
           Onvif.Search
-        ],
-        Media20: [
-          ~r/^Onvif.Media.Ver20.*/
         ],
         Replay: [
           ~r/^Onvif.Replay.*/
