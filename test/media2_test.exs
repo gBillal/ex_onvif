@@ -3,6 +3,7 @@ defmodule Onvif.Media2Test do
 
   @moduletag capture_log: true
 
+  alias Onvif.Media.Profile.VideoSourceConfiguration
   alias Onvif.Media2.VideoEncoderConfigurationOption
 
   test "get video encoder configuration options" do
@@ -89,5 +90,30 @@ defmodule Onvif.Media2Test do
            ] == response
 
     assert {:ok, _json} = Jason.encode(response)
+  end
+
+  test "get video source configurations" do
+    xml_response = File.read!("test/fixtures/get_media2_video_source_configurations.xml")
+
+    device = Onvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+    {:ok, [response]} = Onvif.Media2.get_video_source_configurations(device)
+
+    assert %VideoSourceConfiguration{
+             name: "user0",
+             reference_token: "0",
+             source_token: "0",
+             use_count: 4,
+             bounds: %VideoSourceConfiguration.Bounds{
+               height: 2160,
+               width: 3840,
+               x: 0,
+               y: 0
+             }
+           } == response
   end
 end

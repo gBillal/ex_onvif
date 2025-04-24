@@ -9,7 +9,7 @@ defmodule Onvif.Media2 do
   import Onvif.Utils.XmlBuilder
   import SweetXml
 
-  alias Onvif.Media.Profile.AudioEncoderConfiguration
+  alias Onvif.Media.Profile.{AudioEncoderConfiguration, VideoSourceConfiguration}
   alias Onvif.Media2.{Profile, VideoEncoderConfigurationOption}
   alias Onvif.Media2.Profile.VideoEncoder
 
@@ -26,15 +26,7 @@ defmodule Onvif.Media2 do
   @spec get_audio_encoder_configurations(Device.t()) ::
           {:ok, [AudioEncoderConfiguration.t()]} | {:error, any()}
   def get_audio_encoder_configurations(device, opts \\ []) do
-    body =
-      element(
-        "s:Body",
-        element(
-          "tr2:GetAudioEncoderConfigurations",
-          element("tr2:ConfigurationToken", opts[:configuration_token])
-          |> element("tr2:ProfileToken", opts[:profile_token])
-        )
-      )
+    body = encode_encoder_options("GetAudioEncoderConfigurations", opts)
 
     media2_request(
       device,
@@ -130,15 +122,7 @@ defmodule Onvif.Media2 do
           encoder_options_opts()
         ) :: {:ok, [VideoEncoderConfigurationOption.t()]} | {:error, any()}
   def get_video_encoder_configuration_options(device, opts \\ []) do
-    body =
-      element(
-        "s:Body",
-        element(
-          "tr2:GetVideoEncoderConfigurationOptions",
-          element("tr2:ConfigurationToken", opts[:configuration_token])
-          |> element("tr2:ProfileToken", opts[:profile_token])
-        )
-      )
+    body = encode_encoder_options("GetVideoEncoderConfigurationOptions", opts)
 
     media2_request(
       device,
@@ -159,21 +143,45 @@ defmodule Onvif.Media2 do
           encoder_options_opts()
         ) :: {:ok, [VideoEncoderConfiguration.t()]} | {:error, any()}
   def get_video_encoder_configurations(device, opts \\ []) do
-    body =
-      element(
-        "s:Body",
-        element(
-          "tr2:GetVideoEncoderConfigurations",
-          element("tr2:ConfigurationToken", opts[:configuration_token])
-          |> element("tr2:ProfileToken", opts[:profile_token])
-        )
-      )
+    body = encode_encoder_options("GetVideoEncoderConfigurations", opts)
 
     media2_request(
       device,
       "GetVideoEncoderConfigurations",
       body,
       &parse_get_video_encoder_configurations_response/1
+    )
+  end
+
+  @doc """
+  By default this operation lists all existing video source configurations for a device.
+
+  Provide a profile token to list only configurations that are compatible with the profile. If a configuration token
+  is provided only a single configuration will be returned.
+  """
+  @spec get_video_source_configurations(Onvif.Device.t()) ::
+          {:ok, [VideoSourceConfiguration.t()]} | {:error, any()}
+  @spec get_video_source_configurations(Onvif.Device.t(), encoder_options_opts()) ::
+          {:ok, [VideoSourceConfiguration.t()]} | {:error, any()}
+  def get_video_source_configurations(device, opts \\ []) do
+    body = encode_encoder_options("GetVideoSourceConfigurations", opts)
+
+    media2_request(
+      device,
+      "GetVideoSourceConfigurations",
+      body,
+      &parse_video_source_configurations_response/1
+    )
+  end
+
+  defp encode_encoder_options(operation, opts) do
+    element(
+      "s:Body",
+      element(
+        "tr2:#{operation}",
+        element("tr2:ConfigurationToken", opts[:configuration_token])
+        |> element("tr2:ProfileToken", opts[:profile_token])
+      )
     )
   end
 
@@ -186,17 +194,7 @@ defmodule Onvif.Media2 do
       |> add_namespace("tr2", "http://www.onvif.org/ver20/media/wsdl")
       |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
     )
-    |> Enum.map(&AudioEncoderConfiguration.parse/1)
-    |> Enum.reduce_while([], fn raw_config, acc ->
-      case AudioEncoderConfiguration.to_struct(raw_config) do
-        {:ok, config} -> {:cont, [config | acc]}
-        error -> {:halt, error}
-      end
-    end)
-    |> case do
-      {:error, _reason} = err -> err
-      configs -> {:ok, Enum.reverse(configs)}
-    end
+    |> map_reduce(AudioEncoderConfiguration)
   end
 
   defp parse_get_snapshot_uri_response(xml_response_body) do
@@ -234,17 +232,7 @@ defmodule Onvif.Media2 do
       |> add_namespace("tr2", "http://www.onvif.org/ver20/media/wsdl")
       |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
     )
-    |> Enum.map(&Profile.parse/1)
-    |> Enum.reduce_while([], fn raw_profile, acc ->
-      case Profile.to_struct(raw_profile) do
-        {:ok, profile} -> {:cont, [profile | acc]}
-        error -> {:halt, error}
-      end
-    end)
-    |> case do
-      {:error, _reason} = err -> err
-      profiles -> {:ok, Enum.reverse(profiles)}
-    end
+    |> map_reduce(Profile)
   end
 
   defp parse_get_video_encoder_configurations_response(xml_response_body) do
@@ -256,17 +244,7 @@ defmodule Onvif.Media2 do
       |> add_namespace("tr2", "http://www.onvif.org/ver20/media/wsdl")
       |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
     )
-    |> Enum.map(&VideoEncoder.parse/1)
-    |> Enum.reduce_while([], fn raw_config, acc ->
-      case VideoEncoder.to_struct(raw_config) do
-        {:ok, config} -> {:cont, [config | acc]}
-        error -> {:halt, error}
-      end
-    end)
-    |> case do
-      {:error, _reason} = err -> err
-      configs -> {:ok, Enum.reverse(configs)}
-    end
+    |> map_reduce(VideoEncoder)
   end
 
   defp parse_get_video_encoder_configuration_options_response(xml_response_body) do
@@ -278,16 +256,33 @@ defmodule Onvif.Media2 do
       |> add_namespace("tr2", "http://www.onvif.org/ver20/media/wsdl")
       |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
     )
-    |> Enum.map(&VideoEncoderConfigurationOption.parse/1)
+    |> map_reduce(VideoEncoderConfigurationOption)
+  end
+
+  defp parse_video_source_configurations_response(xml_response_body) do
+    xml_response_body
+    |> parse(namespace_conformant: true, quiet: true)
+    |> xpath(
+      ~x"//s:Envelope/s:Body/tr2:GetVideoSourceConfigurationsResponse/tr2:Configurations"el
+      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+      |> add_namespace("tr2", "http://www.onvif.org/ver20/media/wsdl")
+      |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+    )
+    |> map_reduce(VideoSourceConfiguration)
+  end
+
+  defp map_reduce(entries, module) do
+    entries
+    |> Enum.map(&module.parse/1)
     |> Enum.reduce_while([], fn raw_config, acc ->
-      case VideoEncoderConfigurationOption.to_struct(raw_config) do
+      case module.to_struct(raw_config) do
         {:ok, config} -> {:cont, [config | acc]}
         error -> {:halt, error}
       end
     end)
     |> case do
       {:error, _reason} = err -> err
-      options -> {:ok, Enum.reverse(options)}
+      configs -> {:ok, Enum.reverse(configs)}
     end
   end
 end
