@@ -174,6 +174,29 @@ defmodule Onvif.Media2 do
     )
   end
 
+  @doc """
+  This operation modifies an audio encoder configuration.
+
+  Running streams using this configuration may be immediately updated according to the new settings. The changes are not guaranteed
+  to take effect unless the client requests a new stream URI and restarts any affected streams.
+  """
+  @spec set_audio_encoder_configuration(
+          Onvif.Device.t(),
+          AudioEncoderConfiguration.t()
+        ) :: :ok | {:error, any()}
+  def set_audio_encoder_configuration(device, audio_configuration) do
+    body =
+      element(
+        "s:Body",
+        element(
+          "tr2:SetAudioEncoderConfiguration",
+          AudioEncoderConfiguration.encode(audio_configuration, "tr2:Configuration")
+        )
+      )
+
+    media2_request(device, "SetAudioEncoderConfiguration", body, fn _body -> :ok end)
+  end
+
   defp encode_encoder_options(operation, opts) do
     element(
       "s:Body",
