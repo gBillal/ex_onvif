@@ -26,6 +26,11 @@ defmodule Onvif.Utils.ApiClient do
     "xmlns:tt": "http://www.onvif.org/ver10/schema"
   ]
 
+  @replay_namespaces [
+    "xmlns:trp": "http://www.onvif.org/ver10/replay/wsdl",
+    "xmlns:tt": "http://www.onvif.org/ver10/schema"
+  ]
+
   def devicemgmt_request(device, action, content, parser_fn) do
     action = "http://www.onvif.org/ver10/device/wsdl/" <> action
     do_request(device, :device_service_path, @devicemgmt_namespaces, action, content, parser_fn)
@@ -77,6 +82,19 @@ defmodule Onvif.Utils.ApiClient do
       device,
       :search_ver10_service_path,
       @search_namespaces,
+      action,
+      content,
+      parser_fn
+    )
+  end
+
+  def replay_request(device, action, content, parser_fn) do
+    action = "http://www.onvif.org/ver10/replay/wsdl/" <> action
+
+    do_request(
+      device,
+      :replay_ver10_service_path,
+      @replay_namespaces,
       action,
       content,
       parser_fn

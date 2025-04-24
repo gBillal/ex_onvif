@@ -1,45 +1,45 @@
 defmodule Onvif.Replay.ServiceCapabilities do
-  @fields [
-    rtp_rtsp_tcp: false,
-    reverse_playback: false,
-    session_timeout_range: "0",
-    rtsp_web_socket_uri: false,
-    receive_source: false,
-    media_profile_source: false,
-    dynamic_recordings: false,
-    dynamic_tracks: false,
-    max_string_length: "0"
-  ]
-
-  defstruct Keyword.keys(@fields)
-
-  @type t() :: %__MODULE__{
-          rtp_rtsp_tcp: boolean(),
-          reverse_playback: boolean(),
-          session_timeout_range: String.t(),
-          rtsp_web_socket_uri: boolean(),
-          receive_source: boolean(),
-          media_profile_source: boolean(),
-          dynamic_recordings: boolean(),
-          dynamic_tracks: boolean(),
-          max_string_length: String.t()
-        }
-
-  @doc """
-  Converts a parsed map into a %Onvif.Replay.ServiceCapabilities{} struct with validated types.
+  @moduledoc """
+  Schema describing the capabilities of the Replay service.
   """
-  def from_parsed(parsed) do
-    # Ensure only valid keys and convert values
-    converted =
-      @fields
-      |> Enum.map(fn {key, _default} -> {key, convert_value(key, Map.get(parsed, key))} end)
-      |> Enum.into(%{})
 
-    struct(__MODULE__, converted)
+  use Ecto.Schema
+
+  import Ecto.Changeset
+  import SweetXml
+
+  @type t :: %__MODULE__{}
+
+  @primary_key false
+  @derive Jason.Encoder
+  embedded_schema do
+    field :reverse_playback, :boolean, default: false
+    field :session_timeout_range, {:array, :float}
+    field :rtp_rtsp_tcp, :boolean, default: false
+    field :rtsp_web_socket_uri, :string
   end
 
-  defp convert_value(_key, "true"), do: true
-  defp convert_value(_key, "false"), do: false
-  defp convert_value(_key, nil), do: nil
-  defp convert_value(_key, value), do: value
+  def parse(doc) do
+    xmap(doc,
+      reverse_playback: ~x"./@ReversePlayback"s,
+      session_timeout_range: ~x"./@SessionTimeoutRange"s |> transform_by(&String.split(&1, " ")),
+      rtp_rtsp_tcp: ~x"./@RTP_RTSP_TCP"s,
+      rtsp_web_socket_uri: ~x"./@RTSPWebSocketURI"s
+    )
+  end
+
+  def to_struct(parsed) do
+    %__MODULE__{}
+    |> changeset(parsed)
+    |> apply_action(:validate)
+  end
+
+  def changeset(struct, params) do
+    cast(struct, params, [
+      :reverse_playback,
+      :session_timeout_range,
+      :rtp_rtsp_tcp,
+      :rtsp_web_socket_uri
+    ])
+  end
 end

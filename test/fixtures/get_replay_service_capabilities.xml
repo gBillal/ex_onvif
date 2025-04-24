@@ -52,22 +52,9 @@
   xmlns:tns1="http://www.onvif.org/ver10/topics"
   xmlns:tnsaxis="http://www.axis.com/2009/event/topics">
   <SOAP-ENV:Body>
-    <SOAP-ENV:Fault>
-      <SOAP-ENV:Code>
-        <SOAP-ENV:Value>SOAP-ENV:Sender</SOAP-ENV:Value>
-        <SOAP-ENV:Subcode>
-          <SOAP-ENV:Value>ter:InvalidArgVal</SOAP-ENV:Value>
-          <SOAP-ENV:Subcode>
-            <SOAP-ENV:Value>ter:NoRecording</SOAP-ENV:Value>
-          </SOAP-ENV:Subcode>
-        </SOAP-ENV:Subcode>
-      </SOAP-ENV:Code>
-      <SOAP-ENV:Reason>
-        <SOAP-ENV:Text xml:lang="en">Recording not found</SOAP-ENV:Text>
-      </SOAP-ENV:Reason>
-      <SOAP-ENV:Detail>
-        <SOAP-ENV:Text>The requested recording with the specified RecordingToken can not be found</SOAP-ENV:Text>
-      </SOAP-ENV:Detail>
-    </SOAP-ENV:Fault>
+    <trp:GetServiceCapabilitiesResponse>
+      <trp:Capabilities RTP_RTSP_TCP="true" SessionTimeoutRange="0 4294967295" ReversePlayback="false">
+      </trp:Capabilities>
+    </trp:GetServiceCapabilitiesResponse>
   </SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

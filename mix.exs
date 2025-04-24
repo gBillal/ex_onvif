@@ -56,12 +56,10 @@ defmodule Onvif.MixProject do
         Onvif.Device,
         Onvif.Schemas,
         Onvif.Devices,
-        Onvif.Devices.Schemas,
         Onvif.Media,
         Onvif.Media2,
         Onvif.Recording,
         Onvif.Replay,
-        Onvif.Replay.Schemas,
         Onvif.Search,
         Onvif.PTZ,
         Onvif.PTZ.Schemas
@@ -72,26 +70,26 @@ defmodule Onvif.MixProject do
           ~r/^Onvif.Discovery.*/,
           Onvif.Device,
           Onvif.MacAddress,
-          Onvif.Request,
-          ~r/Onvif.Schemas.*/
+          Onvif.Request
         ],
         Interfaces: [
           Onvif.Devices,
           Onvif.Media,
           Onvif.Media2,
           Onvif.Recording,
+          Onvif.Replay,
           Onvif.Search
-        ],
-        Replay: [
-          ~r/^Onvif.Replay.*/
         ],
         PTZ: [
           ~r/^Onvif.PTZ.*/
         ],
         Schemas: [
+          ~r/^Onvif.Schemas.*/,
           ~r/^Onvif.Devices.*/,
           ~r/^Onvif.Media.*/,
+          ~r/^Onvif.Media2.*/,
           ~r/^Onvif.Recording.*/,
+          ~r/^Onvif.Replay.*/,
           ~r/^Onvif.Search.*/
         ]
       ]
