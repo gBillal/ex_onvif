@@ -6,6 +6,7 @@ defmodule Onvif.Media do
   """
 
   import Onvif.Utils.ApiClient, only: [media_request: 4]
+  import Onvif.Utils.Parser
   import Onvif.Utils.XmlBuilder
   import SweetXml
 
@@ -27,7 +28,7 @@ defmodule Onvif.Media do
   """
   @spec create_osd(Onvif.Device.t(), OSD.t()) :: {:ok, String.t()} | {:error, any()}
   def create_osd(device, osd) do
-    body = element(:"s:Body", element(:"trt:CreateOSD", OSD.encode(osd)))
+    body = element(:"trt:CreateOSD", OSD.encode(osd))
     media_request(device, "CreateOSD", body, &parse_create_osd_response/1)
   end
 
@@ -36,7 +37,7 @@ defmodule Onvif.Media do
   """
   @spec delete_osd(Onvif.Device.t(), String.t()) :: :ok | {:error, any()}
   def delete_osd(device, token) do
-    body = element(:"s:Body", element(:"trt:DeleteOSD", element(:"trt:OSDToken", token)))
+    body = element(:"trt:DeleteOSD", element(:"trt:OSDToken", token))
     media_request(device, "DeleteOSD", body, fn _body -> :ok end)
   end
 
@@ -48,11 +49,8 @@ defmodule Onvif.Media do
   def get_audio_encoder_configuration(device, config_token) do
     body =
       element(
-        :"s:Body",
-        element(
-          :"trt:GetAudioEncoderConfiguration",
-          element(:"trt:ConfigurationToken", config_token)
-        )
+        :"trt:GetAudioEncoderConfiguration",
+        element(:"trt:ConfigurationToken", config_token)
       )
 
     media_request(
@@ -71,13 +69,11 @@ defmodule Onvif.Media do
           {:ok, AudioEncoderConfigurationOptions.t()} | {:error, any()}
   def get_audio_configuration_options(device, opts \\ []) do
     body =
-      element(:"s:Body", [
-        element(
-          :"trt:GetAudioEncoderConfigurationOptions",
-          element(:"trt:ConfigurationToken", opts[:configuration_token])
-          |> element(:"trt:ProfileToken", opts[:profile_token])
-        )
-      ])
+      element(
+        :"trt:GetAudioEncoderConfigurationOptions",
+        element(:"trt:ConfigurationToken", opts[:configuration_token])
+        |> element(:"trt:ProfileToken", opts[:profile_token])
+      )
 
     media_request(
       device,
@@ -92,7 +88,7 @@ defmodule Onvif.Media do
   """
   @spec get_osd(Onvif.Device.t(), String.t()) :: {:ok, OSD.t()} | {:error, any()}
   def get_osd(device, token) do
-    body = element(:"s:Body", element(:"trt:GetOSD", element(:"trt:OSDToken", token)))
+    body = element(:"trt:GetOSD", element(:"trt:OSDToken", token))
     media_request(device, "GetOSD", body, &parse_osd_response/1)
   end
 
@@ -103,9 +99,7 @@ defmodule Onvif.Media do
   @spec get_osd_options(Onvif.Device.t(), String.t() | nil) ::
           {:ok, OSDOptions.t()} | {:error, any()}
   def get_osd_options(device, token \\ nil) do
-    body =
-      element(:"s:Body", element(:"trt:GetOSDOptions", element(:"trt:ConfigurationToken", token)))
-
+    body = element(:"trt:GetOSDOptions", element(:"trt:ConfigurationToken", token))
     media_request(device, "GetOSDOptions", body, &parse_osd_options_response/1)
   end
 
@@ -115,11 +109,7 @@ defmodule Onvif.Media do
   @spec get_osds(Onvif.Device.t()) :: {:ok, [OSD.t()]} | {:error, any()}
   @spec get_osds(Onvif.Device.t(), String.t() | nil) :: {:ok, [OSD.t()]} | {:error, any()}
   def get_osds(device, configuration_token \\ nil) do
-    body =
-      element(:"s:Body", [
-        element(:"trt:GetOSDs", element(:"trt:ConfigurationToken", configuration_token))
-      ])
-
+    body = element(:"trt:GetOSDs", element(:"trt:ConfigurationToken", configuration_token))
     media_request(device, "GetOSDs", body, &parse_osds_response/1)
   end
 
@@ -128,7 +118,7 @@ defmodule Onvif.Media do
   """
   @spec get_profile(Onvif.Device.t(), String.t()) :: {:ok, Profile.t()} | {:error, any()}
   def get_profile(device, token) do
-    body = element(:"s:Body", element(:"trt:GetProfile", element(:"trt:ProfileToken", token)))
+    body = element(:"trt:GetProfile", element(:"trt:ProfileToken", token))
     media_request(device, "GetProfile", body, &parse_profile_response/1)
   end
 
@@ -140,8 +130,7 @@ defmodule Onvif.Media do
   """
   @spec get_profiles(Onvif.Device.t()) :: {:ok, [Profile.t()]} | {:error, any()}
   def get_profiles(device) do
-    body = element(:"s:Body", [element(:"trt:GetProfiles")])
-    media_request(device, "GetProfiles", body, &parse_profiles_response/1)
+    media_request(device, "GetProfiles", :"trt:GetProfiles", &parse_profiles_response/1)
   end
 
   @doc """
@@ -150,8 +139,12 @@ defmodule Onvif.Media do
   @spec get_service_capabilities(Onvif.Device.t()) ::
           {:ok, ServiceCapabilities.t()} | {:error, any()}
   def get_service_capabilities(device) do
-    body = element(:"s:Body", [element(:"trt:GetServiceCapabilities")])
-    media_request(device, "GetServiceCapabilities", body, &parse_service_capabilities_response/1)
+    media_request(
+      device,
+      "GetServiceCapabilities",
+      :"trt:GetServiceCapabilities",
+      &parse_service_capabilities_response/1
+    )
   end
 
   @doc """
@@ -162,12 +155,7 @@ defmodule Onvif.Media do
   """
   @spec get_snapshot_uri(Onvif.Device.t(), String.t()) :: {:ok, String.t()} | {:error, any()}
   def get_snapshot_uri(device, profile_token) do
-    body =
-      element(
-        :"s:Body",
-        element(:"trt:GetSnapshotUri", element(:"trt:ProfileToken", profile_token))
-      )
-
+    body = element(:"trt:GetSnapshotUri", element(:"trt:ProfileToken", profile_token))
     media_request(device, "GetSnapshotUri", body, &parse_snapshot_uri_response/1)
   end
 
@@ -185,16 +173,14 @@ defmodule Onvif.Media do
   @spec get_stream_uri(Onvif.Device.t(), String.t(), String.t(), String.t()) ::
           {:ok, String.t()} | {:error, any()}
   def get_stream_uri(device, profile_token, stream \\ "RTP-Unicast", transport_protocol \\ "UDP") do
-    stream_setup =
-      element(:"tt:Stream", stream)
-      |> element(:"tt:Transport", element(:"tt:Protocol", transport_protocol))
-
     body =
       element(
-        "s:Body",
-        element(
-          :"trt:GetStreamUri",
-          element(:"trt:ProfileToken", profile_token) |> element(:"trt:StreamSetup", stream_setup)
+        :"trt:GetStreamUri",
+        element(:"trt:ProfileToken", profile_token)
+        |> element(
+          :"trt:StreamSetup",
+          element(:"tt:Stream", stream)
+          |> element(:"tt:Transport", element(:"tt:Protocol", transport_protocol))
         )
       )
 
@@ -209,11 +195,8 @@ defmodule Onvif.Media do
   def get_video_encoder_configuration(device, config_token) do
     body =
       element(
-        :"s:Body",
-        element(
-          :"trt:GetVideoEncoderConfiguration",
-          element(:"trt:ConfigurationToken", config_token)
-        )
+        :"trt:GetVideoEncoderConfiguration",
+        element(:"trt:ConfigurationToken", config_token)
       )
 
     media_request(
@@ -240,12 +223,9 @@ defmodule Onvif.Media do
   def get_video_encoder_configuration_options(device, opts \\ []) do
     body =
       element(
-        :"s:Body",
-        element(
-          :"trt:GetVideoEncoderConfigurationOptions",
-          element(:"trt:ConfigurationToken", opts[:configuration_token])
-          |> element(:"trt:ProfileToken", opts[:profile_token])
-        )
+        :"trt:GetVideoEncoderConfigurationOptions",
+        element(:"trt:ConfigurationToken", opts[:configuration_token])
+        |> element(:"trt:ProfileToken", opts[:profile_token])
       )
 
     media_request(
@@ -267,13 +247,11 @@ defmodule Onvif.Media do
         ) :: :ok | {:error, any()}
   def set_audio_encoder_configuration(device, encoder_config) do
     body =
-      element(:"s:Body", [
-        element(
-          :"trt:SetAudioEncoderConfiguration",
-          AudioEncoderConfiguration.encode(encoder_config, "tt:Configuration")
-        )
-        |> element("trt:ForcePeristence", true)
-      ])
+      element(
+        :"trt:SetAudioEncoderConfiguration",
+        AudioEncoderConfiguration.encode(encoder_config, "tt:Configuration")
+      )
+      |> element("trt:ForcePeristence", true)
 
     media_request(device, "SetAudioEncoderConfiguration", body, fn _body -> :ok end)
   end
@@ -283,7 +261,7 @@ defmodule Onvif.Media do
   """
   @spec set_osd(Onvif.Device.t(), OSD.t()) :: :ok | {:error, any()}
   def set_osd(device, osd) do
-    body = element(:"s:Body", element(:"trt:SetOSD", OSD.encode(osd)))
+    body = element(:"trt:SetOSD", OSD.encode(osd))
     media_request(device, "SetOSD", body, fn _body -> :ok end)
   end
 
@@ -305,12 +283,10 @@ defmodule Onvif.Media do
         ) :: :ok | {:error, any()}
   def set_video_encoder_configuration(device, encoder_config) do
     body =
-      element(:"s:Body", [
-        element(
-          :"trt:SetVideoEncoderConfiguration",
-          VideoEncoderConfiguration.encode(encoder_config, "tt:Configuration")
-        )
-      ])
+      element(
+        :"trt:SetVideoEncoderConfiguration",
+        VideoEncoderConfiguration.encode(encoder_config, "tt:Configuration")
+      )
 
     media_request(device, "SetVideoEncoderConfiguration", body, fn _body -> :ok end)
   end
@@ -351,17 +327,7 @@ defmodule Onvif.Media do
       |> add_namespace("trt", "http://www.onvif.org/ver10/media/wsdl")
       |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
     )
-    |> Enum.map(&Profile.parse/1)
-    |> Enum.reduce_while([], fn raw_profile, acc ->
-      case Profile.to_struct(raw_profile) do
-        {:ok, profile} -> {:cont, [profile | acc]}
-        err -> {:halt, err}
-      end
-    end)
-    |> case do
-      {:error, _reason} = err -> err
-      profiles -> {:ok, Enum.reverse(profiles)}
-    end
+    |> parse_map_reduce(Profile)
   end
 
   defp parse_osd_response(xml_response_body) do
@@ -399,17 +365,7 @@ defmodule Onvif.Media do
       |> add_namespace("trt", "http://www.onvif.org/ver10/media/wsdl")
       |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
     )
-    |> Enum.map(&OSD.parse/1)
-    |> Enum.reduce_while([], fn raw_osd, acc ->
-      case OSD.to_struct(raw_osd) do
-        {:ok, osd} -> {:cont, [osd | acc]}
-        err -> {:halt, err}
-      end
-    end)
-    |> case do
-      {:error, _reason} = err -> err
-      osds -> {:ok, Enum.reverse(osds)}
-    end
+    |> parse_map_reduce(OSD)
   end
 
   defp parse_service_capabilities_response(xml_response_body) do

@@ -21,8 +21,7 @@ defmodule Onvif.PTZ do
   """
   @spec get_nodes(Onvif.Device.t()) :: {:ok, [Node.t()]} | {:error, map()}
   def get_nodes(device) do
-    body = element(:"s:Body", [:"tptz:GetNodes"])
-    ptz_request(device, "GetNodes", body, &parse_nodes_response/1)
+    ptz_request(device, "GetNodes", :"tptz:GetNodes", &parse_nodes_response/1)
   end
 
   @doc """
@@ -31,7 +30,7 @@ defmodule Onvif.PTZ do
   @spec get_service_capabilities(Onvif.Device.t()) ::
           {:ok, ServiceCapabilities.t()} | {:error, any()}
   def get_service_capabilities(device) do
-    body = element(:"s:Body", [:"tptz:GetServiceCapabilities"])
+    body = :"tptz:GetServiceCapabilities"
     ptz_request(device, "GetServiceCapabilities", body, &parse_service_capabilities/1)
   end
 
@@ -40,9 +39,7 @@ defmodule Onvif.PTZ do
   """
   @spec get_status(Onvif.Device.t(), String.t()) :: {:ok, Status.t()} | {:error, any()}
   def get_status(device, profile_token) do
-    body =
-      element("s:Body", element("tptz:GetStatus", element("tptz:ProfileToken", profile_token)))
-
+    body = element("tptz:GetStatus", element("tptz:ProfileToken", profile_token))
     ptz_request(device, "GetStatus", body, &parse_status_response/1)
   end
 

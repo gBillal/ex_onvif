@@ -32,7 +32,7 @@ defmodule Onvif.Search do
   """
   @spec find_events(Onvif.Device.t(), FindEvents.t()) :: {:ok, String.t()} | {:error, any()}
   def find_events(device, find_events) do
-    body = element(:"s:Body", [FindEvents.encode(find_events)])
+    body = FindEvents.encode(find_events)
     search_request(device, "FindEvents", body, &parse_find_token_response/1)
   end
 
@@ -52,7 +52,7 @@ defmodule Onvif.Search do
   @spec find_recordings(Onvif.Device.t(), FindRecordings.t()) ::
           {:ok, String.t()} | {:error, any()}
   def find_recordings(device, find_recordings) do
-    body = element(:"s:Body", [FindRecordings.encode(find_recordings)])
+    body = FindRecordings.encode(find_recordings)
     search_request(device, "FindRecordings", body, &parse_find_token_response/1)
   end
 
@@ -74,7 +74,7 @@ defmodule Onvif.Search do
   @spec get_recording_search_results(Onvif.Device.t(), GetRecordingSearchResults.t()) ::
           {:ok, FindRecordingResult.t()} | {:error, any()}
   def get_recording_search_results(device, recording_search_result) do
-    body = element(:"s:Body", [GetRecordingSearchResults.encode(recording_search_result)])
+    body = GetRecordingSearchResults.encode(recording_search_result)
 
     search_request(
       device,
@@ -89,7 +89,7 @@ defmodule Onvif.Search do
   """
   @spec get_recording_summary(Onvif.Device.t()) :: {:ok, RecordingSummary.t()} | {:error, any()}
   def get_recording_summary(device) do
-    body = element(:"s:Body", [element(:"tse:GetRecordingSummary")])
+    body = element(:"tse:GetRecordingSummary")
     search_request(device, "GetRecordingSummary", body, &parse_get_recording_summary/1)
   end
 

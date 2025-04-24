@@ -128,7 +128,10 @@ defmodule Onvif.Utils.ApiClient do
         {"Content-Type", "application/soap+xml"},
         {"SOAPAction", action}
       ],
-      body: %Onvif.Request{content: content, namespaces: namespaces}
+      body: %Onvif.Request{
+        content: XmlBuilder.element(:"s:Body", List.wrap(content)),
+        namespaces: namespaces
+      }
     )
     |> parse_response(parser_fn)
   end

@@ -47,15 +47,7 @@ defmodule Onvif.Media2 do
   """
   @spec get_snapshot_uri(Device.t(), String.t()) :: {:ok, String.t()} | {:error, any()}
   def get_snapshot_uri(device, profile_token) do
-    body =
-      element(
-        "s:Body",
-        element(
-          "tr2:GetSnapshotUri",
-          element("tr2:ProfileToken", profile_token)
-        )
-      )
-
+    body = element("tr2:GetSnapshotUri", element("tr2:ProfileToken", profile_token))
     media2_request(device, "GetSnapshotUri", body, &parse_get_snapshot_uri_response/1)
   end
 
@@ -77,11 +69,8 @@ defmodule Onvif.Media2 do
   def get_stream_uri(device, profile_token) do
     body =
       element(
-        "s:Body",
-        element(
-          "tr2:GetStreamUri",
-          element("tr2:ProfileToken", profile_token) |> element("tr2:Protocol", "RTSP")
-        )
+        "tr2:GetStreamUri",
+        element("tr2:ProfileToken", profile_token) |> element("tr2:Protocol", "RTSP")
       )
 
     media2_request(device, "GetStreamUri", body, &parse_get_stream_uri_response/1)
@@ -99,12 +88,9 @@ defmodule Onvif.Media2 do
   def get_profiles(device, opts \\ []) do
     body =
       element(
-        "s:Body",
-        element(
-          "tr2:GetProfiles",
-          Enum.reduce(List.wrap(opts[:type] || "All"), [], &element(&2, "tr2:Type", &1))
-          |> element("tr2:Token", opts[:token])
-        )
+        "tr2:GetProfiles",
+        Enum.reduce(List.wrap(opts[:type] || "All"), [], &element(&2, "tr2:Type", &1))
+        |> element("tr2:Token", opts[:token])
       )
 
     media2_request(device, "GetProfiles", body, &parse_get_profiles_response/1)
@@ -115,7 +101,7 @@ defmodule Onvif.Media2 do
   """
   @spec get_service_capabilities(Device.t()) :: {:ok, ServiceCapabilities.t()} | {:error, any()}
   def get_service_capabilities(device) do
-    body = element(:"s:Body", [element(:"tr2:GetServiceCapabilities")])
+    body = element(:"tr2:GetServiceCapabilities")
     media2_request(device, "GetServiceCapabilities", body, &parse_service_capabilities/1)
   end
 
@@ -197,11 +183,8 @@ defmodule Onvif.Media2 do
   def set_audio_encoder_configuration(device, audio_configuration) do
     body =
       element(
-        "s:Body",
-        element(
-          "tr2:SetAudioEncoderConfiguration",
-          AudioEncoderConfiguration.encode(audio_configuration, "tr2:Configuration")
-        )
+        "tr2:SetAudioEncoderConfiguration",
+        AudioEncoderConfiguration.encode(audio_configuration, "tr2:Configuration")
       )
 
     media2_request(device, "SetAudioEncoderConfiguration", body, fn _body -> :ok end)
@@ -220,23 +203,15 @@ defmodule Onvif.Media2 do
   @spec set_video_encoder_configuration(Onvif.Device.t(), VideoEncoder.t()) ::
           :ok | {:error, any()}
   def set_video_encoder_configuration(device, video_configuration) do
-    body =
-      element(
-        "s:Body",
-        element("tr2:SetVideoEncoderConfiguration", VideoEncoder.encode(video_configuration))
-      )
-
+    body = element("tr2:SetVideoEncoderConfiguration", VideoEncoder.encode(video_configuration))
     media2_request(device, "SetVideoEncoderConfiguration", body, fn _body -> :ok end)
   end
 
   defp encode_encoder_options(operation, opts) do
     element(
-      "s:Body",
-      element(
-        "tr2:#{operation}",
-        element("tr2:ConfigurationToken", opts[:configuration_token])
-        |> element("tr2:ProfileToken", opts[:profile_token])
-      )
+      "tr2:#{operation}",
+      element("tr2:ConfigurationToken", opts[:configuration_token])
+      |> element("tr2:ProfileToken", opts[:profile_token])
     )
   end
 

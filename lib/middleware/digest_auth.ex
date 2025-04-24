@@ -3,8 +3,6 @@ defmodule Onvif.Middleware.DigestAuth do
 
   @behaviour Tesla.Middleware
 
-  import XmlBuilder
-
   @standard_namespaces [
     "xmlns:s": "http://www.w3.org/2003/05/soap-envelope"
   ]
@@ -15,9 +13,9 @@ defmodule Onvif.Middleware.DigestAuth do
       Tesla.run(env, next)
     else
       body =
-        generate(
-          element(:"s:Envelope", @standard_namespaces ++ env.body.namespaces, [env.body.content])
-        )
+        env.body
+        |> Onvif.Request.add_namespaces(@standard_namespaces)
+        |> Onvif.Request.encode()
 
       env = env |> Tesla.put_body(body)
 

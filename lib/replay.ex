@@ -21,17 +21,14 @@ defmodule Onvif.Replay do
   def get_replay_uri(device, recording_token, opts \\ []) do
     body =
       element(
-        "s:Body",
-        element(
-          "trp:GetReplayUri",
-          element("trp:RecordingToken", recording_token)
+        "trp:GetReplayUri",
+        element("trp:RecordingToken", recording_token)
+        |> element(
+          "trp:StreamSetup",
+          element("tt:Stream", Keyword.get(opts, :stream, "RTP-Unicast"))
           |> element(
-            "trp:StreamSetup",
-            element("tt:Stream", Keyword.get(opts, :stream, "RTP-Unicast"))
-            |> element(
-              "tt:Transport",
-              element("tt:Protocol", Keyword.get(opts, :protocol, "RTSP"))
-            )
+            "tt:Transport",
+            element("tt:Protocol", Keyword.get(opts, :protocol, "RTSP"))
           )
         )
       )
@@ -45,7 +42,7 @@ defmodule Onvif.Replay do
   @spec get_service_capabilities(Onvif.Device.t()) ::
           {:ok, ServiceCapabilities.t()} | {:error, any()}
   def get_service_capabilities(device) do
-    body = element(:"s:Body", [element(:"trp:GetServiceCapabilities")])
+    body = element(:"trp:GetServiceCapabilities")
     replay_request(device, "GetServiceCapabilities", body, &parse_service_capabilities/1)
   end
 
