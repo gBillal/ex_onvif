@@ -197,6 +197,28 @@ defmodule Onvif.Media2 do
     media2_request(device, "SetAudioEncoderConfiguration", body, fn _body -> :ok end)
   end
 
+  @doc """
+  This operation modifies a video encoder configuration.
+
+  Running streams using this configuration may be immediately updated according to the new settings. The changes are not guaranteed to take
+  effect unless the client requests a new stream URI and restarts any affected stream.
+
+  SessionTimeout is provided as a hint for keeping rtsp session by a device. If necessary the device may adapt
+  parameter values for SessionTimeout elements without returning an error. For the time between keep alive calls the client
+  shall adhere to the timeout value signaled via RTSP.
+  """
+  @spec set_video_encoder_configuration(Onvif.Device.t(), VideoEncoder.t()) ::
+          :ok | {:error, any()}
+  def set_video_encoder_configuration(device, video_configuration) do
+    body =
+      element(
+        "s:Body",
+        element("tr2:SetVideoEncoderConfiguration", VideoEncoder.encode(video_configuration))
+      )
+
+    media2_request(device, "SetVideoEncoderConfiguration", body, fn _body -> :ok end)
+  end
+
   defp encode_encoder_options(operation, opts) do
     element(
       "s:Body",
