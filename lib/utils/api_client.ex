@@ -31,6 +31,11 @@ defmodule Onvif.Utils.ApiClient do
     "xmlns:tt": "http://www.onvif.org/ver10/schema"
   ]
 
+  @ptz_namespaces [
+    "xmlns:tt": "http://www.onvif.org/ver10/schema",
+    "xmlns:tptz": "http://www.onvif.org/ver20/ptz/wsdl"
+  ]
+
   def devicemgmt_request(device, action, content, parser_fn) do
     action = "http://www.onvif.org/ver10/device/wsdl/" <> action
     do_request(device, :device_service_path, @devicemgmt_namespaces, action, content, parser_fn)
@@ -95,6 +100,19 @@ defmodule Onvif.Utils.ApiClient do
       device,
       :replay_ver10_service_path,
       @replay_namespaces,
+      action,
+      content,
+      parser_fn
+    )
+  end
+
+  def ptz_request(device, action, content, parser_fn) do
+    action = "http://www.onvif.org/ver20/ptz/wsdl/" <> action
+
+    do_request(
+      device,
+      :ptz_ver20_service_path,
+      @ptz_namespaces,
       action,
       content,
       parser_fn

@@ -1,4 +1,4 @@
-defmodule Onvif.PTZ.Schemas.Space1DDescription do
+defmodule Onvif.Schemas.Space1DDescription do
   @moduledoc """
   Module describing a 1D space.
   """

@@ -7,6 +7,7 @@ defmodule Onvif.Media2 do
 
   import Onvif.Utils.ApiClient, only: [media2_request: 4]
   import Onvif.Utils.XmlBuilder
+  import Onvif.Utils.Parser
   import SweetXml
 
   alias Onvif.Media.Profile.{AudioEncoderConfiguration, VideoSourceConfiguration}
@@ -248,7 +249,7 @@ defmodule Onvif.Media2 do
       |> add_namespace("tr2", "http://www.onvif.org/ver20/media/wsdl")
       |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
     )
-    |> map_reduce(AudioEncoderConfiguration)
+    |> parse_map_reduce(AudioEncoderConfiguration)
   end
 
   defp parse_get_snapshot_uri_response(xml_response_body) do
@@ -286,7 +287,7 @@ defmodule Onvif.Media2 do
       |> add_namespace("tr2", "http://www.onvif.org/ver20/media/wsdl")
       |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
     )
-    |> map_reduce(Profile)
+    |> parse_map_reduce(Profile)
   end
 
   defp parse_get_video_encoder_configurations_response(xml_response_body) do
@@ -298,7 +299,7 @@ defmodule Onvif.Media2 do
       |> add_namespace("tr2", "http://www.onvif.org/ver20/media/wsdl")
       |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
     )
-    |> map_reduce(VideoEncoder)
+    |> parse_map_reduce(VideoEncoder)
   end
 
   defp parse_get_video_encoder_configuration_options_response(xml_response_body) do
@@ -310,7 +311,7 @@ defmodule Onvif.Media2 do
       |> add_namespace("tr2", "http://www.onvif.org/ver20/media/wsdl")
       |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
     )
-    |> map_reduce(VideoEncoderConfigurationOption)
+    |> parse_map_reduce(VideoEncoderConfigurationOption)
   end
 
   defp parse_service_capabilities(xml_response_body) do
@@ -335,21 +336,6 @@ defmodule Onvif.Media2 do
       |> add_namespace("tr2", "http://www.onvif.org/ver20/media/wsdl")
       |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
     )
-    |> map_reduce(VideoSourceConfiguration)
-  end
-
-  defp map_reduce(entries, module) do
-    entries
-    |> Enum.map(&module.parse/1)
-    |> Enum.reduce_while([], fn raw_config, acc ->
-      case module.to_struct(raw_config) do
-        {:ok, config} -> {:cont, [config | acc]}
-        error -> {:halt, error}
-      end
-    end)
-    |> case do
-      {:error, _reason} = err -> err
-      configs -> {:ok, Enum.reverse(configs)}
-    end
+    |> parse_map_reduce(VideoSourceConfiguration)
   end
 end

@@ -1,4 +1,4 @@
-defmodule Onvif.PTZ.Schemas.PTZNode do
+defmodule Onvif.PTZ.Node do
   @moduledoc """
   Module describing a PTZ node.
   """
@@ -8,7 +8,7 @@ defmodule Onvif.PTZ.Schemas.PTZNode do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.PTZ.Schemas.{Space1DDescription, Space2DDescription}
+  alias Onvif.Schemas.{Space1DDescription, Space2DDescription}
 
   @type t :: %__MODULE__{}
 
@@ -48,11 +48,6 @@ defmodule Onvif.PTZ.Schemas.PTZNode do
     %__MODULE__{}
     |> changeset(parsed)
     |> apply_action(:validate)
-  end
-
-  @spec to_json(__MODULE__.t()) :: {:error, Jason.EncodeError.t() | Exception.t()} | {:ok, binary}
-  def to_json(%__MODULE__{} = schema) do
-    Jason.encode(schema)
   end
 
   def parse(doc) do

@@ -61,8 +61,7 @@ defmodule Onvif.MixProject do
         Onvif.Recording,
         Onvif.Replay,
         Onvif.Search,
-        Onvif.PTZ,
-        Onvif.PTZ.Schemas
+        Onvif.PTZ
       ],
       groups_for_modules: [
         Core: [
@@ -78,10 +77,8 @@ defmodule Onvif.MixProject do
           Onvif.Media2,
           Onvif.Recording,
           Onvif.Replay,
-          Onvif.Search
-        ],
-        PTZ: [
-          ~r/^Onvif.PTZ.*/
+          Onvif.Search,
+          Onvif.PTZ
         ],
         Schemas: [
           ~r/^Onvif.Schemas.*/,
@@ -90,7 +87,8 @@ defmodule Onvif.MixProject do
           ~r/^Onvif.Media2.*/,
           ~r/^Onvif.Recording.*/,
           ~r/^Onvif.Replay.*/,
-          ~r/^Onvif.Search.*/
+          ~r/^Onvif.Search.*/,
+          ~r/^Onvif.PTZ.*/
         ]
       ]
     ]

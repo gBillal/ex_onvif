@@ -1,4 +1,4 @@
-defmodule Onvif.PTZ.Schemas.Space2DDescription do
+defmodule Onvif.Schemas.Space2DDescription do
   @moduledoc """
   Module describing a 2D space.
   """
