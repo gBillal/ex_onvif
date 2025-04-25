@@ -10,7 +10,29 @@ defmodule Onvif.PTZ do
   import Onvif.Utils.Parser
   import SweetXml
 
-  alias Onvif.PTZ.{Node, ServiceCapabilities, Status}
+  alias Onvif.PTZ.{AbsoluteMove, Node, ServiceCapabilities, Status}
+
+  @doc """
+  Operation to move pan,tilt or zoom to a absolute destination.
+
+  The speed argument is optional. If an x/y speed value is given it is up to the device to either use the x value as absolute resoluting
+  speed vector or to map x and y to the component speed. If the speed argument is omitted, the default speed set by the
+  PTZConfiguration will be used.
+  """
+  @spec absolute_move(Onvif.Device.t(), AbsoluteMove.t()) :: :ok | {:error, any()}
+  def absolute_move(device, abs_move) do
+    body = AbsoluteMove.encode(abs_move)
+    ptz_request(device, "AbsoluteMove", body, fn _body -> :ok end)
+  end
+
+  @doc """
+  Get a specific PTZ Node identified by a reference token or a name.
+  """
+  @spec get_node(Onvif.Device.t(), String.t()) :: {:ok, Node.t()} | {:error, any()}
+  def get_node(device, node_token) do
+    body = element("tptz:GetNode", element("tptz:NodeToken", node_token))
+    ptz_request(device, "GetNode", body, &parse_node_response/1)
+  end
 
   @doc """
   Get the descriptions of the available PTZ Nodes.
@@ -41,6 +63,19 @@ defmodule Onvif.PTZ do
   def get_status(device, profile_token) do
     body = element("tptz:GetStatus", element("tptz:ProfileToken", profile_token))
     ptz_request(device, "GetStatus", body, &parse_status_response/1)
+  end
+
+  defp parse_node_response(xml_response_body) do
+    xml_response_body
+    |> parse(namespace_conformant: true, quiet: true)
+    |> xpath(
+      ~x"//s:Envelope/s:Body/tptz:GetNodeResponse/tptz:PTZNode"e
+      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+      |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+      |> add_namespace("tptz", "http://www.onvif.org/ver20/ptz/wsdl")
+    )
+    |> Node.parse()
+    |> Node.to_struct()
   end
 
   defp parse_nodes_response(xml_response_body) do

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope"  xmlns:tptz="http://www.onvif.org/ver20/ptz/wsdl"  xmlns:tt="http://www.onvif.org/ver10/schema"  >
+    <soap:Body>
+        <tptz:GetNodeResponse>
+            <tptz:PTZNode token="PTZNodeToken002">
+                <tt:Name>PTZNodeName002</tt:Name>
+                <tt:SupportedPTZSpaces>
+                    <tt:ContinuousPanTiltVelocitySpace>
+                        <tt:URI>http://www.onvif.org/ver10/tptz/PanTiltSpaces/VelocityGenericSpace</tt:URI>
+                        <tt:XRange>
+                            <tt:Min>-1.000000</tt:Min>
+                            <tt:Max>1.000000</tt:Max>
+                        </tt:XRange>
+                        <tt:YRange>
+                            <tt:Min>-1.000000</tt:Min>
+                            <tt:Max>1.000000</tt:Max>
+                        </tt:YRange>
+                    </tt:ContinuousPanTiltVelocitySpace>
+                    <tt:ContinuousZoomVelocitySpace>
+                        <tt:URI>http://www.onvif.org/ver10/tptz/ZoomSpaces/VelocityGenericSpace</tt:URI>
+                        <tt:XRange>
+                            <tt:Min>-1.000000</tt:Min>
+                            <tt:Max>1.000000</tt:Max>
+                        </tt:XRange>
+                    </tt:ContinuousZoomVelocitySpace>
+                </tt:SupportedPTZSpaces>
+                <tt:MaximumNumberOfPresets>255</tt:MaximumNumberOfPresets>
+                <tt:HomeSupported>false</tt:HomeSupported>
+                <tt:Extension>
+                    <tt:SupportedPresetTour>
+                        <tt:MaximumNumberOfPresetTours>4</tt:MaximumNumberOfPresetTours>
+                        <tt:PTZPresetTourOperation>Start</tt:PTZPresetTourOperation>
+                        <tt:PTZPresetTourOperation>Stop</tt:PTZPresetTourOperation>
+                    </tt:SupportedPresetTour>
+                </tt:Extension>
+            </tptz:PTZNode>
+        </tptz:GetNodeResponse>
+    </soap:Body>
+</soap:Envelope>

@@ -6,6 +6,50 @@ defmodule Onvif.PTZTest do
   alias Onvif.PTZ.{Node, ServiceCapabilities, Status}
   alias Onvif.Schemas.FloatRange
 
+  test "get node" do
+    xml_response = File.read!("test/fixtures/get_ptz_node.xml")
+
+    device = Onvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+    assert {:ok,
+            %Node{
+              token: "PTZNodeToken002",
+              fixed_home_position: nil,
+              geo_move: nil,
+              name: "PTZNodeName002",
+              supported_ptz_spaces: %Node.SupportedPTZSpaces{
+                absolute_pan_tilt_position_space: nil,
+                absolute_zoom_position_space: nil,
+                relative_pan_tilt_translation_space: nil,
+                relative_zoom_translation_space: nil,
+                continuous_pan_tilt_velocity_space: %Onvif.Schemas.Space2DDescription{
+                  uri: "http://www.onvif.org/ver10/tptz/PanTiltSpaces/VelocityGenericSpace",
+                  x_range: %FloatRange{min: -1.0, max: 1.0},
+                  y_range: %FloatRange{min: -1.0, max: 1.0}
+                },
+                continuous_zoom_velocity_space: %Onvif.Schemas.Space1DDescription{
+                  uri: "http://www.onvif.org/ver10/tptz/ZoomSpaces/VelocityGenericSpace",
+                  x_range: %FloatRange{min: -1.0, max: 1.0}
+                },
+                pan_tilt_speed_space: nil,
+                zoom_speed_space: nil
+              },
+              maximum_number_of_presets: 255,
+              home_supported: false,
+              auxiliary_commands: [],
+              extension: %Node.Extension{
+                supported_preset_tour: %Node.Extension.SupportedPresetTour{
+                  maximum_number_of_preset_tours: 4,
+                  ptz_preset_tour_operation: ["Start", "Stop"]
+                }
+              }
+            }} = Onvif.PTZ.get_node(device, "PTZNodeToken001")
+  end
+
   test "get nodes" do
     xml_response = File.read!("test/fixtures/get_ptz_nodes.xml")
 
