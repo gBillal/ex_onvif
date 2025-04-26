@@ -6,7 +6,7 @@ defmodule Onvif.MixProject do
   def project do
     [
       app: :onvif,
-      version: "0.5.0",
+      version: "0.6.0",
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -77,6 +77,7 @@ defmodule Onvif.MixProject do
         Interfaces: [
           Onvif.Devices,
           Onvif.Event,
+          Onvif.PullPoint,
           Onvif.Media,
           Onvif.Media2,
           Onvif.Recording,

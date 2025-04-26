@@ -43,6 +43,14 @@ defmodule Onvif.Utils.ApiClient do
     "xmlns:wsnt": "http://docs.oasis-open.org/wsn/b-2"
   ]
 
+  @pull_point_namespaces [
+    "xmlns:tds": "http://www.onvif.org/ver10/device/wsdl",
+    "xmlns:tt": "http://www.onvif.org/ver10/schema",
+    "xmlns:tev": "http://www.onvif.org/ver10/events/wsdl",
+    "xmlns:wsnt": "http://docs.oasis-open.org/wsn/b-2",
+    "xmlns:wsa": "http://www.w3.org/2005/08/addressing"
+  ]
+
   def devicemgmt_request(device, action, content, parser_fn) do
     action = "http://www.onvif.org/ver10/device/wsdl/" <> action
     do_request(device, :device_service_path, @devicemgmt_namespaces, action, content, parser_fn)
@@ -137,6 +145,27 @@ defmodule Onvif.Utils.ApiClient do
       content,
       parser_fn
     )
+  end
+
+  def pull_point_request(device, url, headers, content, parser_fn) do
+    request = %Onvif.Request{
+      content: XmlBuilder.element(:"s:Body", List.wrap(content)),
+      namespaces: @pull_point_namespaces
+    }
+
+    request =
+      Enum.reduce(headers, request, fn {key, value}, request ->
+        Onvif.Request.put_header(request, key, value)
+      end)
+
+    device
+    |> Onvif.API.pull_point_client(url)
+    |> Tesla.request(
+      method: :post,
+      headers: [{"Content-Type", "application/soap+xml"}],
+      body: request
+    )
+    |> parse_response(parser_fn)
   end
 
   defp do_request(device, service_path, namespaces, action, content, parser_fn) do
