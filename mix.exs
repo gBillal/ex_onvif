@@ -1,7 +1,7 @@
 defmodule Onvif.MixProject do
   use Mix.Project
 
-  @github_url "https://github.com/hammeraj/onvif"
+  @github_url "https://github.com/gBillal/onvif"
 
   def project do
     [
@@ -38,6 +38,7 @@ defmodule Onvif.MixProject do
   defp deps do
     [
       {:ecto, "~> 3.12"},
+      {:typed_ecto_schema, "~> 0.4.1", runtime: false},
       {:ex_doc, "~> 0.36", only: :dev, runtime: false},
       {:finch, "~> 0.19"},
       {:sweet_xml, "~> 0.7"},
@@ -56,6 +57,7 @@ defmodule Onvif.MixProject do
         Onvif.Device,
         Onvif.Schemas,
         Onvif.Devices,
+        Onvif.Event,
         Onvif.Media,
         Onvif.Media2,
         Onvif.Recording,
@@ -69,10 +71,12 @@ defmodule Onvif.MixProject do
           ~r/^Onvif.Discovery.*/,
           Onvif.Device,
           Onvif.MacAddress,
-          Onvif.Request
+          Onvif.Request,
+          Onvif.Request.Header
         ],
         Interfaces: [
           Onvif.Devices,
+          Onvif.Event,
           Onvif.Media,
           Onvif.Media2,
           Onvif.Recording,
@@ -83,6 +87,7 @@ defmodule Onvif.MixProject do
         Schemas: [
           ~r/^Onvif.Schemas.*/,
           ~r/^Onvif.Devices.*/,
+          ~r/^Onvif.Event.*/,
           ~r/^Onvif.Media.*/,
           ~r/^Onvif.Media2.*/,
           ~r/^Onvif.Recording.*/,

@@ -36,6 +36,13 @@ defmodule Onvif.Utils.ApiClient do
     "xmlns:tptz": "http://www.onvif.org/ver20/ptz/wsdl"
   ]
 
+  @event_namespaces [
+    "xmlns:tds": "http://www.onvif.org/ver10/device/wsdl",
+    "xmlns:tt": "http://www.onvif.org/ver10/schema",
+    "xmlns:tev": "http://www.onvif.org/ver10/events/wsdl",
+    "xmlns:wsnt": "http://docs.oasis-open.org/wsn/b-2"
+  ]
+
   def devicemgmt_request(device, action, content, parser_fn) do
     action = "http://www.onvif.org/ver10/device/wsdl/" <> action
     do_request(device, :device_service_path, @devicemgmt_namespaces, action, content, parser_fn)
@@ -113,6 +120,19 @@ defmodule Onvif.Utils.ApiClient do
       device,
       :ptz_ver20_service_path,
       @ptz_namespaces,
+      action,
+      content,
+      parser_fn
+    )
+  end
+
+  def event_request(device, action, content, parser_fn) do
+    action = "http://www.onvif.org/ver10/events/wsdl/" <> action
+
+    do_request(
+      device,
+      :event_ver10_service_path,
+      @event_namespaces,
       action,
       content,
       parser_fn

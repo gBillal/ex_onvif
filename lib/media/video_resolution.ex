@@ -3,16 +3,14 @@ defmodule Onvif.Media.VideoResolution do
   Schema describing the resolution of a video stream.
   """
 
-  use Ecto.Schema
+  use TypedEctoSchema
 
   import Ecto.Changeset
   import SweetXml
 
-  @type t :: %__MODULE__{}
-
   @primary_key false
   @derive Jason.Encoder
-  embedded_schema do
+  typed_embedded_schema null: false do
     field(:width, :integer)
     field(:height, :integer)
   end

@@ -3,17 +3,15 @@ defmodule Onvif.Schemas.IntRange do
   Module describing an int range.
   """
 
-  use Ecto.Schema
+  use TypedEctoSchema
 
   import Ecto.Changeset
   import SweetXml
   import XmlBuilder
 
-  @type t :: %__MODULE__{}
-
   @primary_key false
   @derive Jason.Encoder
-  embedded_schema do
+  typed_embedded_schema null: false do
     field(:min, :integer)
     field(:max, :integer)
   end
