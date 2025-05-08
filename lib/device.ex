@@ -127,11 +127,9 @@ defmodule Onvif.Device do
   def new(address, username, password) do
     with device <- %__MODULE__{address: address, username: username, password: password},
          {:ok, device_with_datetime} <- get_date_time(device),
-         {:ok, updated_device} <- guess_auth(device_with_datetime) do
-      {:ok,
-       updated_device
-       |> get_services()
-       |> set_media_service_path()}
+         {:ok, updated_device} <- guess_auth(device_with_datetime),
+         {:ok, updated_device} <- get_services(updated_device) do
+      {:ok, set_media_service_path(updated_device)}
     end
   end
 
@@ -174,11 +172,9 @@ defmodule Onvif.Device do
     with {:ok, device} <-
            device_from_probe_match(probe_match, username, password, prefer_https?, prefer_ipv6?),
          {:ok, device_with_datetime} <- get_date_time(device),
-         {:ok, updated_device} <- guess_auth(device_with_datetime) do
-      {:ok,
-       updated_device
-       |> get_services()
-       |> set_media_service_path()}
+         {:ok, updated_device} <- guess_auth(device_with_datetime),
+         {:ok, updated_device} <- get_services(updated_device) do
+      {:ok, set_media_service_path(updated_device)}
     end
   end
 
@@ -305,7 +301,7 @@ defmodule Onvif.Device do
 
   defp get_services(device) do
     with {:ok, services} <- Onvif.Devices.get_services(device) do
-      Map.put(device, :services, services)
+      {:ok, Map.put(device, :services, services)}
     end
   end
 

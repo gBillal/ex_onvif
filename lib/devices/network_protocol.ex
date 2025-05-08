@@ -21,13 +21,7 @@ defmodule Onvif.Devices.NetworkProtocol do
     field(:port, :integer)
   end
 
-  def encode(parsed) do
-    %__MODULE__{}
-    |> changeset(parsed)
-    |> apply_action(:validate)
-  end
-
-  def to_xml(%__MODULE__{} = network_protocol) do
+  def encode(%__MODULE__{} = network_protocol) do
     element(:"tds:NetworkProtocols", [
       element(
         :"tt:Name",
