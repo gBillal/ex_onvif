@@ -36,6 +36,11 @@ defmodule Onvif.Utils.ApiClient do
     "xmlns:tptz": "http://www.onvif.org/ver20/ptz/wsdl"
   ]
 
+  @analytics_namespaces [
+    "xmlns:tt": "http://www.onvif.org/ver10/schema",
+    "xmlns:axt": "http://www.onvif.org/ver20/analytics/wsdl"
+  ]
+
   @event_namespaces [
     "xmlns:tds": "http://www.onvif.org/ver10/device/wsdl",
     "xmlns:tt": "http://www.onvif.org/ver10/schema",
@@ -128,6 +133,19 @@ defmodule Onvif.Utils.ApiClient do
       device,
       :ptz_ver20_service_path,
       @ptz_namespaces,
+      action,
+      content,
+      parser_fn
+    )
+  end
+
+  def analytics_request(device, action, content, parser_fn) do
+    action = "http://www.onvif.org/ver20/analytics/wsdl/" <> action
+
+    do_request(
+      device,
+      :analytics_ver20_service_path,
+      @analytics_namespaces,
       action,
       content,
       parser_fn

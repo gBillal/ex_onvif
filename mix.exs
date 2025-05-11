@@ -56,6 +56,7 @@ defmodule Onvif.MixProject do
       nest_modules_by_prefix: [
         Onvif.Device,
         Onvif.Schemas,
+        Onvif.Analytics,
         Onvif.Devices,
         Onvif.Event,
         Onvif.Media,
@@ -76,6 +77,7 @@ defmodule Onvif.MixProject do
         ],
         Interfaces: [
           Onvif.Devices,
+          Onvif.Analytics,
           Onvif.Event,
           Onvif.PullPoint,
           Onvif.Media,
@@ -94,7 +96,8 @@ defmodule Onvif.MixProject do
           ~r/^Onvif.Recording.*/,
           ~r/^Onvif.Replay.*/,
           ~r/^Onvif.Search.*/,
-          ~r/^Onvif.PTZ.*/
+          ~r/^Onvif.PTZ.*/,
+          ~r/^Onvif.Analytics.*/
         ]
       ]
     ]
