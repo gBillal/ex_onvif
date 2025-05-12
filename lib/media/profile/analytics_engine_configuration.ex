@@ -9,14 +9,14 @@ defmodule Onvif.Media.Profile.AnalyticsEngineConfiguration do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Media.Profile.EngineConfig
+  alias Onvif.Analytics.Module
 
   @type t :: %__MODULE__{}
 
   @primary_key false
   @derive Jason.Encoder
   embedded_schema do
-    embeds_many(:analytics_module, EngineConfig)
+    embeds_many :analytics_module, Module
   end
 
   def parse(nil), do: nil
@@ -44,6 +44,6 @@ defmodule Onvif.Media.Profile.AnalyticsEngineConfiguration do
   defp parse_analytics_engines(analytics_engines) do
     analytics_engines
     |> List.wrap()
-    |> Enum.map(&EngineConfig.parse/1)
+    |> Enum.map(&Module.parse/1)
   end
 end

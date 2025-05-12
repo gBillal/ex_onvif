@@ -1,22 +1,21 @@
-defmodule Onvif.Media.Profile.EngineConfig do
+defmodule Onvif.Analytics.Module do
   @moduledoc """
-  Schema for EngineConfig.
+  Schema describing an analytics module.
   """
 
-  use Ecto.Schema
+  use TypedEctoSchema
 
   import Ecto.Changeset
   import SweetXml
 
+  alias Onvif.Analytics.Transformation
   alias Onvif.Schemas.SimpleItem
-
-  @type t :: %__MODULE__{}
 
   @primary_key false
   @derive Jason.Encoder
-  embedded_schema do
-    field(:name, :string)
-    field(:type, :string)
+  typed_embedded_schema do
+    field :name, :string
+    field :type, :string
 
     embeds_one :parameters, Parameters, primary_key: false do
       @derive Jason.Encoder
@@ -26,12 +25,10 @@ defmodule Onvif.Media.Profile.EngineConfig do
       embeds_many :element_item, ElementItem, primary_key: false do
         @derive Jason.Encoder
         field(:name, :string)
+        field(:content, :map)
       end
     end
   end
-
-  def parse(nil), do: nil
-  def parse([]), do: nil
 
   def parse(doc) do
     xmap(
@@ -40,6 +37,12 @@ defmodule Onvif.Media.Profile.EngineConfig do
       type: ~x"./@Type"s,
       parameters: ~x"./tt:Parameters"e |> transform_by(&parse_parameters/1)
     )
+  end
+
+  def to_struct(parsed) do
+    %__MODULE__{}
+    |> changeset(parsed)
+    |> apply_action(:validate)
   end
 
   def changeset(module, attrs) do
@@ -71,10 +74,20 @@ defmodule Onvif.Media.Profile.EngineConfig do
     do: Enum.map(element_items, &parse_element_item/1)
 
   defp parse_element_item(doc) do
-    xmap(
-      doc,
-      name: ~x"./@Name"s
-    )
+    element_item =
+      xmap(
+        doc,
+        name: ~x"./@Name"s,
+        transformation: ~x"./tt:Transformation"e |> transform_by(&Transformation.parse/1)
+      )
+
+    cond do
+      element_item[:transformation] ->
+        %{name: element_item[:name], content: element_item[:transformation]}
+
+      true ->
+        %{name: element_item[:name], content: nil}
+    end
   end
 
   defp parameters_changeset(module, attrs) do
@@ -85,6 +98,6 @@ defmodule Onvif.Media.Profile.EngineConfig do
   end
 
   defp element_item_changeset(module, attrs) do
-    cast(module, attrs, [:name])
+    cast(module, attrs, [:name, :content])
   end
 end

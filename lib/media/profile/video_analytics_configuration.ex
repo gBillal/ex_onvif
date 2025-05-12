@@ -7,7 +7,7 @@ defmodule Onvif.Media.Profile.VideoAnalyticsConfiguration do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Media.Profile.EngineConfig
+  alias Onvif.Analytics.Module
   alias Onvif.Media.Profile.AnalyticsEngineConfiguration
 
   @type t :: %__MODULE__{}
@@ -15,17 +15,17 @@ defmodule Onvif.Media.Profile.VideoAnalyticsConfiguration do
   @primary_key false
   @derive Jason.Encoder
   embedded_schema do
-    field(:reference_token, :string)
-    field(:name, :string)
-    field(:use_count, :integer)
+    field :reference_token, :string
+    field :name, :string
+    field :use_count, :integer
 
-    embeds_one(:analytics_engine_configuration, AnalyticsEngineConfiguration)
+    embeds_one :analytics_engine_configuration, AnalyticsEngineConfiguration
 
     embeds_one :rule_engine_configuration, RuleEngineConfiguration,
       primary_key: false,
       on_replace: :update do
       @derive Jason.Encoder
-      embeds_many(:rule, EngineConfig)
+      embeds_many :rule, Module
     end
   end
 
@@ -72,7 +72,7 @@ defmodule Onvif.Media.Profile.VideoAnalyticsConfiguration do
   defp parse_rules(doc) do
     doc
     |> List.wrap()
-    |> Enum.map(&EngineConfig.parse/1)
+    |> Enum.map(&Module.parse/1)
   end
 
   defp rule_engine_configuration_changeset(module, attrs) do
