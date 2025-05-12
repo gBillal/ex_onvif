@@ -10,11 +10,34 @@ defmodule Onvif.Media2 do
   import Onvif.Utils.Parser
   import SweetXml
 
-  alias Onvif.Media.Profile.{AudioEncoderConfiguration, VideoSourceConfiguration}
-  alias Onvif.Media2.{Profile, ServiceCapabilities, VideoEncoderConfigurationOption}
+  alias Onvif.Media.Profile.{
+    AudioEncoderConfiguration,
+    MetadataConfiguration,
+    VideoSourceConfiguration
+  }
+
+  alias Onvif.Media2.{
+    AddConfiguration,
+    Profile,
+    ServiceCapabilities,
+    VideoEncoderConfigurationOption
+  }
+
   alias Onvif.Media2.Profile.VideoEncoder
 
   @type encoder_options_opts :: [configuration_token: String.t(), profile_token: String.t()]
+
+  @doc """
+  This operation adds one or more Configurations to an existing media profile.
+
+  If a configuration exists in the media profile, it will be replaced. A device shall support adding a compatible Configuration to a Profile
+  containing a VideoSourceConfiguration and shall support streaming video data of such a profile.
+  """
+  @spec add_configuration(Onvif.Device.t(), AddConfiguration.t()) :: :ok | {:error, any()}
+  def add_configuration(device, config) do
+    body = AddConfiguration.encode(config)
+    media2_request(device, "AddConfiguration", body, fn _body -> :ok end)
+  end
 
   @doc """
   By default this operation lists all existing audio encoder configurations for a device.
@@ -34,6 +57,25 @@ defmodule Onvif.Media2 do
       "GetAudioEncoderConfigurations",
       body,
       &parse_get_audio_encoder_configurations_response/1
+    )
+  end
+
+  @doc """
+  By default this operation lists all existing metadata configurations for a device.
+
+  Provide a profile token to list only configurations that are compatible with the profile. If a configuration token is provided only a single
+  configuration will be returned.
+  """
+  @spec get_metadata_configurations(Device.t(), encoder_options_opts()) ::
+          {:ok, [MetadataConfiguration.t()]} | {:error, any()}
+  def get_metadata_configurations(device, opts \\ []) do
+    body = encode_encoder_options("GetMetadataConfigurations", opts)
+
+    media2_request(
+      device,
+      "GetMetadataConfigurations",
+      body,
+      &parse_get_metadata_configurations_response/1
     )
   end
 
@@ -225,6 +267,18 @@ defmodule Onvif.Media2 do
       |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
     )
     |> parse_map_reduce(AudioEncoderConfiguration)
+  end
+
+  defp parse_get_metadata_configurations_response(xml_response_body) do
+    xml_response_body
+    |> parse(namespace_conformant: true, quiet: true)
+    |> xpath(
+      ~x"//s:Envelope/s:Body/tr2:GetMetadataConfigurationsResponse/tr2:Configurations"el
+      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+      |> add_namespace("tr2", "http://www.onvif.org/ver20/media/wsdl")
+      |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+    )
+    |> parse_map_reduce(MetadataConfiguration)
   end
 
   defp parse_get_snapshot_uri_response(xml_response_body) do
