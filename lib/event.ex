@@ -21,19 +21,17 @@ defmodule Onvif.Event do
   @spec create_pull_point_subscription(Onvif.Device.t(), String.t() | nil) ::
           {:ok, PullPointSubscription.t()} | {:error, any()}
   def create_pull_point_subscription(device, filter \\ nil) do
-    body =
-      element(
-        :"tev:CreatePullPointSubscription",
+    filter_element =
+      if filter do
         element(
-          :"wsnt:Filter",
-          element(
-            [],
-            "TopicExpression",
-            %{Dialect: "http://www.onvif.org/ver10/tev/topicExpression/ConcreteSet"},
-            filter
-          )
+          [],
+          "TopicExpression",
+          %{Dialect: "http://www.onvif.org/ver10/tev/topicExpression/ConcreteSet"},
+          filter
         )
-      )
+      end
+
+    body = element(:"tev:CreatePullPointSubscription", element(:"wsnt:Filter", filter_element))
 
     event_request(device, "CreatePullPointSubscription", body, &parse_pull_point_subscription/1)
   end

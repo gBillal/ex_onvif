@@ -40,7 +40,7 @@ defmodule Onvif.PTZ.Vector do
   def encode(nil), do: []
 
   def encode(%__MODULE__{zoom: zoom, pan_tilt: pan_tilt}) do
-    body = if zoom, do: [element("tptz:Zoom", %{x: zoom})], else: []
+    body = if zoom, do: [element("tt:Zoom", %{x: zoom})], else: []
     body ++ pan_tilt_xml(pan_tilt)
   end
 
@@ -74,6 +74,6 @@ defmodule Onvif.PTZ.Vector do
     [x: x, y: y]
     |> Enum.reject(fn {_, v} -> is_nil(v) end)
     |> Map.new()
-    |> then(&[element("tptz:PanTilt", &1)])
+    |> then(&[element("tt:PanTilt", &1)])
   end
 end
