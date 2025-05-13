@@ -60,6 +60,26 @@ defmodule Onvif.Devices.SystemDateAndTime do
     end
   end
 
+  @doc """
+  Get local camera time as a naive date time.
+  """
+  @spec local_time(t()) :: NaiveDateTime.t() | nil
+  def local_time(%__MODULE__{local_date_time: nil}), do: nil
+
+  def local_time(%__MODULE__{local_date_time: %{date: date, time: time}}) do
+    NaiveDateTime.new!(date.year, date.month, date.day, time.hour, time.minute, time.second)
+  end
+
+  @doc """
+  Get utc camera time as `DateTime`.
+  """
+  @spec utc_time(t()) :: DateTime.t() | nil
+  def utc_time(%__MODULE__{utc_date_time: nil}), do: nil
+
+  def utc_time(%__MODULE__{utc_date_time: %{date: date, time: time}}) do
+    DateTime.new!(Date.new!(date.year, date.month, date.day), Time.new!(time.hour, time.minute, time.second))
+  end
+
   def parse(nil), do: nil
   def parse([]), do: nil
 
