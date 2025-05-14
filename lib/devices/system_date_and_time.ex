@@ -77,7 +77,10 @@ defmodule Onvif.Devices.SystemDateAndTime do
   def utc_time(%__MODULE__{utc_date_time: nil}), do: nil
 
   def utc_time(%__MODULE__{utc_date_time: %{date: date, time: time}}) do
-    DateTime.new!(Date.new!(date.year, date.month, date.day), Time.new!(time.hour, time.minute, time.second))
+    DateTime.new!(
+      Date.new!(date.year, date.month, date.day),
+      Time.new!(time.hour, time.minute, time.second)
+    )
   end
 
   def parse(nil), do: nil

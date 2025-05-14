@@ -24,7 +24,7 @@ defmodule Onvif.Schemas.SimpleItem do
   def parse(doc) do
     xmap(
       doc,
-      name: ~x"./@Name"s,
+      name: ~x"./@Name"s |> transform_by(&Macro.underscore/1),
       value: ~x"./@Value"s
     )
   end

@@ -77,7 +77,7 @@ defmodule Onvif.Analytics.Module do
     element_item =
       xmap(
         doc,
-        name: ~x"./@Name"s,
+        name: ~x"./@Name"s |> transform_by(&Macro.underscore/1),
         transformation: ~x"./tt:Transformation"e |> transform_by(&Transformation.parse/1)
       )
 

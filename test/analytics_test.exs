@@ -21,11 +21,11 @@ defmodule Onvif.AnalyticsTest do
                 type: "tt:CellMotionEngine",
                 parameters: %Module.Parameters{
                   simple_item: [
-                    %Onvif.Schemas.SimpleItem{name: "Sensitivity", value: "60"}
+                    %Onvif.Schemas.SimpleItem{name: "sensitivity", value: "60"}
                   ],
                   element_item: [
                     %Module.Parameters.ElementItem{
-                      name: "Layout",
+                      name: "layout",
                       content: nil
                     }
                   ]
@@ -36,18 +36,18 @@ defmodule Onvif.AnalyticsTest do
                 type: "tt:LineDetectorEngine",
                 parameters: %Module.Parameters{
                   simple_item: [
-                    %Onvif.Schemas.SimpleItem{name: "Sensitivity", value: "76"}
+                    %Onvif.Schemas.SimpleItem{name: "sensitivity", value: "76"}
                   ],
                   element_item: [
                     %Module.Parameters.ElementItem{
-                      name: "Layout",
+                      name: "layout",
                       content: %{
                         scale: %{x: 0.002, y: 0.002},
                         translate: %{x: -1.0, y: -1.0}
                       }
                     },
                     %Module.Parameters.ElementItem{
-                      name: "Field",
+                      name: "field",
                       content: nil
                     }
                   ]
@@ -58,18 +58,18 @@ defmodule Onvif.AnalyticsTest do
                 type: "tt:FieldDetectorEngine",
                 parameters: %Module.Parameters{
                   simple_item: [
-                    %Onvif.Schemas.SimpleItem{name: "Sensitivity", value: "50"}
+                    %Onvif.Schemas.SimpleItem{name: "sensitivity", value: "50"}
                   ],
                   element_item: [
                     %Module.Parameters.ElementItem{
-                      name: "Layout",
+                      name: "layout",
                       content: %{
                         scale: %{x: 0.002, y: 0.002},
                         translate: %{x: -1.0, y: -1.0}
                       }
                     },
                     %Module.Parameters.ElementItem{
-                      name: "Field",
+                      name: "field",
                       content: nil
                     }
                   ]
@@ -79,17 +79,17 @@ defmodule Onvif.AnalyticsTest do
                 name: "MyTamperDetecModule",
                 type: "hikxsd:TamperEngine",
                 parameters: %Module.Parameters{
-                  simple_item: [%Onvif.Schemas.SimpleItem{name: "Sensitivity", value: "0"}],
+                  simple_item: [%Onvif.Schemas.SimpleItem{name: "sensitivity", value: "0"}],
                   element_item: [
                     %Module.Parameters.ElementItem{
-                      name: "Transformation",
+                      name: "transformation",
                       content: %{
                         scale: %{x: 0.002841, y: 0.003472},
                         translate: %{x: -1.0, y: -1.0}
                       }
                     },
                     %Module.Parameters.ElementItem{
-                      name: "Field",
+                      name: "field",
                       content: nil
                     }
                   ]
