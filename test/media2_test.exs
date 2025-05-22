@@ -6,6 +6,18 @@ defmodule Onvif.Media2Test do
   alias Onvif.Media.Profile.VideoSourceConfiguration
   alias Onvif.Media2.{ServiceCapabilities, VideoEncoderConfigurationOption}
 
+  test "create profile" do
+    xml_response = File.read!("test/fixtures/create_profile.xml")
+
+    device = Onvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+    assert {:ok, "profile1"} = Onvif.Media2.create_profile(device, "New Profile")
+  end
+
   test "get service capabitiies" do
     xml_response = File.read!("test/fixtures/get_media2_service_capabilities.xml")
 

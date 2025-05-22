@@ -44,11 +44,11 @@ defmodule Onvif.Media.Profile.MetadataConfiguration do
       name: ~x"./tt:Name/text()"s,
       use_count: ~x"./tt:UseCount/text()"s,
       compression_type: ~x"./tt:CompressionType/text()"s,
-      geo_location: ~x"./tt:GeoLocation/text()"s,
+      geo_location: ~x"./@GeoLocation"s,
       shape_polygon: ~x"./tt:ShapePolygon/text()"s,
       analytics: ~x"./tt:Analytics/text()"s,
       session_timeout: ~x"./tt:SessionTimeout/text()"s,
-      ptz_status: ~x"./tt:PtzStatus"e |> transform_by(&parse_ptz_status/1),
+      ptz_status: ~x"./tt:PTZStatus"e |> transform_by(&parse_ptz_status/1),
       multicast: ~x"./tt:Multicast"e |> transform_by(&MulticastConfiguration.parse/1),
       analytics_engine_configuration:
         ~x"./tt:AnalyticsEngineConfiguration"e

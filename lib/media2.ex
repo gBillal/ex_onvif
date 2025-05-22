@@ -40,6 +40,32 @@ defmodule Onvif.Media2 do
   end
 
   @doc """
+  This operation creates a new media profile.
+
+  A created profile created via this method may be deleted via the DeleteProfile method. Optionally Configurations
+  can be assinged to the profile on creation. For details regarding profile assignement check also the method `add_configuration/2`.
+  """
+  @spec create_profile(
+          Onvif.Device.t(),
+          String.t(),
+          [%{type: String.t(), token: String.t()}]
+        ) :: {:ok, String.t()} | {:error, any()}
+  def create_profile(device, name, configs \\ []) do
+    configs =
+      Enum.reduce(configs, [], fn config, acc ->
+        acc
+        |> element(
+          "tr2:Configuration",
+          element("tr2:Type", config.type)
+          |> element("tr2:Token", config.token)
+        )
+      end)
+
+    body = element("tr2:CreateProfile", element(configs, "tr2:Name", name))
+    media2_request(device, "CreateProfile", body, &parse_create_profile/1)
+  end
+
+  @doc """
   By default this operation lists all existing audio encoder configurations for a device.
 
   Provide a profile token to list only configurations that are compatible with the profile. If a configuration
@@ -255,6 +281,20 @@ defmodule Onvif.Media2 do
       element("tr2:ConfigurationToken", opts[:configuration_token])
       |> element("tr2:ProfileToken", opts[:profile_token])
     )
+  end
+
+  defp parse_create_profile(xml_response_body) do
+    token =
+      xml_response_body
+      |> parse(namespace_conformant: true, quiet: true)
+      |> xpath(
+        ~x"//s:Envelope/s:Body/tr2:CreateProfileResponse/tr2:Token/text()"s
+        |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+        |> add_namespace("tr2", "http://www.onvif.org/ver20/media/wsdl")
+        |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+      )
+
+    {:ok, token}
   end
 
   defp parse_get_audio_encoder_configurations_response(xml_response_body) do
