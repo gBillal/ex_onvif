@@ -21,7 +21,14 @@ defmodule Onvif.Media.Profile.AudioEncoderConfiguration do
     field(:use_count, :integer)
 
     field(:encoding, Ecto.Enum,
-      values: [g711: "G711", g726: "G726", aac: "AAC", pcmu: "PCMU", pcma: "PCMA"]
+      values: [
+        g711: "G711",
+        g726: "G726",
+        aac: "AAC",
+        pcmu: "PCMU",
+        pcma: "PCMA",
+        mp4a_latm: "MP4A-LATM"
+      ]
     )
 
     field(:bitrate, :integer)
