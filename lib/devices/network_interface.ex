@@ -104,7 +104,7 @@ defmodule Onvif.Devices.NetworkInterface do
       doc,
       name: ~x"./tt:Name/text()"s,
       hw_address: ~x"./tt:HwAddress/text()"s,
-      mtu: ~x"./tt:MTU/text()"i
+      mtu: ~x"./tt:MTU/text()"s
     )
   end
 
