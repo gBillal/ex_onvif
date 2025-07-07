@@ -1,33 +1,33 @@
-defmodule Onvif.Media2Test do
+defmodule ExOnvif.Media2Test do
   use ExUnit.Case, async: true
 
   @moduletag capture_log: true
 
-  alias Onvif.Media.Profile.VideoSourceConfiguration
-  alias Onvif.Media2.{ServiceCapabilities, VideoEncoderConfigurationOption}
+  alias ExOnvif.Media.Profile.VideoSourceConfiguration
+  alias ExOnvif.Media2.{ServiceCapabilities, VideoEncoderConfigurationOption}
 
   test "create profile" do
     xml_response = File.read!("test/fixtures/create_profile.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
     end)
 
-    assert {:ok, "profile1"} = Onvif.Media2.create_profile(device, "New Profile")
+    assert {:ok, "profile1"} = ExOnvif.Media2.create_profile(device, "New Profile")
   end
 
   test "get service capabitiies" do
     xml_response = File.read!("test/fixtures/get_media2_service_capabilities.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
     end)
 
-    {:ok, response} = Onvif.Media2.get_service_capabilities(device)
+    {:ok, response} = ExOnvif.Media2.get_service_capabilities(device)
 
     assert %ServiceCapabilities{
              snapshot_uri: true,
@@ -61,17 +61,17 @@ defmodule Onvif.Media2Test do
   test "get video encoder configuration options" do
     xml_response = File.read!("test/fixtures/get_media2_video_encoder_configuration_options.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
     end)
 
-    {:ok, response} = Onvif.Media2.get_video_encoder_configuration_options(device)
+    {:ok, response} = ExOnvif.Media2.get_video_encoder_configuration_options(device)
 
     assert [
              %VideoEncoderConfigurationOption{
-               bitrate_range: %Onvif.Schemas.IntRange{
+               bitrate_range: %ExOnvif.Schemas.IntRange{
                  max: 16384,
                  min: 32
                },
@@ -95,17 +95,17 @@ defmodule Onvif.Media2Test do
                guaranteed_frame_rate_supported: nil,
                max_anchor_frame_distance: 0,
                profiles_supported: ["Main", "High"],
-               quality_range: %Onvif.Schemas.FloatRange{
+               quality_range: %ExOnvif.Schemas.FloatRange{
                  max: 5,
                  min: 0
                },
                resolutions_available: [
-                 %Onvif.Media.VideoResolution{height: 720, width: 1280},
-                 %Onvif.Media.VideoResolution{height: 2160, width: 3840}
+                 %ExOnvif.Media.VideoResolution{height: 720, width: 1280},
+                 %ExOnvif.Media.VideoResolution{height: 2160, width: 3840}
                ]
              },
              %VideoEncoderConfigurationOption{
-               bitrate_range: %Onvif.Schemas.IntRange{
+               bitrate_range: %ExOnvif.Schemas.IntRange{
                  max: 16384,
                  min: 32
                },
@@ -129,14 +129,14 @@ defmodule Onvif.Media2Test do
                guaranteed_frame_rate_supported: nil,
                max_anchor_frame_distance: 0,
                profiles_supported: ["Main"],
-               quality_range: %Onvif.Schemas.FloatRange{
+               quality_range: %ExOnvif.Schemas.FloatRange{
                  max: 5,
                  min: 0
                },
                resolutions_available: [
-                 %Onvif.Media.VideoResolution{height: 1080, width: 1920},
-                 %Onvif.Media.VideoResolution{height: 1440, width: 2560},
-                 %Onvif.Media.VideoResolution{height: 1728, width: 3072}
+                 %ExOnvif.Media.VideoResolution{height: 1080, width: 1920},
+                 %ExOnvif.Media.VideoResolution{height: 1440, width: 2560},
+                 %ExOnvif.Media.VideoResolution{height: 1728, width: 3072}
                ]
              }
            ] == response
@@ -147,13 +147,13 @@ defmodule Onvif.Media2Test do
   test "get video source configurations" do
     xml_response = File.read!("test/fixtures/get_media2_video_source_configurations.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
     end)
 
-    {:ok, [response]} = Onvif.Media2.get_video_source_configurations(device)
+    {:ok, [response]} = ExOnvif.Media2.get_video_source_configurations(device)
 
     assert %VideoSourceConfiguration{
              name: "user0",

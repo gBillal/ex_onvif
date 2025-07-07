@@ -1,19 +1,19 @@
-defmodule Onvif.Device do
+defmodule ExOnvif.Device do
   @moduledoc """
   A Device is an abstraction of a physical piece of hardware.
 
   Setting up a device is done most easily by passing in the results
-  of an Onvif.Discovery.Probe and credentials that can be used to
+  of an ExOnvif.Discovery.Probe and credentials that can be used to
   perform ONVIF operations on the physical device.
   """
 
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Onvif.Device
-  alias Onvif.Devices.Service
-  alias Onvif.Devices.SystemDateAndTime
-  alias Onvif.Discovery.Probe
+  alias ExOnvif.Device
+  alias ExOnvif.Devices.Service
+  alias ExOnvif.Devices.SystemDateAndTime
+  alias ExOnvif.Discovery.Probe
 
   @required [:address]
   @optional [
@@ -143,7 +143,7 @@ defmodule Onvif.Device do
 
     `username` is an Onvif enabled username. Some manufacturers allow the admin credentials
     to serve this purpose, but generally you need to enable Onvif for a user in the
-    device's web GUI or create dedicated credentials for Onvif.
+    device's web GUI or create dedicated credentials for ExOnvif.
 
     `password` is the password for the username above.
 
@@ -161,7 +161,7 @@ defmodule Onvif.Device do
   the username and the password. Then override any other field with a struct update because the
   init helpers haven't filled in any service paths, scopes, or an auth best guess.
   """
-  @spec init(Onvif.Discovery.Probe.t(), String.t(), String.t(), boolean, boolean) ::
+  @spec init(ExOnvif.Discovery.Probe.t(), String.t(), String.t(), boolean, boolean) ::
           {:error, any()}
           | {:ok, __MODULE__.t()}
   def init(
@@ -260,7 +260,7 @@ defmodule Onvif.Device do
   end
 
   defp get_date_time(device) do
-    with {:ok, res} <- Onvif.Devices.get_system_date_and_time(device) do
+    with {:ok, res} <- ExOnvif.Devices.get_system_date_and_time(device) do
       updated_device = %{
         device
         | time_diff_from_system_secs: res.current_diff,
@@ -288,7 +288,7 @@ defmodule Onvif.Device do
   end
 
   defp get_device_information(device) do
-    with {:ok, res} <- Onvif.Devices.get_device_information(device) do
+    with {:ok, res} <- ExOnvif.Devices.get_device_information(device) do
       {:ok,
        %{
          device
@@ -302,7 +302,7 @@ defmodule Onvif.Device do
   end
 
   defp get_services(device) do
-    with {:ok, services} <- Onvif.Devices.get_services(device) do
+    with {:ok, services} <- ExOnvif.Devices.get_services(device) do
       {:ok, Map.put(device, :services, services)}
     end
   end

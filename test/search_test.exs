@@ -1,9 +1,9 @@
-defmodule Onvif.SearchTest do
+defmodule ExOnvif.SearchTest do
   use ExUnit.Case, async: true
 
   @moduletag capture_log: true
 
-  alias Onvif.Search.{
+  alias ExOnvif.Search.{
     FindEvents,
     FindRecordingResult,
     FindRecordings,
@@ -15,14 +15,14 @@ defmodule Onvif.SearchTest do
   test "find events" do
     xml_response = File.read!("test/fixtures/find_events.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
     end)
 
     {:ok, response} =
-      Onvif.Search.find_events(device, %FindEvents{
+      ExOnvif.Search.find_events(device, %FindEvents{
         start_point: ~U(2024-12-06 19:00:00Z),
         end_point: ~U(2024-12-06 19:02:00Z),
         keep_alive_time: 60,
@@ -35,14 +35,14 @@ defmodule Onvif.SearchTest do
   test "find recordings" do
     xml_response = File.read!("test/fixtures/find_recordings.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
     end)
 
     {:ok, response} =
-      Onvif.Search.find_recordings(device, %FindRecordings{
+      ExOnvif.Search.find_recordings(device, %FindRecordings{
         max_matches: 10,
         keep_alive_time: 5
       })
@@ -53,14 +53,14 @@ defmodule Onvif.SearchTest do
   test "get recordings search results" do
     xml_response = File.read!("test/fixtures/get_recording_search_results.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
     end)
 
     {:ok, response} =
-      Onvif.Search.get_recording_search_results(device, %GetRecordingSearchResults{
+      ExOnvif.Search.get_recording_search_results(device, %GetRecordingSearchResults{
         search_token: "RecordingSearchToken_1",
         max_results: 10,
         min_results: 2,
@@ -114,15 +114,15 @@ defmodule Onvif.SearchTest do
   test "get recording summary" do
     xml_response = File.read!("test/fixtures/get_recording_summary.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
     end)
 
-    {:ok, response} = Onvif.Search.get_recording_summary(device)
+    {:ok, response} = ExOnvif.Search.get_recording_summary(device)
 
-    assert response == %Onvif.Search.RecordingSummary{
+    assert response == %ExOnvif.Search.RecordingSummary{
              data_from: ~U(1970-01-01 00:00:00Z),
              data_until: ~U(2024-12-13 08:08:49Z),
              number_recordings: 8

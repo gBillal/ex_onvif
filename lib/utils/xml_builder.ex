@@ -1,4 +1,4 @@
-defmodule Onvif.Utils.XmlBuilder do
+defmodule ExOnvif.Utils.XmlBuilder do
   @moduledoc false
 
   def element(name), do: XmlBuilder.element(name)

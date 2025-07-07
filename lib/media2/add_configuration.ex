@@ -1,4 +1,4 @@
-defmodule Onvif.Media2.AddConfiguration do
+defmodule ExOnvif.Media2.AddConfiguration do
   @moduledoc """
   Schema describing a request to add a configuration to the media service.
   """
@@ -6,7 +6,7 @@ defmodule Onvif.Media2.AddConfiguration do
   use TypedEctoSchema
 
   import Ecto.Changeset
-  import Onvif.Utils.XmlBuilder
+  import ExOnvif.Utils.XmlBuilder
 
   @primary_key false
   @derive Jason.Encoder

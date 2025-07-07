@@ -1,4 +1,4 @@
-defmodule Onvif.Recording.RecordingJob do
+defmodule ExOnvif.Recording.RecordingJob do
   @moduledoc """
   Recordings.
   """
@@ -7,7 +7,7 @@ defmodule Onvif.Recording.RecordingJob do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Recording.JobConfiguration
+  alias ExOnvif.Recording.JobConfiguration
 
   @required [:job_token]
   @optional []

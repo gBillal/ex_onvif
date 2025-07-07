@@ -1,16 +1,16 @@
-defmodule Onvif.Recording do
+defmodule ExOnvif.Recording do
   @moduledoc """
   Interface for making requests to the Onvif recording service
 
   http://www.onvif.org/onvif/ver10/recording.wsdl
   """
 
-  import Onvif.Utils.ApiClient, only: [recording_request: 4]
-  import Onvif.Utils.Parser
+  import ExOnvif.Utils.ApiClient, only: [recording_request: 4]
+  import ExOnvif.Utils.Parser
   import SweetXml
   import XmlBuilder
 
-  alias Onvif.Recording.{
+  alias ExOnvif.Recording.{
     JobConfiguration,
     Recording,
     RecordingConfiguration,
@@ -34,7 +34,7 @@ defmodule Onvif.Recording do
 
   All TrackConfigurations shall have the MaximumRetentionTime set to 0 (unlimited), and the Description set to the empty string.
   """
-  @spec create_recording(Onvif.Device.t(), RecordingConfiguration.t()) ::
+  @spec create_recording(ExOnvif.Device.t(), RecordingConfiguration.t()) ::
           {:ok, String.t()} | {:error, any()}
   def create_recording(device, recording_configuration) do
     body =
@@ -50,7 +50,7 @@ defmodule Onvif.Recording do
   except for the ReceiverToken and the AutoCreateReceiver. In the returned structure, the ReceiverToken shall be present and valid
   and the AutoCreateReceiver field shall be omitted.
   """
-  @spec create_recording_job(Onvif.Device.t(), JobConfiguration.t()) ::
+  @spec create_recording_job(ExOnvif.Device.t(), JobConfiguration.t()) ::
           {:ok, RecordingJob.t()} | {:error, any()}
   def create_recording_job(device, job_configuration) do
     body = element(:"trc:CreateRecordingJob", [JobConfiguration.encode(job_configuration)])
@@ -62,7 +62,7 @@ defmodule Onvif.Recording do
 
   This description shall include a list of all the tracks for each recording.
   """
-  @spec get_recordings(Onvif.Device.t()) :: {:ok, [Recording.t()]} | {:error, any()}
+  @spec get_recordings(ExOnvif.Device.t()) :: {:ok, [Recording.t()]} | {:error, any()}
   def get_recordings(device) do
     body = element(:"trc:GetRecordings")
     recording_request(device, "GetRecordings", body, &parse_recordings_response/1)
@@ -71,7 +71,7 @@ defmodule Onvif.Recording do
   @doc """
   GetRecordingJobs shall return a list of all the recording jobs in the device.
   """
-  @spec get_recording_jobs(Onvif.Device.t()) :: {:ok, [RecordingJob.t()]} | {:error, any()}
+  @spec get_recording_jobs(ExOnvif.Device.t()) :: {:ok, [RecordingJob.t()]} | {:error, any()}
   def get_recording_jobs(device) do
     body = element(:"trc:GetRecordingJobs")
     recording_request(device, "GetRecordingJobs", body, &parse_recording_jobs_response/1)
@@ -80,7 +80,7 @@ defmodule Onvif.Recording do
   @doc """
   Returns the capabilities of the recording service.
   """
-  @spec get_service_capabilities(Onvif.Device.t()) ::
+  @spec get_service_capabilities(ExOnvif.Device.t()) ::
           {:ok, ServiceCapabilities.t()} | {:error, any()}
   def get_service_capabilities(device) do
     recording_request(

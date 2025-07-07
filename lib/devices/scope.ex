@@ -1,4 +1,4 @@
-defmodule Onvif.Devices.Scope do
+defmodule ExOnvif.Devices.Scope do
   @moduledoc """
   Scheme describing device scope.
   """

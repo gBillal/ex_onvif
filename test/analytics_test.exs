@@ -1,14 +1,14 @@
-defmodule Onvif.AnalyticsTest do
+defmodule ExOnvif.AnalyticsTest do
   use ExUnit.Case, async: true
 
   @moduletag capture_log: true
 
-  alias Onvif.Analytics.{Module, ServiceCapabilities}
+  alias ExOnvif.Analytics.{Module, ServiceCapabilities}
 
   test "get analytics modules" do
     xml_response = File.read!("test/fixtures/get_analytics_modules.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
@@ -21,7 +21,7 @@ defmodule Onvif.AnalyticsTest do
                 type: "tt:CellMotionEngine",
                 parameters: %Module.Parameters{
                   simple_item: [
-                    %Onvif.Schemas.SimpleItem{name: "sensitivity", value: "60"}
+                    %ExOnvif.Schemas.SimpleItem{name: "sensitivity", value: "60"}
                   ],
                   element_item: [
                     %Module.Parameters.ElementItem{
@@ -31,12 +31,12 @@ defmodule Onvif.AnalyticsTest do
                   ]
                 }
               },
-              %Onvif.Analytics.Module{
+              %ExOnvif.Analytics.Module{
                 name: "MyLineDetectorModule",
                 type: "tt:LineDetectorEngine",
                 parameters: %Module.Parameters{
                   simple_item: [
-                    %Onvif.Schemas.SimpleItem{name: "sensitivity", value: "76"}
+                    %ExOnvif.Schemas.SimpleItem{name: "sensitivity", value: "76"}
                   ],
                   element_item: [
                     %Module.Parameters.ElementItem{
@@ -58,7 +58,7 @@ defmodule Onvif.AnalyticsTest do
                 type: "tt:FieldDetectorEngine",
                 parameters: %Module.Parameters{
                   simple_item: [
-                    %Onvif.Schemas.SimpleItem{name: "sensitivity", value: "50"}
+                    %ExOnvif.Schemas.SimpleItem{name: "sensitivity", value: "50"}
                   ],
                   element_item: [
                     %Module.Parameters.ElementItem{
@@ -79,7 +79,7 @@ defmodule Onvif.AnalyticsTest do
                 name: "MyTamperDetecModule",
                 type: "hikxsd:TamperEngine",
                 parameters: %Module.Parameters{
-                  simple_item: [%Onvif.Schemas.SimpleItem{name: "sensitivity", value: "0"}],
+                  simple_item: [%ExOnvif.Schemas.SimpleItem{name: "sensitivity", value: "0"}],
                   element_item: [
                     %Module.Parameters.ElementItem{
                       name: "transformation",
@@ -95,13 +95,13 @@ defmodule Onvif.AnalyticsTest do
                   ]
                 }
               }
-            ]} = Onvif.Analytics.get_analytics_modules(device, "VideoAnalyticsToken")
+            ]} = ExOnvif.Analytics.get_analytics_modules(device, "VideoAnalyticsToken")
   end
 
   test "get service capabilities" do
     xml_response = File.read!("test/fixtures/get_analytics_service_capabilities.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
@@ -116,6 +116,6 @@ defmodule Onvif.AnalyticsTest do
               analytics_module_options_supported: false,
               supported_metadata: false,
               image_sending_type: []
-            }} = Onvif.Analytics.get_service_capabilities(device)
+            }} = ExOnvif.Analytics.get_service_capabilities(device)
   end
 end

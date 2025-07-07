@@ -1,4 +1,4 @@
-defmodule Onvif.Media.Profile.AnalyticsEngineConfiguration do
+defmodule ExOnvif.Media.Profile.AnalyticsEngineConfiguration do
   @moduledoc """
   Indication which AnalyticsModules shall output metadata. Note that the streaming behavior is undefined if the list
   includes items that are not part of the associated AnalyticsConfiguration.
@@ -9,7 +9,7 @@ defmodule Onvif.Media.Profile.AnalyticsEngineConfiguration do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Analytics.Module
+  alias ExOnvif.Analytics.Module
 
   @type t :: %__MODULE__{}
 

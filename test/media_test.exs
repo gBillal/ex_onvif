@@ -1,11 +1,11 @@
-defmodule Onvif.MediaTest do
+defmodule ExOnvif.MediaTest do
   use ExUnit.Case, async: true
 
   @moduletag capture_log: true
 
-  alias Onvif.Schemas.IntRange
+  alias ExOnvif.Schemas.IntRange
 
-  alias Onvif.Media.{
+  alias ExOnvif.Media.{
     AudioEncoderConfigurationOptions,
     OSD,
     OSDOptions,
@@ -14,19 +14,19 @@ defmodule Onvif.MediaTest do
     VideoResolution
   }
 
-  alias Onvif.Media.OSD.{Color, ColorOptions}
+  alias ExOnvif.Media.OSD.{Color, ColorOptions}
 
   test "create osd" do
     xml_response = File.read!("test/fixtures/create_osd.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
     end)
 
     {:ok, osdtoken} =
-      Onvif.Media.create_osd(
+      ExOnvif.Media.create_osd(
         device,
         %OSD{
           image: nil,
@@ -64,25 +64,25 @@ defmodule Onvif.MediaTest do
   test "delete osd" do
     xml_response = File.read!("test/fixtures/delete_osd.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
     end)
 
-    assert :ok = Onvif.Media.delete_osd(device, "token")
+    assert :ok = ExOnvif.Media.delete_osd(device, "token")
   end
 
   test "get audio encoder configuration options" do
     xml_response = File.read!("test/fixtures/get_audio_encoder_configuration_options.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
     end)
 
-    assert {:ok, response} = Onvif.Media.get_audio_configuration_options(device)
+    assert {:ok, response} = ExOnvif.Media.get_audio_configuration_options(device)
 
     assert response == %AudioEncoderConfigurationOptions{
              options: [
@@ -108,13 +108,13 @@ defmodule Onvif.MediaTest do
   test "get osds" do
     xml_response = File.read!("test/fixtures/get_media_osds.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
     end)
 
-    {:ok, osds} = Onvif.Media.get_osds(device)
+    {:ok, osds} = ExOnvif.Media.get_osds(device)
 
     assert length(osds) == 2
 
@@ -151,13 +151,13 @@ defmodule Onvif.MediaTest do
   test "get osd options" do
     xml_response = File.read!("test/fixtures/get_osd_options.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
     end)
 
-    {:ok, osdoptions} = Onvif.Media.get_osd_options(device, "token")
+    {:ok, osdoptions} = ExOnvif.Media.get_osd_options(device, "token")
 
     assert osdoptions == %OSDOptions{
              image_option: nil,
@@ -178,14 +178,14 @@ defmodule Onvif.MediaTest do
                    color_list: [],
                    color_space_range: %ColorOptions.Color.ColorSpaceRange{
                      color_space: "http://www.onvif.org/ver10/colorspace/YCbCr",
-                     x: %Onvif.Schemas.FloatRange{min: 0.0, max: 255.0},
-                     y: %Onvif.Schemas.FloatRange{min: 0.0, max: 255.0},
-                     z: %Onvif.Schemas.FloatRange{min: 0.0, max: 255.0}
+                     x: %ExOnvif.Schemas.FloatRange{min: 0.0, max: 255.0},
+                     y: %ExOnvif.Schemas.FloatRange{min: 0.0, max: 255.0},
+                     z: %ExOnvif.Schemas.FloatRange{min: 0.0, max: 255.0}
                    }
                  },
                  transparent: nil
                },
-               font_size_range: %Onvif.Schemas.IntRange{
+               font_size_range: %ExOnvif.Schemas.IntRange{
                  max: 64,
                  min: 16
                },
@@ -199,13 +199,13 @@ defmodule Onvif.MediaTest do
   test "get service capabilities" do
     xml_response = File.read!("test/fixtures/get_media_service_capabilities.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
     end)
 
-    {:ok, service_capabilities} = Onvif.Media.get_service_capabilities(device)
+    {:ok, service_capabilities} = ExOnvif.Media.get_service_capabilities(device)
 
     assert service_capabilities == %ServiceCapabilities{
              exi_compression: false,
@@ -228,13 +228,13 @@ defmodule Onvif.MediaTest do
   test "get video encoder configuration options" do
     xml_response = File.read!("test/fixtures/get_video_encoder_configuration_options.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
     end)
 
-    assert {:ok, response} = Onvif.Media.get_video_encoder_configuration_options(device)
+    assert {:ok, response} = ExOnvif.Media.get_video_encoder_configuration_options(device)
 
     assert %VideoEncoderConfigurationOptions{
              extension: nil,
@@ -267,14 +267,14 @@ defmodule Onvif.MediaTest do
   test "set osd" do
     xml_response = File.read!("test/fixtures/set_osd_response.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
     end)
 
     assert :ok =
-             Onvif.Media.set_osd(
+             ExOnvif.Media.set_osd(
                device,
                %OSD{
                  image: nil,

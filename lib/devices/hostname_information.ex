@@ -1,4 +1,4 @@
-defmodule Onvif.Devices.HostnameInformation do
+defmodule ExOnvif.Devices.HostnameInformation do
   @moduledoc """
   Scheme describing the hostname information of a device.
   """

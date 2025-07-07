@@ -1,4 +1,4 @@
-defmodule Onvif.Discovery do
+defmodule ExOnvif.Discovery do
   @moduledoc """
     Module for discovering devices on a local network via WS Discovery protocol
   """
@@ -108,8 +108,8 @@ defmodule Onvif.Discovery do
   end
 
   def probe_by(mac_address: mac_address) when is_binary(mac_address) do
-    with {:ok, mac_with_colons} <- Onvif.MacAddress.mac_with_colons(mac_address),
-         {:ok, mac_just_digits} <- Onvif.MacAddress.mac_just_digits(mac_address) do
+    with {:ok, mac_with_colons} <- ExOnvif.MacAddress.mac_with_colons(mac_address),
+         {:ok, mac_just_digits} <- ExOnvif.MacAddress.mac_just_digits(mac_address) do
       probe_by([
         @onvif_scope_prefix <> "macaddr/" <> mac_just_digits,
         @onvif_scope_prefix <> "MAC/" <> mac_with_colons

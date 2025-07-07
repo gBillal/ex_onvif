@@ -1,4 +1,4 @@
-defmodule Onvif.Recording.ServiceCapabilities do
+defmodule ExOnvif.Recording.ServiceCapabilities do
   @moduledoc """
   Struct representing recording's service capabilities.
   """

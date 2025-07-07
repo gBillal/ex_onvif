@@ -1,4 +1,4 @@
-defmodule Onvif.Media.OSDOptions do
+defmodule ExOnvif.Media.OSDOptions do
   @moduledoc """
   OSD (On-Screen Display) Options specification.
   """
@@ -7,8 +7,8 @@ defmodule Onvif.Media.OSDOptions do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Media.OSD.ColorOptions
-  alias Onvif.Schemas.IntRange
+  alias ExOnvif.Media.OSD.ColorOptions
+  alias ExOnvif.Schemas.IntRange
 
   @required [:type, :position_option]
   @optional []

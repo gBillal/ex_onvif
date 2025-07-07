@@ -1,13 +1,13 @@
-defmodule Onvif.PullPoint do
+defmodule ExOnvif.PullPoint do
   @moduledoc """
   Interface for making requests to the PullPoint service.
   """
 
-  import Onvif.Utils.ApiClient, only: [pull_point_request: 5]
+  import ExOnvif.Utils.ApiClient, only: [pull_point_request: 5]
   import SweetXml
   import XmlBuilder
 
-  alias Onvif.Event.Messages
+  alias ExOnvif.Event.Messages
 
   @doc """
   This method pulls one or more messages from a PullPoint.
@@ -21,7 +21,7 @@ defmodule Onvif.PullPoint do
     * `subscription_id` - Subscription id to include as header in the soap request.
   """
   @spec pull_messages(
-          device :: Onvif.Device.t(),
+          device :: ExOnvif.Device.t(),
           url :: String.t(),
           opts :: Keyword.t()
         ) :: {:ok, Messages.t()} | {:error, any()}

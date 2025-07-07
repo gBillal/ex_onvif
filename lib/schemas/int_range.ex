@@ -1,4 +1,4 @@
-defmodule Onvif.Schemas.IntRange do
+defmodule ExOnvif.Schemas.IntRange do
   @moduledoc """
   Module describing an int range.
   """

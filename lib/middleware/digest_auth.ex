@@ -1,4 +1,4 @@
-defmodule Onvif.Middleware.DigestAuth do
+defmodule ExOnvif.Middleware.DigestAuth do
   @moduledoc false
 
   @behaviour Tesla.Middleware
@@ -14,8 +14,8 @@ defmodule Onvif.Middleware.DigestAuth do
     else
       body =
         env.body
-        |> Onvif.Request.add_namespaces(@standard_namespaces)
-        |> Onvif.Request.encode()
+        |> ExOnvif.Request.add_namespaces(@standard_namespaces)
+        |> ExOnvif.Request.encode()
 
       env = env |> Tesla.put_body(body)
 

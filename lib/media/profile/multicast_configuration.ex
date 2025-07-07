@@ -1,4 +1,4 @@
-defmodule Onvif.Media.Profile.MulticastConfiguration do
+defmodule ExOnvif.Media.Profile.MulticastConfiguration do
   @moduledoc """
   MulticastConfiguration for Media Ver10
   """
@@ -6,7 +6,7 @@ defmodule Onvif.Media.Profile.MulticastConfiguration do
   use Ecto.Schema
 
   import Ecto.Changeset
-  import Onvif.Utils.XmlBuilder
+  import ExOnvif.Utils.XmlBuilder
   import SweetXml
 
   @type t :: %__MODULE__{}

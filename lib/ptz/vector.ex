@@ -1,4 +1,4 @@
-defmodule Onvif.PTZ.Vector do
+defmodule ExOnvif.PTZ.Vector do
   @moduledoc """
   PTZ speed/vector schema
   """

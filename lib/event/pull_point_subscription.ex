@@ -1,4 +1,4 @@
-defmodule Onvif.Event.PullPointSubscription do
+defmodule ExOnvif.Event.PullPointSubscription do
   @moduledoc """
   Schema describing a pull point subscription
   """

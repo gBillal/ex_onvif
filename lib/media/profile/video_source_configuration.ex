@@ -1,4 +1,4 @@
-defmodule Onvif.Media.Profile.VideoSourceConfiguration do
+defmodule ExOnvif.Media.Profile.VideoSourceConfiguration do
   @moduledoc """
   Optional configuration of the Video input.
   """

@@ -1,4 +1,4 @@
-defmodule Onvif.Media.OSD do
+defmodule ExOnvif.Media.OSD do
   @moduledoc """
   OSD (On-Screen Display) specification.
   """
@@ -6,7 +6,7 @@ defmodule Onvif.Media.OSD do
   use Ecto.Schema
 
   import Ecto.Changeset
-  import Onvif.Utils.XmlBuilder
+  import ExOnvif.Utils.XmlBuilder
   import SweetXml
 
   alias __MODULE__.Color

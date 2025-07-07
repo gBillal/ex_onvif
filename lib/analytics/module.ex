@@ -1,4 +1,4 @@
-defmodule Onvif.Analytics.Module do
+defmodule ExOnvif.Analytics.Module do
   @moduledoc """
   Schema describing an analytics module.
   """
@@ -8,8 +8,8 @@ defmodule Onvif.Analytics.Module do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Analytics.Transformation
-  alias Onvif.Schemas.SimpleItem
+  alias ExOnvif.Analytics.Transformation
+  alias ExOnvif.Schemas.SimpleItem
 
   @primary_key false
   @derive Jason.Encoder

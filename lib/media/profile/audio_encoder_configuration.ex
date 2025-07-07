@@ -1,15 +1,15 @@
-defmodule Onvif.Media.Profile.AudioEncoderConfiguration do
+defmodule ExOnvif.Media.Profile.AudioEncoderConfiguration do
   @moduledoc """
   Optional configuration of the Audio encoder.
   """
 
   use Ecto.Schema
 
-  import Onvif.Utils.XmlBuilder
+  import ExOnvif.Utils.XmlBuilder
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Media.Profile.MulticastConfiguration
+  alias ExOnvif.Media.Profile.MulticastConfiguration
 
   @type t :: %__MODULE__{}
 

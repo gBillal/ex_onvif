@@ -1,4 +1,4 @@
-defmodule Onvif do
+defmodule ExOnvif do
   @moduledoc """
   Interface for making requests to an Onvif compatible device.
 

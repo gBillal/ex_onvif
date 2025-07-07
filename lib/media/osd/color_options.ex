@@ -1,6 +1,6 @@
-defmodule Onvif.Media.OSD.ColorOptions do
+defmodule ExOnvif.Media.OSD.ColorOptions do
   @moduledoc """
-  Schema for the color options of the OSD (On-Screen Display) in Onvif.
+  Schema for the color options of the OSD (On-Screen Display) in ExOnvif.
   """
 
   use Ecto.Schema
@@ -8,8 +8,8 @@ defmodule Onvif.Media.OSD.ColorOptions do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Schemas.IntRange
-  alias Onvif.Schemas.FloatRange
+  alias ExOnvif.Schemas.IntRange
+  alias ExOnvif.Schemas.FloatRange
 
   @type t :: %__MODULE__{}
 

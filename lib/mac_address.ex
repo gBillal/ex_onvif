@@ -1,4 +1,4 @@
-defmodule Onvif.MacAddress do
+defmodule ExOnvif.MacAddress do
   @mac_with_colons_regex ~r/^(?:[[:xdigit:]]{2}(:))(?:[[:xdigit:]]{2}\1){4}[[:xdigit:]]{2}$/
   @mac_with_dashes_regex ~r/^(?:[[:xdigit:]]{2}(-))(?:[[:xdigit:]]{2}\1){4}[[:xdigit:]]{2}$/
   @mac_regex ~r/^(?:[[:xdigit:]]{12})$/

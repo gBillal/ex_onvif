@@ -1,4 +1,4 @@
-defmodule Onvif.Media.VideoEncoderConfigurationOptions do
+defmodule ExOnvif.Media.VideoEncoderConfigurationOptions do
   @moduledoc """
   Optional configuration of the Video encoder.
   """
@@ -8,8 +8,8 @@ defmodule Onvif.Media.VideoEncoderConfigurationOptions do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Schemas.IntRange
-  alias Onvif.Media.VideoResolution
+  alias ExOnvif.Schemas.IntRange
+  alias ExOnvif.Media.VideoResolution
 
   @type t :: %__MODULE__{}
 

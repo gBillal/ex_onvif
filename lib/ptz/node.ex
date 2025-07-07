@@ -1,4 +1,4 @@
-defmodule Onvif.PTZ.Node do
+defmodule ExOnvif.PTZ.Node do
   @moduledoc """
   Module describing a PTZ node.
   """
@@ -8,7 +8,7 @@ defmodule Onvif.PTZ.Node do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Schemas.{Space1DDescription, Space2DDescription}
+  alias ExOnvif.Schemas.{Space1DDescription, Space2DDescription}
 
   @type t :: %__MODULE__{}
 

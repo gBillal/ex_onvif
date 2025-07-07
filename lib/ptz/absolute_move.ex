@@ -1,4 +1,4 @@
-defmodule Onvif.PTZ.AbsoluteMove do
+defmodule ExOnvif.PTZ.AbsoluteMove do
   @moduledoc """
   Schema describing the absolute move request to the PTZ service.
   """
@@ -6,9 +6,9 @@ defmodule Onvif.PTZ.AbsoluteMove do
   use Ecto.Schema
 
   import Ecto.Changeset
-  import Onvif.Utils.XmlBuilder
+  import ExOnvif.Utils.XmlBuilder
 
-  alias Onvif.PTZ.Vector
+  alias ExOnvif.PTZ.Vector
 
   @type t :: %__MODULE__{}
   @type vector :: {float(), float(), float()}

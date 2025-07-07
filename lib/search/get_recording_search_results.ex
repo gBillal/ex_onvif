@@ -1,12 +1,12 @@
-defmodule Onvif.Search.GetRecordingSearchResults do
+defmodule ExOnvif.Search.GetRecordingSearchResults do
   @moduledoc """
-  Module describing the request to `Onvif.Search.GetRecordingSearchResults`.
+  Module describing the request to `ExOnvif.Search.GetRecordingSearchResults`.
   """
 
   use Ecto.Schema
 
   import Ecto.Changeset
-  import Onvif.Utils.XmlBuilder
+  import ExOnvif.Utils.XmlBuilder
 
   @type t :: %__MODULE__{}
 

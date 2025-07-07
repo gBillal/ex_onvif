@@ -1,4 +1,4 @@
-defmodule Onvif.Schemas.FloatRange do
+defmodule ExOnvif.Schemas.FloatRange do
   @moduledoc """
   Module describing a float range.
   """

@@ -1,9 +1,9 @@
-defmodule Onvif.DevicesTest do
+defmodule ExOnvif.DevicesTest do
   use ExUnit.Case, async: true
 
   @moduletag capture_log: true
 
-  alias Onvif.Devices.{
+  alias ExOnvif.Devices.{
     DeviceInformation,
     HostnameInformation,
     NetworkProtocol,
@@ -14,13 +14,13 @@ defmodule Onvif.DevicesTest do
   test "get device information" do
     xml_response = File.read!("test/fixtures/get_device_information.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
     end)
 
-    assert {:ok, response} = Onvif.Devices.get_device_information(device)
+    assert {:ok, response} = ExOnvif.Devices.get_device_information(device)
 
     assert response == %DeviceInformation{
              manufacturer: "Milesight Technology Co.,Ltd.",
@@ -36,13 +36,13 @@ defmodule Onvif.DevicesTest do
   test "get hostname" do
     xml_response = File.read!("test/fixtures/get_hostname.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
     end)
 
-    assert {:ok, response} = Onvif.Devices.get_hostname(device)
+    assert {:ok, response} = ExOnvif.Devices.get_hostname(device)
 
     assert response == %HostnameInformation{name: nil, from_dhcp: false}
     assert {:ok, _json} = Jason.encode(response)
@@ -51,13 +51,13 @@ defmodule Onvif.DevicesTest do
   test "get network protocols" do
     xml_response = File.read!("test/fixtures/get_network_protocols.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
     end)
 
-    assert {:ok, network_protocols} = Onvif.Devices.get_network_protocols(device)
+    assert {:ok, network_protocols} = ExOnvif.Devices.get_network_protocols(device)
 
     assert network_protocols == [
              %NetworkProtocol{name: :http, enabled: true, port: 80},
@@ -71,13 +71,13 @@ defmodule Onvif.DevicesTest do
   test "get ntp" do
     xml_response = File.read!("test/fixtures/get_ntp.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
     end)
 
-    assert {:ok, ntp} = Onvif.Devices.get_ntp(device)
+    assert {:ok, ntp} = ExOnvif.Devices.get_ntp(device)
 
     assert ntp == %NTP{
              from_dhcp: false,
@@ -96,52 +96,52 @@ defmodule Onvif.DevicesTest do
   test "get scopes" do
     xml_response = File.read!("test/fixtures/get_scopes.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
     end)
 
-    assert {:ok, scopes} = Onvif.Devices.get_scopes(device)
+    assert {:ok, scopes} = ExOnvif.Devices.get_scopes(device)
 
     assert scopes == [
-             %Onvif.Devices.Scope{
+             %ExOnvif.Devices.Scope{
                scope_def: :fixed,
                scope_item: "onvif://www.onvif.org/type/Network_Video_Transmitter"
              },
-             %Onvif.Devices.Scope{
+             %ExOnvif.Devices.Scope{
                scope_def: :fixed,
                scope_item: "onvif://www.onvif.org/Profile/Streaming"
              },
-             %Onvif.Devices.Scope{
+             %ExOnvif.Devices.Scope{
                scope_def: :fixed,
                scope_item: "onvif://www.onvif.org/hardware/Camera"
              },
-             %Onvif.Devices.Scope{
+             %ExOnvif.Devices.Scope{
                scope_def: :configurable,
                scope_item: "onvif://www.onvif.org/name/Camera"
              },
-             %Onvif.Devices.Scope{
+             %ExOnvif.Devices.Scope{
                scope_def: :configurable,
                scope_item: "onvif://www.onvif.org/location/"
              },
-             %Onvif.Devices.Scope{
+             %ExOnvif.Devices.Scope{
                scope_def: :configurable,
                scope_item: "onvif://www.onvif.org/model/"
              },
-             %Onvif.Devices.Scope{
+             %ExOnvif.Devices.Scope{
                scope_def: :configurable,
                scope_item: "onvif://www.onvif.org/macaddress/"
              },
-             %Onvif.Devices.Scope{
+             %ExOnvif.Devices.Scope{
                scope_def: :configurable,
                scope_item: "onvif://www.onvif.org/Profile/G"
              },
-             %Onvif.Devices.Scope{
+             %ExOnvif.Devices.Scope{
                scope_def: :configurable,
                scope_item: "onvif://www.onvif.org/Profile/T"
              },
-             %Onvif.Devices.Scope{
+             %ExOnvif.Devices.Scope{
                scope_def: :configurable,
                scope_item: "onvif://www.onvif.org/Profile/Q/FactoryDefault"
              }
@@ -153,7 +153,7 @@ defmodule Onvif.DevicesTest do
   test "get system date and time" do
     xml_response = File.read!("test/fixtures/get_system_date_and_time.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
@@ -163,7 +163,7 @@ defmodule Onvif.DevicesTest do
       ~U[2024-07-09 20:00:00.227234Z]
     end)
 
-    {:ok, service_capabilities} = Onvif.Devices.get_system_date_and_time(device)
+    {:ok, service_capabilities} = ExOnvif.Devices.get_system_date_and_time(device)
 
     assert service_capabilities == %SystemDateAndTime{
              current_diff: -654,

@@ -14,7 +14,7 @@ The package can be installed by adding `onvif` to your list of dependencies in `
 ```elixir
 def deps do
   [
-    {:onvif, "~> 0,7.1"}
+    {:ex_onvif, "~> 0,7.1"}
   ]
 end
 ```
@@ -33,9 +33,9 @@ services that should be implemented.
 
 To start, make a probe request:
 ```elixir
-> Onvif.Discovery.probe()
+> ExOnvif.Discovery.probe()
 [
-  %Onvif.Discovery.Probe{
+  %ExOnvif.Discovery.Probe{
     address: ...
   }
 ]
@@ -46,20 +46,20 @@ _should_ filter any non-video device but it is possibly that printers, etc. will
 filtered by application logic. If you already have information about the device, you can use:
 
 ```elixir
-> Onvif.Discovery.probe_by(ip_address: "127.0.0.1")
-%Onvif.Discovery.Probe{
+> ExOnvif.Discovery.probe_by(ip_address: "127.0.0.1")
+%ExOnvif.Discovery.Probe{
   address: [...],
   device_ip: "127.0.0.1",
   ...
 }
 ```
-More details in the `Onvif.Discovery.probe_by/1` docs.
+More details in the `ExOnvif.Discovery.probe_by/1` docs.
 
 Once you have a valid `Probe` struct, you can initialize a device.
 
 ```elixir
-> Onvif.Device.init(probe, username, password)
-%Onvif.Device{
+> ExOnvif.Device.init(probe, username, password)
+%ExOnvif.Device{
   ...
 }
 ```

@@ -1,4 +1,4 @@
-defmodule Onvif.Search.RecordingSummary do
+defmodule ExOnvif.Search.RecordingSummary do
   @moduledoc """
   Schema describing recording summary.
   """

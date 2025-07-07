@@ -1,4 +1,4 @@
-defmodule Onvif.Media.Profile.VideoEncoderConfiguration do
+defmodule ExOnvif.Media.Profile.VideoEncoderConfiguration do
   @moduledoc """
   Configurations for the video encoding
   """
@@ -6,11 +6,11 @@ defmodule Onvif.Media.Profile.VideoEncoderConfiguration do
   use Ecto.Schema
 
   import Ecto.Changeset
-  import Onvif.Utils.XmlBuilder
+  import ExOnvif.Utils.XmlBuilder
   import SweetXml
 
-  alias Onvif.Media.VideoResolution
-  alias Onvif.Media.Profile.MulticastConfiguration
+  alias ExOnvif.Media.VideoResolution
+  alias ExOnvif.Media.Profile.MulticastConfiguration
 
   @required [:reference_token, :name, :encoding]
   @optional [:use_count, :guaranteed_frame_rate, :quality, :session_timeout]

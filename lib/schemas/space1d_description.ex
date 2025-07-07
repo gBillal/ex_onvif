@@ -1,4 +1,4 @@
-defmodule Onvif.Schemas.Space1DDescription do
+defmodule ExOnvif.Schemas.Space1DDescription do
   @moduledoc """
   Module describing a 1D space.
   """
@@ -8,7 +8,7 @@ defmodule Onvif.Schemas.Space1DDescription do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Schemas.FloatRange
+  alias ExOnvif.Schemas.FloatRange
 
   @type t :: %__MODULE__{}
 

@@ -1,4 +1,4 @@
-defmodule Onvif.Media.OSD.Color do
+defmodule ExOnvif.Media.OSD.Color do
   @moduledoc """
   A schema describing an OSD color.
   """
@@ -6,7 +6,7 @@ defmodule Onvif.Media.OSD.Color do
   use Ecto.Schema
 
   import Ecto.Changeset
-  import Onvif.Utils.XmlBuilder
+  import ExOnvif.Utils.XmlBuilder
   import SweetXml
 
   @type t :: %__MODULE__{}

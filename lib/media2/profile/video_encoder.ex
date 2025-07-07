@@ -1,4 +1,4 @@
-defmodule Onvif.Media2.Profile.VideoEncoder do
+defmodule ExOnvif.Media2.Profile.VideoEncoder do
   @moduledoc """
   VideoEncoder schema for Media Ver20
   """
@@ -6,11 +6,11 @@ defmodule Onvif.Media2.Profile.VideoEncoder do
   use Ecto.Schema
 
   import Ecto.Changeset
-  import Onvif.Utils.XmlBuilder
+  import ExOnvif.Utils.XmlBuilder
   import SweetXml
 
-  alias Onvif.Media.Profile.MulticastConfiguration
-  alias Onvif.Media.VideoResolution
+  alias ExOnvif.Media.Profile.MulticastConfiguration
+  alias ExOnvif.Media.VideoResolution
 
   @type t :: %__MODULE__{}
 

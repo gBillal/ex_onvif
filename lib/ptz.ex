@@ -1,16 +1,16 @@
-defmodule Onvif.PTZ do
+defmodule ExOnvif.PTZ do
   @moduledoc """
   Interface for making requests to the Onvif PTZ(Pan/Tilt/Zoom) service
 
   https://www.onvif.org/onvif/ver20/ptz/wsdl/ptz.wsdl
   """
 
-  import Onvif.Utils.ApiClient, only: [ptz_request: 4]
-  import Onvif.Utils.XmlBuilder
-  import Onvif.Utils.Parser
+  import ExOnvif.Utils.ApiClient, only: [ptz_request: 4]
+  import ExOnvif.Utils.XmlBuilder
+  import ExOnvif.Utils.Parser
   import SweetXml
 
-  alias Onvif.PTZ.{AbsoluteMove, Node, ServiceCapabilities, Status}
+  alias ExOnvif.PTZ.{AbsoluteMove, Node, ServiceCapabilities, Status}
 
   @doc """
   Operation to move pan,tilt or zoom to a absolute destination.
@@ -19,7 +19,7 @@ defmodule Onvif.PTZ do
   speed vector or to map x and y to the component speed. If the speed argument is omitted, the default speed set by the
   PTZConfiguration will be used.
   """
-  @spec absolute_move(Onvif.Device.t(), AbsoluteMove.t()) :: :ok | {:error, any()}
+  @spec absolute_move(ExOnvif.Device.t(), AbsoluteMove.t()) :: :ok | {:error, any()}
   def absolute_move(device, abs_move) do
     body = AbsoluteMove.encode(abs_move)
     ptz_request(device, "AbsoluteMove", body, fn _body -> :ok end)
@@ -28,7 +28,7 @@ defmodule Onvif.PTZ do
   @doc """
   Get a specific PTZ Node identified by a reference token or a name.
   """
-  @spec get_node(Onvif.Device.t(), String.t()) :: {:ok, Node.t()} | {:error, any()}
+  @spec get_node(ExOnvif.Device.t(), String.t()) :: {:ok, Node.t()} | {:error, any()}
   def get_node(device, node_token) do
     body = element("tptz:GetNode", element("tptz:NodeToken", node_token))
     ptz_request(device, "GetNode", body, &parse_node_response/1)
@@ -41,7 +41,7 @@ defmodule Onvif.PTZ do
   PTZ Nodes are the lowest level entities in the PTZ control API and reflect the supported PTZ capabilities. The PTZ Node is referenced
   either by its name or by its reference token.
   """
-  @spec get_nodes(Onvif.Device.t()) :: {:ok, [Node.t()]} | {:error, map()}
+  @spec get_nodes(ExOnvif.Device.t()) :: {:ok, [Node.t()]} | {:error, map()}
   def get_nodes(device) do
     ptz_request(device, "GetNodes", :"tptz:GetNodes", &parse_nodes_response/1)
   end
@@ -49,7 +49,7 @@ defmodule Onvif.PTZ do
   @doc """
   Returns the capabilities of the PTZ service.
   """
-  @spec get_service_capabilities(Onvif.Device.t()) ::
+  @spec get_service_capabilities(ExOnvif.Device.t()) ::
           {:ok, ServiceCapabilities.t()} | {:error, any()}
   def get_service_capabilities(device) do
     body = :"tptz:GetServiceCapabilities"
@@ -59,7 +59,7 @@ defmodule Onvif.PTZ do
   @doc """
   Operation to request PTZ status for the Node in the selected profile.
   """
-  @spec get_status(Onvif.Device.t(), String.t()) :: {:ok, Status.t()} | {:error, any()}
+  @spec get_status(ExOnvif.Device.t(), String.t()) :: {:ok, Status.t()} | {:error, any()}
   def get_status(device, profile_token) do
     body = element("tptz:GetStatus", element("tptz:ProfileToken", profile_token))
     ptz_request(device, "GetStatus", body, &parse_status_response/1)

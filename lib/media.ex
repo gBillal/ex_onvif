@@ -1,16 +1,16 @@
-defmodule Onvif.Media do
+defmodule ExOnvif.Media do
   @moduledoc """
   Interface for making requests to the 1.0 version of Onvif Media Service
 
   https://www.onvif.org/ver10/media/wsdl/media.wsdl
   """
 
-  import Onvif.Utils.ApiClient, only: [media_request: 4]
-  import Onvif.Utils.Parser
-  import Onvif.Utils.XmlBuilder
+  import ExOnvif.Utils.ApiClient, only: [media_request: 4]
+  import ExOnvif.Utils.Parser
+  import ExOnvif.Utils.XmlBuilder
   import SweetXml
 
-  alias Onvif.Media.{
+  alias ExOnvif.Media.{
     AudioEncoderConfigurationOptions,
     OSD,
     OSDOptions,
@@ -19,14 +19,14 @@ defmodule Onvif.Media do
     VideoEncoderConfigurationOptions
   }
 
-  alias Onvif.Media.Profile.{AudioEncoderConfiguration, VideoEncoderConfiguration}
+  alias ExOnvif.Media.Profile.{AudioEncoderConfiguration, VideoEncoderConfiguration}
 
   @type encoder_options_opts :: [configuration_token: String.t(), profile_token: String.t()]
 
   @doc """
   Create the OSD.
   """
-  @spec create_osd(Onvif.Device.t(), OSD.t()) :: {:ok, String.t()} | {:error, any()}
+  @spec create_osd(ExOnvif.Device.t(), OSD.t()) :: {:ok, String.t()} | {:error, any()}
   def create_osd(device, osd) do
     body = element(:"trt:CreateOSD", OSD.encode(osd))
     media_request(device, "CreateOSD", body, &parse_create_osd_response/1)
@@ -35,7 +35,7 @@ defmodule Onvif.Media do
   @doc """
   Delete the OSD with the provided token.
   """
-  @spec delete_osd(Onvif.Device.t(), String.t()) :: :ok | {:error, any()}
+  @spec delete_osd(ExOnvif.Device.t(), String.t()) :: :ok | {:error, any()}
   def delete_osd(device, token) do
     body = element(:"trt:DeleteOSD", element(:"trt:OSDToken", token))
     media_request(device, "DeleteOSD", body, fn _body -> :ok end)
@@ -44,7 +44,7 @@ defmodule Onvif.Media do
   @doc """
   The GetAudioEncoderConfiguration command fetches the encoder configuration if the audio encoder configuration token is known.
   """
-  @spec get_audio_encoder_configuration(Onvif.Device.t(), String.t()) ::
+  @spec get_audio_encoder_configuration(ExOnvif.Device.t(), String.t()) ::
           {:ok, AudioEncoderConfiguration.t()} | {:error, any()}
   def get_audio_encoder_configuration(device, config_token) do
     body =
@@ -65,7 +65,7 @@ defmodule Onvif.Media do
   This operation returns the available options (supported values and ranges for audio encoder configuration parameters) when the audio encoder
   parameters are reconfigured.
   """
-  @spec get_audio_configuration_options(Onvif.Device.t(), encoder_options_opts()) ::
+  @spec get_audio_configuration_options(ExOnvif.Device.t(), encoder_options_opts()) ::
           {:ok, AudioEncoderConfigurationOptions.t()} | {:error, any()}
   def get_audio_configuration_options(device, opts \\ []) do
     body =
@@ -86,7 +86,7 @@ defmodule Onvif.Media do
   @doc """
   Get OSD by token.
   """
-  @spec get_osd(Onvif.Device.t(), String.t()) :: {:ok, OSD.t()} | {:error, any()}
+  @spec get_osd(ExOnvif.Device.t(), String.t()) :: {:ok, OSD.t()} | {:error, any()}
   def get_osd(device, token) do
     body = element(:"trt:GetOSD", element(:"trt:OSDToken", token))
     media_request(device, "GetOSD", body, &parse_osd_response/1)
@@ -95,8 +95,8 @@ defmodule Onvif.Media do
   @doc """
   Get the OSD Options.
   """
-  @spec get_osd_options(Onvif.Device.t()) :: {:ok, OSDOptions.t()} | {:error, any()}
-  @spec get_osd_options(Onvif.Device.t(), String.t() | nil) ::
+  @spec get_osd_options(ExOnvif.Device.t()) :: {:ok, OSDOptions.t()} | {:error, any()}
+  @spec get_osd_options(ExOnvif.Device.t(), String.t() | nil) ::
           {:ok, OSDOptions.t()} | {:error, any()}
   def get_osd_options(device, token \\ nil) do
     body = element(:"trt:GetOSDOptions", element(:"trt:ConfigurationToken", token))
@@ -106,8 +106,8 @@ defmodule Onvif.Media do
   @doc """
   Get the OSDs.
   """
-  @spec get_osds(Onvif.Device.t()) :: {:ok, [OSD.t()]} | {:error, any()}
-  @spec get_osds(Onvif.Device.t(), String.t() | nil) :: {:ok, [OSD.t()]} | {:error, any()}
+  @spec get_osds(ExOnvif.Device.t()) :: {:ok, [OSD.t()]} | {:error, any()}
+  @spec get_osds(ExOnvif.Device.t(), String.t() | nil) :: {:ok, [OSD.t()]} | {:error, any()}
   def get_osds(device, configuration_token \\ nil) do
     body = element(:"trt:GetOSDs", element(:"trt:ConfigurationToken", configuration_token))
     media_request(device, "GetOSDs", body, &parse_osds_response/1)
@@ -116,7 +116,7 @@ defmodule Onvif.Media do
   @doc """
   Get profile by token.
   """
-  @spec get_profile(Onvif.Device.t(), String.t()) :: {:ok, Profile.t()} | {:error, any()}
+  @spec get_profile(ExOnvif.Device.t(), String.t()) :: {:ok, Profile.t()} | {:error, any()}
   def get_profile(device, token) do
     body = element(:"trt:GetProfile", element(:"trt:ProfileToken", token))
     media_request(device, "GetProfile", body, &parse_profile_response/1)
@@ -128,7 +128,7 @@ defmodule Onvif.Media do
   Pre-configured or dynamically configured profiles can be retrieved using this command. This command lists all configured
   profiles in a device. The client does not need to know the media profile in order to use the command.
   """
-  @spec get_profiles(Onvif.Device.t()) :: {:ok, [Profile.t()]} | {:error, any()}
+  @spec get_profiles(ExOnvif.Device.t()) :: {:ok, [Profile.t()]} | {:error, any()}
   def get_profiles(device) do
     media_request(device, "GetProfiles", :"trt:GetProfiles", &parse_profiles_response/1)
   end
@@ -136,7 +136,7 @@ defmodule Onvif.Media do
   @doc """
   Returns the capabilities of the media service.
   """
-  @spec get_service_capabilities(Onvif.Device.t()) ::
+  @spec get_service_capabilities(ExOnvif.Device.t()) ::
           {:ok, ServiceCapabilities.t()} | {:error, any()}
   def get_service_capabilities(device) do
     media_request(
@@ -153,7 +153,7 @@ defmodule Onvif.Media do
   The URI can be used for acquiring a JPEG image through a HTTP GET operation. The image encoding will always be JPEG regardless
   of the encoding setting in the media profile. The Jpeg settings (like resolution or quality) may be taken from the profile if suitable.
   """
-  @spec get_snapshot_uri(Onvif.Device.t(), String.t()) :: {:ok, String.t()} | {:error, any()}
+  @spec get_snapshot_uri(ExOnvif.Device.t(), String.t()) :: {:ok, String.t()} | {:error, any()}
   def get_snapshot_uri(device, profile_token) do
     body = element(:"trt:GetSnapshotUri", element(:"trt:ProfileToken", profile_token))
     media_request(device, "GetSnapshotUri", body, &parse_snapshot_uri_response/1)
@@ -170,7 +170,7 @@ defmodule Onvif.Media do
   If a multicast stream is requested at least one of VideoEncoderConfiguration, AudioEncoderConfiguration and MetadataConfiguration shall have a valid
   multicast setting.
   """
-  @spec get_stream_uri(Onvif.Device.t(), String.t(), String.t(), String.t()) ::
+  @spec get_stream_uri(ExOnvif.Device.t(), String.t(), String.t(), String.t()) ::
           {:ok, String.t()} | {:error, any()}
   def get_stream_uri(device, profile_token, stream \\ "RTP-Unicast", transport_protocol \\ "UDP") do
     body =
@@ -190,7 +190,7 @@ defmodule Onvif.Media do
   @doc """
   If the video encoder configuration token is already known, the encoder configuration can be fetched through the GetVideoEncoderConfiguration command.
   """
-  @spec get_video_encoder_configuration(Onvif.Device.t(), String.t()) ::
+  @spec get_video_encoder_configuration(ExOnvif.Device.t(), String.t()) ::
           {:ok, VideoEncoderConfiguration.t()} | {:error, any()}
   def get_video_encoder_configuration(device, config_token) do
     body =
@@ -218,7 +218,7 @@ defmodule Onvif.Media do
   the options shall concern that particular configuration. If a media profile is specified, the options shall be compatible
   with that media profile. If no tokens are specified, the options shall be considered generic for the device.
   """
-  @spec get_video_encoder_configuration_options(Onvif.Device.t(), encoder_options_opts()) ::
+  @spec get_video_encoder_configuration_options(ExOnvif.Device.t(), encoder_options_opts()) ::
           {:ok, [VideoEncoderConfigurationOptions.t()]} | {:error, any()}
   def get_video_encoder_configuration_options(device, opts \\ []) do
     body =
@@ -242,7 +242,7 @@ defmodule Onvif.Media do
   The ForcePersistence flag indicates if the changes shall remain after reboot of the device. Running streams using this configuration may be immediately updated according to the new settings. The changes are not guaranteed to take effect unless the client requests a new stream URI and restarts any affected streams. NVC methods for changing a running stream are out of scope for this specification.
   """
   @spec set_audio_encoder_configuration(
-          Onvif.Device.t(),
+          ExOnvif.Device.t(),
           AudioEncoderConfiguration.t()
         ) :: :ok | {:error, any()}
   def set_audio_encoder_configuration(device, encoder_config) do
@@ -259,7 +259,7 @@ defmodule Onvif.Media do
   @doc """
   Set the OSD
   """
-  @spec set_osd(Onvif.Device.t(), OSD.t()) :: :ok | {:error, any()}
+  @spec set_osd(ExOnvif.Device.t(), OSD.t()) :: :ok | {:error, any()}
   def set_osd(device, osd) do
     body = element(:"trt:SetOSD", OSD.encode(osd))
     media_request(device, "SetOSD", body, fn _body -> :ok end)
@@ -278,7 +278,7 @@ defmodule Onvif.Media do
   to the timeout value signaled via RTSP.
   """
   @spec set_video_encoder_configuration(
-          Onvif.Device.t(),
+          ExOnvif.Device.t(),
           VideoEncoderConfiguration.t()
         ) :: :ok | {:error, any()}
   def set_video_encoder_configuration(device, encoder_config) do

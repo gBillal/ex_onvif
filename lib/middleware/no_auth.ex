@@ -1,4 +1,4 @@
-defmodule Onvif.Middleware.NoAuth do
+defmodule ExOnvif.Middleware.NoAuth do
   @moduledoc false
 
   @behaviour Tesla.Middleware
@@ -11,8 +11,8 @@ defmodule Onvif.Middleware.NoAuth do
   def call(env, next, _opts) do
     body =
       env.body
-      |> Onvif.Request.add_namespaces(@standard_namespaces)
-      |> Onvif.Request.encode()
+      |> ExOnvif.Request.add_namespaces(@standard_namespaces)
+      |> ExOnvif.Request.encode()
 
     env |> Tesla.put_body(body) |> Tesla.run(next)
   end

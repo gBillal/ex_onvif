@@ -1,4 +1,4 @@
-defmodule Onvif.Media.ServiceCapabilities do
+defmodule ExOnvif.Media.ServiceCapabilities do
   @moduledoc """
   Schema describing the capabilities of media service.
   """

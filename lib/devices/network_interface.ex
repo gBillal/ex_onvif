@@ -1,4 +1,4 @@
-defmodule Onvif.Devices.NetworkInterface do
+defmodule ExOnvif.Devices.NetworkInterface do
   @moduledoc """
   Device's network interface
   """
@@ -8,7 +8,7 @@ defmodule Onvif.Devices.NetworkInterface do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Devices.NetworkInterface.{ConnectionSetting, PrefixedIPAddress}
+  alias ExOnvif.Devices.NetworkInterface.{ConnectionSetting, PrefixedIPAddress}
 
   @required [:token, :enabled]
 

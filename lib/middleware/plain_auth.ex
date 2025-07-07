@@ -1,10 +1,10 @@
-defmodule Onvif.Middleware.PlainAuth do
+defmodule ExOnvif.Middleware.PlainAuth do
   @moduledoc false
 
   @behaviour Tesla.Middleware
   import XmlBuilder
 
-  alias Onvif.Request
+  alias ExOnvif.Request
 
   @security_header_namespaces [
     "xmlns:wsse":

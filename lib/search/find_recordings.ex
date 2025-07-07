@@ -1,4 +1,4 @@
-defmodule Onvif.Search.FindRecordings do
+defmodule ExOnvif.Search.FindRecordings do
   @moduledoc """
   Module describing the FindRecordings schema.
   """
@@ -6,9 +6,9 @@ defmodule Onvif.Search.FindRecordings do
   use Ecto.Schema
 
   import Ecto.Changeset
-  import Onvif.Utils.XmlBuilder
+  import ExOnvif.Utils.XmlBuilder
 
-  alias Onvif.Search.SearchScope
+  alias ExOnvif.Search.SearchScope
 
   @type t :: %__MODULE__{}
 

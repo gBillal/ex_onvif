@@ -1,4 +1,4 @@
-defmodule Onvif.Utils.Parser do
+defmodule ExOnvif.Utils.Parser do
   @moduledoc false
 
   def parse_map_reduce(entries, module) do

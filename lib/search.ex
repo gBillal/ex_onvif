@@ -1,14 +1,14 @@
-defmodule Onvif.Search do
+defmodule ExOnvif.Search do
   @moduledoc """
   Interface for making requests to the Onvif search service
 
   https://www.onvif.org/ver10/search.wsdl
   """
-  import Onvif.Utils.ApiClient, only: [search_request: 4]
+  import ExOnvif.Utils.ApiClient, only: [search_request: 4]
   import SweetXml
   import XmlBuilder
 
-  alias Onvif.Search.{
+  alias ExOnvif.Search.{
     FindEvents,
     FindRecordingResult,
     FindRecordings,
@@ -30,7 +30,7 @@ defmodule Onvif.Search do
   Results shall be ordered by time, ascending in case of forward search, or descending in case of backward search.
   This operation is mandatory to support for a device implementing the recording search service.
   """
-  @spec find_events(Onvif.Device.t(), FindEvents.t()) :: {:ok, String.t()} | {:error, any()}
+  @spec find_events(ExOnvif.Device.t(), FindEvents.t()) :: {:ok, String.t()} | {:error, any()}
   def find_events(device, find_events) do
     body = FindEvents.encode(find_events)
     search_request(device, "FindEvents", body, &parse_find_token_response/1)
@@ -49,7 +49,7 @@ defmodule Onvif.Search do
   The order of the results is undefined, to allow the device to return results in any order they are found.
   This operation is mandatory to support for a device implementing the recording search service.
   """
-  @spec find_recordings(Onvif.Device.t(), FindRecordings.t()) ::
+  @spec find_recordings(ExOnvif.Device.t(), FindRecordings.t()) ::
           {:ok, String.t()} | {:error, any()}
   def find_recordings(device, find_recordings) do
     body = FindRecordings.encode(find_recordings)
@@ -58,7 +58,7 @@ defmodule Onvif.Search do
 
   @doc """
   GetRecordingSearchResults acquires the results from a recording search session previously initiated
-  by a `Onvif.Search.find_recordings/2` operation. The response shall not include results already
+  by a `ExOnvif.Search.find_recordings/2` operation. The response shall not include results already
   returned in previous requests for the same session.
 
   If MaxResults is specified, the response shall not contain more than MaxResults results.
@@ -71,7 +71,7 @@ defmodule Onvif.Search do
     * WaitTime has expired.
     * Search is completed or stopped.
   """
-  @spec get_recording_search_results(Onvif.Device.t(), GetRecordingSearchResults.t()) ::
+  @spec get_recording_search_results(ExOnvif.Device.t(), GetRecordingSearchResults.t()) ::
           {:ok, FindRecordingResult.t()} | {:error, any()}
   def get_recording_search_results(device, recording_search_result) do
     body = GetRecordingSearchResults.encode(recording_search_result)
@@ -87,7 +87,7 @@ defmodule Onvif.Search do
   @doc """
   GetRecordingSummary is used to get a summary description of all recorded data.
   """
-  @spec get_recording_summary(Onvif.Device.t()) :: {:ok, RecordingSummary.t()} | {:error, any()}
+  @spec get_recording_summary(ExOnvif.Device.t()) :: {:ok, RecordingSummary.t()} | {:error, any()}
   def get_recording_summary(device) do
     body = element(:"tse:GetRecordingSummary")
     search_request(device, "GetRecordingSummary", body, &parse_get_recording_summary/1)

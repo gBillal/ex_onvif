@@ -1,4 +1,4 @@
-defmodule Onvif.Event.ServiceCapabilities do
+defmodule ExOnvif.Event.ServiceCapabilities do
   @moduledoc """
   Schema describing the capabilities of the event service
   """

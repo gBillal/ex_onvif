@@ -1,4 +1,4 @@
-defmodule Onvif.Application do
+defmodule ExOnvif.Application do
   use Application
   @moduledoc false
 
@@ -7,7 +7,7 @@ defmodule Onvif.Application do
   def start(_type, _args) do
     children = [
       {Finch,
-       name: Onvif.Finch,
+       name: ExOnvif.Finch,
        pools: %{
          :default => [size: 10]
        }}

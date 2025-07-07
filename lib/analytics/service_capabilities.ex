@@ -1,4 +1,4 @@
-defmodule Onvif.Analytics.ServiceCapabilities do
+defmodule ExOnvif.Analytics.ServiceCapabilities do
   @moduledoc """
   Schema describing the capabilities of the analytics service.
   """

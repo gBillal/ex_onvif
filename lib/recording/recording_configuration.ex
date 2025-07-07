@@ -1,4 +1,4 @@
-defmodule Onvif.Recording.RecordingConfiguration do
+defmodule ExOnvif.Recording.RecordingConfiguration do
   @moduledoc """
   Schema describing recording configuration.
   """

@@ -1,13 +1,13 @@
-defmodule Onvif.Recording.Recording do
+defmodule ExOnvif.Recording.Recording do
   @moduledoc """
-  Onvif.Recording.Recordings schema.
+  ExOnvif.Recording.Recordings schema.
   """
 
   use Ecto.Schema
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Recording.RecordingConfiguration
+  alias ExOnvif.Recording.RecordingConfiguration
 
   @required [:recording_token]
   @optional []

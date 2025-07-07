@@ -1,4 +1,4 @@
-defmodule Onvif.Media.Profile do
+defmodule ExOnvif.Media.Profile do
   @moduledoc """
   A media profile, or a standard definition of media configurations for video
   """

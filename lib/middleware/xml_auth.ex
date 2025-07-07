@@ -1,11 +1,11 @@
-defmodule Onvif.Middleware.XmlAuth do
+defmodule ExOnvif.Middleware.XmlAuth do
   @moduledoc false
 
   @behaviour Tesla.Middleware
 
   import XmlBuilder
 
-  alias Onvif.Request
+  alias ExOnvif.Request
 
   @nonce_bytesize 16
 

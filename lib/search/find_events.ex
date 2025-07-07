@@ -1,4 +1,4 @@
-defmodule Onvif.Search.FindEvents do
+defmodule ExOnvif.Search.FindEvents do
   @moduledoc """
   Schema describing a find events request.
   """
@@ -6,9 +6,9 @@ defmodule Onvif.Search.FindEvents do
   use Ecto.Schema
 
   import Ecto.Changeset
-  import Onvif.Utils.XmlBuilder
+  import ExOnvif.Utils.XmlBuilder
 
-  alias Onvif.Search.SearchScope
+  alias ExOnvif.Search.SearchScope
 
   @type t :: %__MODULE__{}
 

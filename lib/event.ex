@@ -1,15 +1,15 @@
-defmodule Onvif.Event do
+defmodule ExOnvif.Event do
   @moduledoc """
   Interface for making requests to the Onvif event service
 
   https://www.onvif.org/ver10/events/wsdl/event.wsdl
   """
 
-  import Onvif.Utils.ApiClient, only: [event_request: 4]
-  import Onvif.Utils.XmlBuilder
+  import ExOnvif.Utils.ApiClient, only: [event_request: 4]
+  import ExOnvif.Utils.XmlBuilder
   import SweetXml
 
-  alias Onvif.Event.{PullPointSubscription, ServiceCapabilities}
+  alias ExOnvif.Event.{PullPointSubscription, ServiceCapabilities}
 
   @doc """
   This method returns a PullPointSubscription that can be polled using PullMessages.
@@ -18,7 +18,7 @@ defmodule Onvif.Event do
 
   If no Filter is specified the pullpoint notifies all occurring events to the client.
   """
-  @spec create_pull_point_subscription(Onvif.Device.t(), String.t() | nil) ::
+  @spec create_pull_point_subscription(ExOnvif.Device.t(), String.t() | nil) ::
           {:ok, PullPointSubscription.t()} | {:error, any()}
   def create_pull_point_subscription(device, filter \\ nil) do
     filter_element =
@@ -39,7 +39,7 @@ defmodule Onvif.Event do
   @doc """
   Returns the capabilities of the event service.
   """
-  @spec get_service_capabilities(Onvif.Device.t()) :: {:ok, Onvif.Event.ServiceCapabilities.t()}
+  @spec get_service_capabilities(ExOnvif.Device.t()) :: {:ok, ExOnvif.Event.ServiceCapabilities.t()}
   def get_service_capabilities(device) do
     event_request(
       device,

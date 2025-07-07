@@ -1,11 +1,11 @@
-defmodule Onvif.Media.Profile.PtzConfiguration do
+defmodule ExOnvif.Media.Profile.PtzConfiguration do
   @moduledoc """
   Optional configuration of the pan tilt zoom unit.
   """
 
   use Ecto.Schema
 
-  alias Onvif.Schemas.FloatRange
+  alias ExOnvif.Schemas.FloatRange
 
   @type t :: %__MODULE__{}
 

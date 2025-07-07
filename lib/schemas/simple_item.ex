@@ -1,4 +1,4 @@
-defmodule Onvif.Schemas.SimpleItem do
+defmodule ExOnvif.Schemas.SimpleItem do
   @moduledoc """
   Schema describing a simple item.
   """

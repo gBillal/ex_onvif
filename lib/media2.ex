@@ -1,29 +1,29 @@
-defmodule Onvif.Media2 do
+defmodule ExOnvif.Media2 do
   @moduledoc """
   Interface for making requests to the version 2.0 of Onvif Media Service
 
   https://www.onvif.org/ver20/media/wsdl/media.wsdl
   """
 
-  import Onvif.Utils.ApiClient, only: [media2_request: 4]
-  import Onvif.Utils.XmlBuilder
-  import Onvif.Utils.Parser
+  import ExOnvif.Utils.ApiClient, only: [media2_request: 4]
+  import ExOnvif.Utils.XmlBuilder
+  import ExOnvif.Utils.Parser
   import SweetXml
 
-  alias Onvif.Media.Profile.{
+  alias ExOnvif.Media.Profile.{
     AudioEncoderConfiguration,
     MetadataConfiguration,
     VideoSourceConfiguration
   }
 
-  alias Onvif.Media2.{
+  alias ExOnvif.Media2.{
     AddConfiguration,
     Profile,
     ServiceCapabilities,
     VideoEncoderConfigurationOption
   }
 
-  alias Onvif.Media2.Profile.VideoEncoder
+  alias ExOnvif.Media2.Profile.VideoEncoder
 
   @type encoder_options_opts :: [configuration_token: String.t(), profile_token: String.t()]
 
@@ -33,7 +33,7 @@ defmodule Onvif.Media2 do
   If a configuration exists in the media profile, it will be replaced. A device shall support adding a compatible Configuration to a Profile
   containing a VideoSourceConfiguration and shall support streaming video data of such a profile.
   """
-  @spec add_configuration(Onvif.Device.t(), AddConfiguration.t()) :: :ok | {:error, any()}
+  @spec add_configuration(ExOnvif.Device.t(), AddConfiguration.t()) :: :ok | {:error, any()}
   def add_configuration(device, config) do
     body = AddConfiguration.encode(config)
     media2_request(device, "AddConfiguration", body, fn _body -> :ok end)
@@ -46,7 +46,7 @@ defmodule Onvif.Media2 do
   can be assinged to the profile on creation. For details regarding profile assignement check also the method `add_configuration/2`.
   """
   @spec create_profile(
-          Onvif.Device.t(),
+          ExOnvif.Device.t(),
           String.t(),
           [%{type: String.t(), token: String.t()}]
         ) :: {:ok, String.t()} | {:error, any()}
@@ -133,7 +133,7 @@ defmodule Onvif.Media2 do
   If a multicast stream is requested at least one of VideoEncoder2Configuration, AudioEncoder2Configuration and MetadataConfiguration
   shall have a valid multicast setting.
   """
-  @spec get_stream_uri(Onvif.Device.t(), String.t()) :: {:ok, String.t()} | {:error, any()}
+  @spec get_stream_uri(ExOnvif.Device.t(), String.t()) :: {:ok, String.t()} | {:error, any()}
   def get_stream_uri(device, profile_token) do
     body =
       element(
@@ -203,7 +203,7 @@ defmodule Onvif.Media2 do
   is provided only a single configuration will be returned.
   """
   @spec get_video_encoder_configurations(
-          Onvif.Device.t(),
+          ExOnvif.Device.t(),
           encoder_options_opts()
         ) :: {:ok, [VideoEncoderConfiguration.t()]} | {:error, any()}
   def get_video_encoder_configurations(device, opts \\ []) do
@@ -223,9 +223,9 @@ defmodule Onvif.Media2 do
   Provide a profile token to list only configurations that are compatible with the profile. If a configuration token
   is provided only a single configuration will be returned.
   """
-  @spec get_video_source_configurations(Onvif.Device.t()) ::
+  @spec get_video_source_configurations(ExOnvif.Device.t()) ::
           {:ok, [VideoSourceConfiguration.t()]} | {:error, any()}
-  @spec get_video_source_configurations(Onvif.Device.t(), encoder_options_opts()) ::
+  @spec get_video_source_configurations(ExOnvif.Device.t(), encoder_options_opts()) ::
           {:ok, [VideoSourceConfiguration.t()]} | {:error, any()}
   def get_video_source_configurations(device, opts \\ []) do
     body = encode_encoder_options("GetVideoSourceConfigurations", opts)
@@ -245,7 +245,7 @@ defmodule Onvif.Media2 do
   to take effect unless the client requests a new stream URI and restarts any affected streams.
   """
   @spec set_audio_encoder_configuration(
-          Onvif.Device.t(),
+          ExOnvif.Device.t(),
           AudioEncoderConfiguration.t()
         ) :: :ok | {:error, any()}
   def set_audio_encoder_configuration(device, audio_configuration) do
@@ -268,7 +268,7 @@ defmodule Onvif.Media2 do
   parameter values for SessionTimeout elements without returning an error. For the time between keep alive calls the client
   shall adhere to the timeout value signaled via RTSP.
   """
-  @spec set_video_encoder_configuration(Onvif.Device.t(), VideoEncoder.t()) ::
+  @spec set_video_encoder_configuration(ExOnvif.Device.t(), VideoEncoder.t()) ::
           :ok | {:error, any()}
   def set_video_encoder_configuration(device, video_configuration) do
     body = element("tr2:SetVideoEncoderConfiguration", VideoEncoder.encode(video_configuration))

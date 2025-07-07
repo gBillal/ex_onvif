@@ -1,4 +1,4 @@
-defmodule Onvif.Event.NotificationMessage do
+defmodule ExOnvif.Event.NotificationMessage do
   @moduledoc """
   Scheme describing a notification message.
   """
@@ -8,7 +8,7 @@ defmodule Onvif.Event.NotificationMessage do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Schemas.SimpleItem
+  alias ExOnvif.Schemas.SimpleItem
 
   @primary_key false
   @derive Jason.Encoder

@@ -1,4 +1,4 @@
-defmodule Onvif.Devices.NetworkProtocol do
+defmodule ExOnvif.Devices.NetworkProtocol do
   @moduledoc """
   A module describing a network protocol.
   """

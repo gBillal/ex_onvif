@@ -1,6 +1,6 @@
-defmodule Onvif.Search.FindRecordingResult do
+defmodule ExOnvif.Search.FindRecordingResult do
   @moduledoc """
-  A module describing results from `Onvif.Search.get_recording_search_results/2`.
+  A module describing results from `ExOnvif.Search.get_recording_search_results/2`.
   """
 
   use Ecto.Schema
@@ -8,7 +8,7 @@ defmodule Onvif.Search.FindRecordingResult do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Search.RecordingInformation
+  alias ExOnvif.Search.RecordingInformation
 
   @type t :: %__MODULE__{}
 

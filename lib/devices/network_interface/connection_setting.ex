@@ -1,4 +1,4 @@
-defmodule Onvif.Devices.NetworkInterface.ConnectionSetting do
+defmodule ExOnvif.Devices.NetworkInterface.ConnectionSetting do
   @moduledoc """
   Schema describing a connection setting.
   """

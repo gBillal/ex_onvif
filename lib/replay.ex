@@ -1,22 +1,22 @@
-defmodule Onvif.Replay do
+defmodule ExOnvif.Replay do
   @moduledoc """
   Interface for making requests to the Onvif replay service
 
   https://www.onvif.org/ver10/replay.wsdl
   """
 
-  import Onvif.Utils.ApiClient, only: [replay_request: 4]
-  import Onvif.Utils.XmlBuilder
+  import ExOnvif.Utils.ApiClient, only: [replay_request: 4]
+  import ExOnvif.Utils.XmlBuilder
   import SweetXml
 
-  alias Onvif.Replay.ServiceCapabilities
+  alias ExOnvif.Replay.ServiceCapabilities
 
   @doc """
   Requests a URI that can be used to initiate playback of a recorded stream using RTSP as the control protocol.
 
   The URI is valid only as it is specified in the response.
   """
-  @spec get_replay_uri(Onvif.Device.t(), String.t(), stream: String.t(), protocol: String.t()) ::
+  @spec get_replay_uri(ExOnvif.Device.t(), String.t(), stream: String.t(), protocol: String.t()) ::
           {:ok, String.t()} | {:error, any()}
   def get_replay_uri(device, recording_token, opts \\ []) do
     body =
@@ -39,7 +39,7 @@ defmodule Onvif.Replay do
   @doc """
   Returns the capabilities of the replay service.
   """
-  @spec get_service_capabilities(Onvif.Device.t()) ::
+  @spec get_service_capabilities(ExOnvif.Device.t()) ::
           {:ok, ServiceCapabilities.t()} | {:error, any()}
   def get_service_capabilities(device) do
     body = element(:"trp:GetServiceCapabilities")

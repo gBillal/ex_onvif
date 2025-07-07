@@ -1,4 +1,4 @@
-defmodule Onvif.Utils.ApiClient do
+defmodule ExOnvif.Utils.ApiClient do
   @moduledoc false
 
   @devicemgmt_namespaces [
@@ -166,18 +166,18 @@ defmodule Onvif.Utils.ApiClient do
   end
 
   def pull_point_request(device, url, headers, content, parser_fn) do
-    request = %Onvif.Request{
+    request = %ExOnvif.Request{
       content: XmlBuilder.element(:"s:Body", List.wrap(content)),
       namespaces: @pull_point_namespaces
     }
 
     request =
       Enum.reduce(headers, request, fn {key, value}, request ->
-        Onvif.Request.put_header(request, key, value)
+        ExOnvif.Request.put_header(request, key, value)
       end)
 
     device
-    |> Onvif.API.pull_point_client(url)
+    |> ExOnvif.API.pull_point_client(url)
     |> Tesla.request(
       method: :post,
       headers: [{"Content-Type", "application/soap+xml"}],
@@ -188,14 +188,14 @@ defmodule Onvif.Utils.ApiClient do
 
   defp do_request(device, service_path, namespaces, action, content, parser_fn) do
     device
-    |> Onvif.API.client(service_path: service_path)
+    |> ExOnvif.API.client(service_path: service_path)
     |> Tesla.request(
       method: :post,
       headers: [
         {"Content-Type", "application/soap+xml"},
         {"SOAPAction", action}
       ],
-      body: %Onvif.Request{
+      body: %ExOnvif.Request{
         content: XmlBuilder.element(:"s:Body", List.wrap(content)),
         namespaces: namespaces
       }

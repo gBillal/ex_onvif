@@ -1,4 +1,4 @@
-defmodule Onvif.Request do
+defmodule ExOnvif.Request do
   @moduledoc """
   Module describing an onvif request.
   """
@@ -56,9 +56,9 @@ defmodule Onvif.Request do
   @doc """
   Puts a new header in the request.
 
-    iex> request = %Onvif.Request{content: "content"}
-    iex> Onvif.Request.put_header(request, :subscription_id, "15")
-    %Onvif.Request{content: "content", namespaces: [], header: %Onvif.Request.Header{subscription_id: "15"}}
+    iex> request = %ExOnvif.Request{content: "content"}
+    iex> ExOnvif.Request.put_header(request, :subscription_id, "15")
+    %ExOnvif.Request{content: "content", namespaces: [], header: %ExOnvif.Request.Header{subscription_id: "15"}}
 
   """
   @spec put_header(t(), atom(), any()) :: t()
@@ -70,11 +70,11 @@ defmodule Onvif.Request do
   @doc """
   Add namespaces to the request.
 
-    iex> request = %Onvif.Request{content: "content"}
-    iex> request = Onvif.Request.add_namespaces(request, ["xmlns:wsse": "http://www.w3.org/2003/05/soap-envelope"])
-    %Onvif.Request{content: "content", namespaces: ["xmlns:wsse": "http://www.w3.org/2003/05/soap-envelope"]}
-    iex> Onvif.Request.add_namespaces(request, ["xmlns:wsa": "http://www.w3.org/2005/08/addressing"])
-    %Onvif.Request{content: "content", namespaces: ["xmlns:wsa": "http://www.w3.org/2005/08/addressing", "xmlns:wsse": "http://www.w3.org/2003/05/soap-envelope"]}
+    iex> request = %ExOnvif.Request{content: "content"}
+    iex> request = ExOnvif.Request.add_namespaces(request, ["xmlns:wsse": "http://www.w3.org/2003/05/soap-envelope"])
+    %ExOnvif.Request{content: "content", namespaces: ["xmlns:wsse": "http://www.w3.org/2003/05/soap-envelope"]}
+    iex> ExOnvif.Request.add_namespaces(request, ["xmlns:wsa": "http://www.w3.org/2005/08/addressing"])
+    %ExOnvif.Request{content: "content", namespaces: ["xmlns:wsa": "http://www.w3.org/2005/08/addressing", "xmlns:wsse": "http://www.w3.org/2003/05/soap-envelope"]}
   """
   @spec add_namespaces(t(), list()) :: t()
   def add_namespaces(%__MODULE__{namespaces: cur_namespaces} = request, namespaces) do
@@ -84,8 +84,8 @@ defmodule Onvif.Request do
   @doc """
   Serializes the request to a string.
 
-    iex> request = %Onvif.Request{content: "content", namespaces: ["xmlns:s": "http://www.w3.org/2003/05/soap-envelope"]}
-    iex> Onvif.Request.encode(request)
+    iex> request = %ExOnvif.Request{content: "content", namespaces: ["xmlns:s": "http://www.w3.org/2003/05/soap-envelope"]}
+    iex> ExOnvif.Request.encode(request)
     "<s:Envelope xmlns:s=\\"http://www.w3.org/2003/05/soap-envelope\\">\\n  content\\n</s:Envelope>"
   """
   @spec encode(t()) :: String.t()

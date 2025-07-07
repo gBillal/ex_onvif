@@ -1,11 +1,11 @@
-defmodule Onvif.MixProject do
+defmodule ExOnvif.MixProject do
   use Mix.Project
 
   @github_url "https://github.com/gBillal/onvif"
 
   def project do
     [
-      app: :onvif,
+      app: :ex_onvif,
       version: "0.7.1",
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
@@ -13,7 +13,7 @@ defmodule Onvif.MixProject do
       deps: deps(),
 
       # ex_doc / hex
-      name: "Onvif",
+      name: "ExOnvif",
       source_url: @github_url,
       description: "Elixir interface for Onvif functions",
       docs: docs(),
@@ -29,7 +29,7 @@ defmodule Onvif.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      mod: {Onvif.Application, []},
+      mod: {ExOnvif.Application, []},
       extra_applications: [:logger]
     ]
   end
@@ -51,53 +51,53 @@ defmodule Onvif.MixProject do
 
   defp docs do
     [
-      main: "Onvif",
+      main: "ExOnvif",
       extras: ["README.md"],
       nest_modules_by_prefix: [
-        Onvif.Device,
-        Onvif.Schemas,
-        Onvif.Analytics,
-        Onvif.Devices,
-        Onvif.Event,
-        Onvif.Media,
-        Onvif.Media2,
-        Onvif.Recording,
-        Onvif.Replay,
-        Onvif.Search,
-        Onvif.PTZ
+        ExOnvif.Device,
+        ExOnvif.Schemas,
+        ExOnvif.Analytics,
+        ExOnvif.Devices,
+        ExOnvif.Event,
+        ExOnvif.Media,
+        ExOnvif.Media2,
+        ExOnvif.Recording,
+        ExOnvif.Replay,
+        ExOnvif.Search,
+        ExOnvif.PTZ
       ],
       groups_for_modules: [
         Core: [
           Onvif,
-          ~r/^Onvif.Discovery.*/,
-          Onvif.Device,
-          Onvif.MacAddress,
-          Onvif.Request,
-          Onvif.Request.Header
+          ~r/^ExOnvif.Discovery.*/,
+          ExOnvif.Device,
+          ExOnvif.MacAddress,
+          ExOnvif.Request,
+          ExOnvif.Request.Header
         ],
         Interfaces: [
-          Onvif.Devices,
-          Onvif.Analytics,
-          Onvif.Event,
-          Onvif.PullPoint,
-          Onvif.Media,
-          Onvif.Media2,
-          Onvif.Recording,
-          Onvif.Replay,
-          Onvif.Search,
-          Onvif.PTZ
+          ExOnvif.Devices,
+          ExOnvif.Analytics,
+          ExOnvif.Event,
+          ExOnvif.PullPoint,
+          ExOnvif.Media,
+          ExOnvif.Media2,
+          ExOnvif.Recording,
+          ExOnvif.Replay,
+          ExOnvif.Search,
+          ExOnvif.PTZ
         ],
         Schemas: [
-          ~r/^Onvif.Schemas.*/,
-          ~r/^Onvif.Devices.*/,
-          ~r/^Onvif.Event.*/,
-          ~r/^Onvif.Media.*/,
-          ~r/^Onvif.Media2.*/,
-          ~r/^Onvif.Recording.*/,
-          ~r/^Onvif.Replay.*/,
-          ~r/^Onvif.Search.*/,
-          ~r/^Onvif.PTZ.*/,
-          ~r/^Onvif.Analytics.*/
+          ~r/^ExOnvif.Schemas.*/,
+          ~r/^ExOnvif.Devices.*/,
+          ~r/^ExOnvif.Event.*/,
+          ~r/^ExOnvif.Media.*/,
+          ~r/^ExOnvif.Media2.*/,
+          ~r/^ExOnvif.Recording.*/,
+          ~r/^ExOnvif.Replay.*/,
+          ~r/^ExOnvif.Search.*/,
+          ~r/^ExOnvif.PTZ.*/,
+          ~r/^ExOnvif.Analytics.*/
         ]
       ]
     ]

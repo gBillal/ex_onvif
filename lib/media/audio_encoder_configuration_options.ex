@@ -1,4 +1,4 @@
-defmodule Onvif.Media.AudioEncoderConfigurationOptions do
+defmodule ExOnvif.Media.AudioEncoderConfigurationOptions do
   @moduledoc """
   Optional configuration of the Audio encoder.
   """

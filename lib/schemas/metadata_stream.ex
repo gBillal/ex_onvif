@@ -1,4 +1,4 @@
-defmodule Onvif.Schemas.MetadataStream do
+defmodule ExOnvif.Schemas.MetadataStream do
   @moduledoc """
   Schema describing metadata streams.
   """
@@ -8,7 +8,7 @@ defmodule Onvif.Schemas.MetadataStream do
   import Ecto.Changeset
   import SweetXml, except: [parse: 1]
 
-  alias Onvif.Event.NotificationMessage
+  alias ExOnvif.Event.NotificationMessage
 
   @primary_key false
   @derive Jason.Encoder

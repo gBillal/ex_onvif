@@ -1,4 +1,4 @@
-defmodule Onvif.Devices.ServiceCapabilities do
+defmodule ExOnvif.Devices.ServiceCapabilities do
   @moduledoc """
   Schema describing device service capabilities.
   """

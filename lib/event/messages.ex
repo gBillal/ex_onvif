@@ -1,4 +1,4 @@
-defmodule Onvif.Event.Messages do
+defmodule ExOnvif.Event.Messages do
   @moduledoc """
   Scheme describing a pull messages response.
   """
@@ -8,7 +8,7 @@ defmodule Onvif.Event.Messages do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Event.NotificationMessage
+  alias ExOnvif.Event.NotificationMessage
 
   @primary_key false
   @derive Jason.Encoder

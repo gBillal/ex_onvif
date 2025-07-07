@@ -1,4 +1,4 @@
-defmodule Onvif.Media.Profile.VideoAnalyticsConfiguration do
+defmodule ExOnvif.Media.Profile.VideoAnalyticsConfiguration do
   @moduledoc """
   This element contains a list of Analytics configurations.
   """
@@ -7,8 +7,8 @@ defmodule Onvif.Media.Profile.VideoAnalyticsConfiguration do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Analytics.Module
-  alias Onvif.Media.Profile.AnalyticsEngineConfiguration
+  alias ExOnvif.Analytics.Module
+  alias ExOnvif.Media.Profile.AnalyticsEngineConfiguration
 
   @type t :: %__MODULE__{}
 

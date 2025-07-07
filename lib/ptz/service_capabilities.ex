@@ -1,4 +1,4 @@
-defmodule Onvif.PTZ.ServiceCapabilities do
+defmodule ExOnvif.PTZ.ServiceCapabilities do
   @moduledoc """
   Struct representing the service capabilities of a PTZ device.
   """

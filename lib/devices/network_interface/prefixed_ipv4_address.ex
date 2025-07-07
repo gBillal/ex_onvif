@@ -1,4 +1,4 @@
-defmodule Onvif.Devices.NetworkInterface.PrefixedIPAddress do
+defmodule ExOnvif.Devices.NetworkInterface.PrefixedIPAddress do
   @moduledoc """
   Schema describing a prefixed IPv4/IPv6 address.
   """

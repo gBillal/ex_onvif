@@ -1,20 +1,20 @@
-defmodule Onvif.Analytics do
+defmodule ExOnvif.Analytics do
   @moduledoc """
   Interface for making requests to the Onvif analytics service
 
   https://www.onvif.org/ver20/analytics/wsdl/analytics.wsdl
   """
 
-  import Onvif.Utils.XmlBuilder
-  import Onvif.Utils.ApiClient, only: [analytics_request: 4]
+  import ExOnvif.Utils.XmlBuilder
+  import ExOnvif.Utils.ApiClient, only: [analytics_request: 4]
   import SweetXml
 
-  alias Onvif.Analytics.{Module, ServiceCapabilities}
+  alias ExOnvif.Analytics.{Module, ServiceCapabilities}
 
   @doc """
   List the currently assigned set of analytics modules of a VideoAnalyticsConfiguration.
   """
-  @spec get_analytics_modules(Onvif.Device.t(), String.t()) ::
+  @spec get_analytics_modules(ExOnvif.Device.t(), String.t()) ::
           {:ok, [Module.t()]} | {:error, any()}
   def get_analytics_modules(device, configuration_token) do
     body =
@@ -26,7 +26,7 @@ defmodule Onvif.Analytics do
   @doc """
   Returns the capabilities of the analytics service.
   """
-  @spec get_service_capabilities(Onvif.Device.t()) ::
+  @spec get_service_capabilities(ExOnvif.Device.t()) ::
           {:ok, ServiceCapabilities.t()} | {:error, any()}
   def get_service_capabilities(device) do
     analytics_request(
@@ -45,7 +45,7 @@ defmodule Onvif.Analytics do
       |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
       |> add_namespace("axt", "http://www.onvif.org/ver20/analytics/wsdl")
     )
-    |> Onvif.Utils.Parser.parse_map_reduce(Module)
+    |> ExOnvif.Utils.Parser.parse_map_reduce(Module)
   end
 
   defp parse_service_capabilities(xml_response_body) do

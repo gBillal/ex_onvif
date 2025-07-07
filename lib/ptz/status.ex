@@ -1,4 +1,4 @@
-defmodule Onvif.PTZ.Status do
+defmodule ExOnvif.PTZ.Status do
   @moduledoc """
   Module describing PTZ Status schema
   """
@@ -8,7 +8,7 @@ defmodule Onvif.PTZ.Status do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.PTZ.Vector
+  alias ExOnvif.PTZ.Vector
 
   @type t :: %__MODULE__{}
 

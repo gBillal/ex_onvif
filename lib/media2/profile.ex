@@ -1,4 +1,4 @@
-defmodule Onvif.Media2.Profile do
+defmodule ExOnvif.Media2.Profile do
   @moduledoc """
   A media profile
   """
@@ -7,13 +7,13 @@ defmodule Onvif.Media2.Profile do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Media.Profile.AudioSourceConfiguration
-  alias Onvif.Media.Profile.AudioEncoderConfiguration
-  alias Onvif.Media.Profile.MetadataConfiguration
-  alias Onvif.Media.Profile.PtzConfiguration
-  alias Onvif.Media.Profile.VideoAnalyticsConfiguration
-  alias Onvif.Media.Profile.VideoSourceConfiguration
-  alias Onvif.Media2.Profile.VideoEncoder
+  alias ExOnvif.Media.Profile.AudioSourceConfiguration
+  alias ExOnvif.Media.Profile.AudioEncoderConfiguration
+  alias ExOnvif.Media.Profile.MetadataConfiguration
+  alias ExOnvif.Media.Profile.PtzConfiguration
+  alias ExOnvif.Media.Profile.VideoAnalyticsConfiguration
+  alias ExOnvif.Media.Profile.VideoSourceConfiguration
+  alias ExOnvif.Media2.Profile.VideoEncoder
 
   @profile_permitted [:reference_token, :fixed, :name]
 

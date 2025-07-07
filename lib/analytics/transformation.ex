@@ -1,4 +1,4 @@
-defmodule Onvif.Analytics.Transformation do
+defmodule ExOnvif.Analytics.Transformation do
   @moduledoc """
   Schema describing a transformation.
   """

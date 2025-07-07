@@ -1,4 +1,4 @@
-defmodule Onvif.Media.VideoResolution do
+defmodule ExOnvif.Media.VideoResolution do
   @moduledoc """
   Schema describing the resolution of a video stream.
   """

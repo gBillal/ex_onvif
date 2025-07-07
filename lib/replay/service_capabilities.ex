@@ -1,4 +1,4 @@
-defmodule Onvif.Replay.ServiceCapabilities do
+defmodule ExOnvif.Replay.ServiceCapabilities do
   @moduledoc """
   Schema describing the capabilities of the Replay service.
   """

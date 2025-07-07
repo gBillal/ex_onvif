@@ -1,21 +1,21 @@
-defmodule Onvif.EventTest do
+defmodule ExOnvif.EventTest do
   use ExUnit.Case, async: true
 
   @moduletag capture_log: true
 
-  alias Onvif.Event.{Messages, NotificationMessage, PullPointSubscription, ServiceCapabilities}
-  alias Onvif.Schemas.SimpleItem
+  alias ExOnvif.Event.{Messages, NotificationMessage, PullPointSubscription, ServiceCapabilities}
+  alias ExOnvif.Schemas.SimpleItem
 
   test "create pull point subscription" do
     xml_response = File.read!("test/fixtures/create_pull_point_subscription.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
     end)
 
-    {:ok, response} = Onvif.Event.create_pull_point_subscription(device)
+    {:ok, response} = ExOnvif.Event.create_pull_point_subscription(device)
 
     assert response == %PullPointSubscription{
              subscription_reference: %PullPointSubscription.SubscriptionReference{
@@ -29,7 +29,7 @@ defmodule Onvif.EventTest do
   test "get service capabilities" do
     xml_response = File.read!("test/fixtures/get_event_service_capabilities.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
@@ -45,19 +45,19 @@ defmodule Onvif.EventTest do
               event_broker_protocols: [],
               max_event_brokers: 0,
               metadata_over_mqtt: false
-            }} = Onvif.Event.get_service_capabilities(device)
+            }} = ExOnvif.Event.get_service_capabilities(device)
   end
 
   test "pull messages" do
     xml_response = File.read!("test/fixtures/pull_messages.xml")
 
-    device = Onvif.Factory.device()
+    device = ExOnvif.Factory.device()
 
     Mimic.expect(Tesla, :request, fn _client, _opts ->
       {:ok, %{status: 200, body: xml_response}}
     end)
 
-    {:ok, response} = Onvif.PullPoint.pull_messages(device, "http://pull-point.com", timeout: 3)
+    {:ok, response} = ExOnvif.PullPoint.pull_messages(device, "http://pull-point.com", timeout: 3)
 
     assert response == %Messages{
              current_time: ~U[2025-04-18 20:34:05Z],

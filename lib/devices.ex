@@ -1,4 +1,4 @@
-defmodule Onvif.Devices do
+defmodule ExOnvif.Devices do
   @moduledoc """
   Interface for making requests to the Onvif devices service
 
@@ -6,12 +6,12 @@ defmodule Onvif.Devices do
   """
   require Logger
 
-  import Onvif.Utils.ApiClient, only: [devicemgmt_request: 4]
-  import Onvif.Utils.Parser
+  import ExOnvif.Utils.ApiClient, only: [devicemgmt_request: 4]
+  import ExOnvif.Utils.Parser
   import SweetXml
   import XmlBuilder
 
-  alias Onvif.Devices.{
+  alias ExOnvif.Devices.{
     DeviceInformation,
     HostnameInformation,
     NetworkProtocol,
@@ -26,7 +26,7 @@ defmodule Onvif.Devices do
   @doc """
   This operation gets basic device information from the device.
   """
-  @spec get_device_information(Onvif.Device.t()) :: {:ok, DeviceInformation.t()} | {:error, any()}
+  @spec get_device_information(ExOnvif.Device.t()) :: {:ok, DeviceInformation.t()} | {:error, any()}
   def get_device_information(device) do
     devicemgmt_request(
       device,
@@ -39,7 +39,7 @@ defmodule Onvif.Devices do
   @doc """
   This operation is used by an endpoint to get the hostname from a device.
   """
-  @spec get_hostname(Onvif.Device.t()) :: {:ok, HostnameInformation.t()} | {:error, any()}
+  @spec get_hostname(ExOnvif.Device.t()) :: {:ok, HostnameInformation.t()} | {:error, any()}
   def get_hostname(device) do
     devicemgmt_request(device, "GetHostname", :"tds:GetHostname", &parse_hostname_response/1)
   end
@@ -47,7 +47,7 @@ defmodule Onvif.Devices do
   @doc """
   This operation gets defined network protocols from a device.
   """
-  @spec get_network_protocols(Onvif.Device.t()) :: {:ok, [NetworkProtocol.t()]} | {:error, any()}
+  @spec get_network_protocols(ExOnvif.Device.t()) :: {:ok, [NetworkProtocol.t()]} | {:error, any()}
   def get_network_protocols(device) do
     devicemgmt_request(
       device,
@@ -60,7 +60,7 @@ defmodule Onvif.Devices do
   @doc """
   This operation gets the network interface configuration from a device.
   """
-  @spec get_network_interfaces(Onvif.Device.t()) ::
+  @spec get_network_interfaces(ExOnvif.Device.t()) ::
           {:ok, [NetworkInterface.t()]} | {:error, any()}
   def get_network_interfaces(device) do
     devicemgmt_request(
@@ -74,7 +74,7 @@ defmodule Onvif.Devices do
   @doc """
   This operation gets the NTP settings from a device.
   """
-  @spec get_ntp(Onvif.Device.t()) :: {:ok, NTP.t()} | {:error, any()}
+  @spec get_ntp(ExOnvif.Device.t()) :: {:ok, NTP.t()} | {:error, any()}
   def get_ntp(device) do
     devicemgmt_request(device, "GetNTP", :"tds:GetNTP", &parse_ntp_response/1)
   end
@@ -92,7 +92,7 @@ defmodule Onvif.Devices do
 
   As some scope parameters are mandatory, the device shall return a non-empty scope list in the response.
   """
-  @spec get_scopes(Onvif.Device.t()) :: {:ok, [Scope.t()]} | {:error, any()}
+  @spec get_scopes(ExOnvif.Device.t()) :: {:ok, [Scope.t()]} | {:error, any()}
   def get_scopes(device) do
     devicemgmt_request(device, "GetScopes", :"tds:GetScopes", &parse_scopes_response/1)
   end
@@ -100,7 +100,7 @@ defmodule Onvif.Devices do
   @doc """
   Returns the capabilities of the device service.
   """
-  @spec get_service_capabilities(Onvif.Device.t()) ::
+  @spec get_service_capabilities(ExOnvif.Device.t()) ::
           {:ok, ServiceCapabilities.t()} | {:error, any()}
   def get_service_capabilities(device) do
     devicemgmt_request(
@@ -114,7 +114,7 @@ defmodule Onvif.Devices do
   @doc """
   Returns information about services on the device.
   """
-  @spec get_services(Onvif.Device.t()) :: {:ok, [Service.t()]} | {:error, any()}
+  @spec get_services(ExOnvif.Device.t()) :: {:ok, [Service.t()]} | {:error, any()}
   def get_services(device) do
     body = element(:"tds:GetServices", [element(:"tds:IncludeCapability", false)])
     devicemgmt_request(device, "GetServices", body, &parse_services_response/1)
@@ -124,7 +124,7 @@ defmodule Onvif.Devices do
   This operation gets the device system date and time. The device shall support the return of the daylight saving setting and of the manual
   system date and time (if applicable) or indication of NTP time (if applicable) through the GetSystemDateAndTime command.
   """
-  @spec get_system_date_and_time(Onvif.Device.t()) ::
+  @spec get_system_date_and_time(ExOnvif.Device.t()) ::
           {:ok, SystemDateAndTime.t()} | {:error, any()}
   def get_system_date_and_time(device) do
     updated_device = %{device | auth_type: :no_auth}
@@ -140,7 +140,7 @@ defmodule Onvif.Devices do
   @doc """
   This operation configures defined network protocols on a device.
   """
-  @spec set_network_protocols(Onvif.Device.t(), NetworkProtocol.t() | [NetworkProtocol.t()]) ::
+  @spec set_network_protocols(ExOnvif.Device.t(), NetworkProtocol.t() | [NetworkProtocol.t()]) ::
           :ok | {:error, any()}
   def set_network_protocols(device, network_protocols) do
     body =
@@ -162,7 +162,7 @@ defmodule Onvif.Devices do
 
   Changes to the NTP server list will not affect the clock mode DateTimeType. Use SetSystemDateAndTime to activate NTP operation.
   """
-  @spec set_ntp(Onvif.Device.t(), NTP.t()) :: :ok | {:error, any()}
+  @spec set_ntp(ExOnvif.Device.t(), NTP.t()) :: :ok | {:error, any()}
   def set_ntp(device, ntp) do
     body = element(:"tds:SetNTP", NTP.encode(ntp))
     devicemgmt_request(device, "SetNTP", body, fn _body -> :ok end)
@@ -179,7 +179,7 @@ defmodule Onvif.Devices do
   The DayLightSavings flag should be set to true to activate any DST settings of the TimeZone string.
   Clear the DayLightSavings flag if the DST portion of the TimeZone settings should be ignored.
   """
-  @spec set_system_date_and_time(Onvif.Device.t(), SystemDateAndTime.t()) :: :ok | {:error, any()}
+  @spec set_system_date_and_time(ExOnvif.Device.t(), SystemDateAndTime.t()) :: :ok | {:error, any()}
   def set_system_date_and_time(device, date_and_time) do
     body = SystemDateAndTime.encode(date_and_time)
     devicemgmt_request(device, "SetSystemDateAndTime", body, fn _body -> :ok end)
@@ -188,7 +188,7 @@ defmodule Onvif.Devices do
   @doc """
   This operation reboots the device.
   """
-  @spec system_reboot(Onvif.Device.t()) :: {:ok, %{message: String.t()}} | {:error, any()}
+  @spec system_reboot(ExOnvif.Device.t()) :: {:ok, %{message: String.t()}} | {:error, any()}
   def system_reboot(device) do
     devicemgmt_request(
       device,

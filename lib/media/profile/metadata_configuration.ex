@@ -1,4 +1,4 @@
-defmodule Onvif.Media.Profile.MetadataConfiguration do
+defmodule ExOnvif.Media.Profile.MetadataConfiguration do
   @moduledoc """
   Optional configuration of the metadata stream.
   """
@@ -7,8 +7,8 @@ defmodule Onvif.Media.Profile.MetadataConfiguration do
   import Ecto.Changeset
   import SweetXml
 
-  alias Onvif.Media.Profile.AnalyticsEngineConfiguration
-  alias Onvif.Media.Profile.MulticastConfiguration
+  alias ExOnvif.Media.Profile.AnalyticsEngineConfiguration
+  alias ExOnvif.Media.Profile.MulticastConfiguration
 
   @type t :: %__MODULE__{}
 
