@@ -68,7 +68,7 @@ defmodule ExOnvif.MixProject do
       ],
       groups_for_modules: [
         Core: [
-          Onvif,
+          ExOnvif,
           ~r/^ExOnvif.Discovery.*/,
           ExOnvif.Device,
           ExOnvif.MacAddress,
