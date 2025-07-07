@@ -6,7 +6,7 @@ defmodule Onvif.MixProject do
   def project do
     [
       app: :onvif,
-      version: "0.6.0",
+      version: "0.7.1",
       elixir: "~> 1.14",
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -38,13 +38,13 @@ defmodule Onvif.MixProject do
   defp deps do
     [
       {:ecto, "~> 3.12"},
-      {:typed_ecto_schema, "~> 0.4.1", runtime: false},
-      {:ex_doc, "~> 0.36", only: :dev, runtime: false},
       {:finch, "~> 0.19"},
       {:sweet_xml, "~> 0.7"},
       {:tesla, "~> 1.13"},
       {:xml_builder, "~> 2.3"},
       {:jason, "~> 1.4"},
+      {:typed_ecto_schema, "~> 0.4.1", runtime: false},
+      {:ex_doc, "~> 0.36", only: :dev, runtime: false},
       {:mimic, "~> 1.7.4", only: :test}
     ]
   end
