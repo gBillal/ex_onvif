@@ -14,7 +14,7 @@ The package can be installed by adding `onvif` to your list of dependencies in `
 ```elixir
 def deps do
   [
-    {:ex_onvif, "~> 0,7.1"}
+    {:ex_onvif, "~> 0.7.2"}
   ]
 end
 ```
@@ -25,10 +25,10 @@ This library provides an interface for an Elixir application to make requests to
 
 A request requires a `Device` struct which contains data necessary to successfully make the request, including
 an address, username, password, a best guess at which authentication method will work, and paths for several
-onvif services, include Media and Device services. 
+onvif services, include Media and Device services.
 
-An Onvif compliant device should implement functions outlined in Onvif documentation, depending on which profiles with which the 
-device claims to be compliant. That said, a disclaimer that nothing is guaranteed and devices may not respond to requests for 
+An Onvif compliant device should implement functions outlined in Onvif documentation, depending on which profiles with which the
+device claims to be compliant. That said, a disclaimer that nothing is guaranteed and devices may not respond to requests for
 services that should be implemented.
 
 To start, make a probe request:
