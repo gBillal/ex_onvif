@@ -4,7 +4,9 @@ defmodule ExOnvif.Media2.Profile do
   """
 
   use Ecto.Schema
+
   import Ecto.Changeset
+  import ExOnvif.Utils.Parser, only: [get_namespace_prefix: 2]
   import SweetXml
 
   alias ExOnvif.Media.Profile.AudioSourceConfiguration
@@ -16,6 +18,7 @@ defmodule ExOnvif.Media2.Profile do
   alias ExOnvif.Media2.Profile.VideoEncoder
 
   @profile_permitted [:reference_token, :fixed, :name]
+  @media2_namespace "http://www.onvif.org/ver20/media/wsdl"
 
   @type t :: %__MODULE__{}
 
@@ -56,29 +59,30 @@ defmodule ExOnvif.Media2.Profile do
   end
 
   def parse(nil), do: nil
-  def parse([]), do: nil
 
   def parse(doc) do
+    ns = get_namespace_prefix(doc, @media2_namespace)
+
     xmap(
       doc,
       reference_token: ~x"./@token"s,
-      name: ~x"./tr2:Name/text()"s,
+      name: ~x"./#{ns}:Name/text()"s,
       fixed: ~x"./@fixed"s,
       audio_encoder_configuration:
-        ~x"./tr2:Configurations/tr2:AudioEncoder"e
+        ~x"./#{ns}:Configurations/#{ns}:AudioEncoder"e
         |> transform_by(&AudioEncoderConfiguration.parse/1),
       audio_source_configuration:
-        ~x"./tr2:Configurations/tr2:AudioSource"e
+        ~x"./#{ns}:Configurations/#{ns}:AudioSource"e
         |> transform_by(&AudioSourceConfiguration.parse/1),
       metadata_configuration:
-        ~x"./tr2:Configurations/tr2:Metadata"e |> transform_by(&MetadataConfiguration.parse/1),
+        ~x"./#{ns}:Configurations/#{ns}:Metadata"e |> transform_by(&MetadataConfiguration.parse/1),
       video_encoder_configuration:
-        ~x"./tr2:Configurations/tr2:VideoEncoder"e |> transform_by(&VideoEncoder.parse/1),
+        ~x"./#{ns}:Configurations/#{ns}:VideoEncoder"e |> transform_by(&VideoEncoder.parse/1),
       video_source_configuration:
-        ~x"./tr2:Configurations/tr2:VideoSource"e
+        ~x"./#{ns}:Configurations/#{ns}:VideoSource"e
         |> transform_by(&VideoSourceConfiguration.parse/1),
       video_analytics_configuration:
-        ~x"./tr2:Configurations/tr2:Analytics"e
+        ~x"./#{ns}:Configurations/#{ns}:Analytics"e
         |> transform_by(&VideoAnalyticsConfiguration.parse/1)
     )
   end

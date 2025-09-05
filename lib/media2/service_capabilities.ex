@@ -6,7 +6,10 @@ defmodule ExOnvif.Media2.ServiceCapabilities do
   use Ecto.Schema
 
   import Ecto.Changeset
+  import ExOnvif.Utils.Parser, only: [get_namespace_prefix: 2]
   import SweetXml
+
+  @media2_namespace "http://www.onvif.org/ver20/media/wsdl"
 
   @type t :: %__MODULE__{}
 
@@ -33,16 +36,18 @@ defmodule ExOnvif.Media2.ServiceCapabilities do
       field :rtsp_streaming, :boolean
       field :rtp_multicast, :boolean
       field :rtp_rtsp_tcp, :boolean
-      field :non_aggregated_control, :boolean
+      field :non_aggregated_control, :boolean, default: false
       field :rtsp_web_socket_uri, :string
-      field :auto_start_multicast, :boolean
-      field :secure_rtsp_streaming, :boolean
+      field :auto_start_multicast, :boolean, default: false
+      field :secure_rtsp_streaming, :boolean, default: false
     end
 
     field :media_signing_protocol, :boolean
   end
 
   def parse(doc) do
+    ns = get_namespace_prefix(doc, @media2_namespace)
+
     xmap(doc,
       snapshot_uri: ~x"./@SnapshotUri"s,
       video_source_mode: ~x"./@VideoSourceMode"s,
@@ -52,12 +57,23 @@ defmodule ExOnvif.Media2.ServiceCapabilities do
       mask: ~x"./@Mask"s,
       source_mask: ~x"./@SourceMask"s,
       web_rtc: ~x"./@WebRTC"s,
-      media_signing_protocol: ~x"./tr2:MediaSignginCapabilities/tr2:MediaSigningProtocol/text()"s,
+      media_signing_protocol:
+        ~x"./#{ns}:MediaSignginCapabilities/#{ns}:MediaSigningProtocol/text()"s,
       profile_capabilities: [
-        ~x"./tr2:ProfileCapabilities"e,
+        ~x"./#{ns}:ProfileCapabilities"e,
         maximum_number_of_profiles: ~x"./@MaximumNumberOfProfiles"s,
         configurations_supported:
           ~x"./@ConfigurationsSupported"so |> transform_by(&String.split(&1, " "))
+      ],
+      streaming_capabilities: [
+        ~x"./#{ns}:StreamingCapabilities"e,
+        rtsp_streaming: ~x"./@RTSPStreaming"s,
+        rtp_multicast: ~x"./@RTPMulticast"s,
+        rtp_rtsp_tcp: ~x"./@RTP_RTSP_TCP"s,
+        non_aggregated_control: ~x"./@NonAggregatedControl"s,
+        rtsp_web_socket_uri: ~x"./@RTSPWebSocketURI"s,
+        auto_start_multicast: ~x"./@AutoStartMulticast"s,
+        secure_rtsp_streaming: ~x"./@SecureRTSPStreaming"s
       ]
     )
   end

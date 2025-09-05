@@ -15,4 +15,12 @@ defmodule ExOnvif.Utils.Parser do
       configs -> {:ok, Enum.reverse(configs)}
     end
   end
+
+  def get_namespace_prefix(xml_doc, namespace) do
+    {:xmlNamespace, _, namespaces} = elem(xml_doc, 4)
+
+    Enum.find_value(namespaces, fn {key, entity_namespace} ->
+      if to_string(entity_namespace) == namespace, do: List.to_string(key)
+    end)
+  end
 end

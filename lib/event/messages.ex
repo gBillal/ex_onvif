@@ -1,6 +1,6 @@
 defmodule ExOnvif.Event.Messages do
   @moduledoc """
-  Scheme describing a pull messages response.
+  Schema describing a pull messages response.
   """
 
   use TypedEctoSchema
