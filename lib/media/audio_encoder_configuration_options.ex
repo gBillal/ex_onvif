@@ -17,7 +17,7 @@ defmodule ExOnvif.Media.AudioEncoderConfigurationOptions do
   embedded_schema do
     embeds_many :options, Options, primary_key: false, on_replace: :delete do
       @derive Jason.Encoder
-      field(:encoding, Ecto.Enum, values: [G711: "G711", G726: "G726", AAC: "AAC"])
+      field(:encoding, Ecto.Enum, values: [G711: "G711", G726: "G726", AAC: "AAC", G722: "G722"])
 
       field(:bitrates, {:array, :integer})
       field(:sample_rates, {:array, :integer})
