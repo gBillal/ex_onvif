@@ -27,6 +27,8 @@ defmodule ExOnvif.PTZ.Stop do
     - `zoom` - Whether to stop zoom movement (default: true).
   """
   @spec new(String.t(), boolean(), boolean()) :: t()
+  @spec new(String.t(), boolean()) :: t()
+  @spec new(String.t()) :: t()
   def new(profile_token, pan_tilt \\ true, zoom \\ true) do
     %__MODULE__{
       profile_token: profile_token,
