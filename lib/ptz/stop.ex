@@ -36,9 +36,6 @@ defmodule ExOnvif.PTZ.Stop do
   end
 
   def encode(%__MODULE__{} = stop) do
-    # Build in reverse order since element() prepends to list
-    # We want: ProfileToken, PanTilt, Zoom
-    # So build: Zoom, PanTilt, ProfileToken
     base =
       []
       |> element("tptz:Zoom", nil, to_string(stop.zoom))

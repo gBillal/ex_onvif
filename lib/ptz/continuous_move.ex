@@ -35,9 +35,6 @@ defmodule ExOnvif.PTZ.ContinuousMove do
   end
 
   def encode(%__MODULE__{} = continuous_move) do
-    # Build in reverse order since element() prepends to list
-    # We want: ProfileToken, Velocity
-    # So build: Velocity, ProfileToken
     base =
       []
       |> element("tptz:Velocity", nil, Vector.encode(continuous_move.velocity))
