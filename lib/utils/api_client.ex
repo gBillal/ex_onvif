@@ -187,6 +187,19 @@ defmodule ExOnvif.Utils.ApiClient do
   end
 
   defp do_request(device, service_path, namespaces, action, content, parser_fn) do
+    require Logger
+
+    request_body = %ExOnvif.Request{
+      content: XmlBuilder.element(:"s:Body", List.wrap(content)),
+      namespaces: namespaces
+    }
+
+    # Log full SOAP envelope for PTZ debugging
+    if String.contains?(action, "/ptz/") do
+      encoded_xml = ExOnvif.Request.encode(request_body)
+      Logger.warning("PTZ SOAP Envelope being sent:\n#{encoded_xml}")
+    end
+
     device
     |> ExOnvif.API.client(service_path: service_path)
     |> Tesla.request(
@@ -195,10 +208,7 @@ defmodule ExOnvif.Utils.ApiClient do
         {"Content-Type", "application/soap+xml"},
         {"SOAPAction", action}
       ],
-      body: %ExOnvif.Request{
-        content: XmlBuilder.element(:"s:Body", List.wrap(content)),
-        namespaces: namespaces
-      }
+      body: request_body
     )
     |> parse_response(parser_fn)
   end
