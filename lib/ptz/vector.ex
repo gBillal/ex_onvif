@@ -22,12 +22,36 @@ defmodule ExOnvif.PTZ.Vector do
     end
 
     field :zoom, :float
+    field :zoom_space, :string
   end
 
-  def new(x, y, zoom \\ nil) do
+  # 2-argument version (zoom defaults to nil)
+  def new(x, y) do
+    %__MODULE__{
+      pan_tilt: %__MODULE__.PanTilt{x: x, y: y},
+      zoom: nil
+    }
+  end
+
+  # 3-argument version with zoom
+  def new(x, y, zoom) when is_float(zoom) or is_nil(zoom) do
     %__MODULE__{
       pan_tilt: %__MODULE__.PanTilt{x: x, y: y},
       zoom: zoom
+    }
+  end
+
+  # 3-argument version with options (keyword list)
+  def new(x, y, opts) when is_list(opts) and is_list(hd(opts)) == false do
+    # Guard ensures opts is a keyword list, not nested lists
+    pan_tilt_space = Keyword.get(opts, :pan_tilt_space)
+    zoom = Keyword.get(opts, :zoom)
+    zoom_space = Keyword.get(opts, :zoom_space)
+
+    %__MODULE__{
+      pan_tilt: %__MODULE__.PanTilt{x: x, y: y, space: pan_tilt_space},
+      zoom: zoom,
+      zoom_space: zoom_space
     }
   end
 
@@ -39,8 +63,15 @@ defmodule ExOnvif.PTZ.Vector do
 
   def encode(nil), do: []
 
-  def encode(%__MODULE__{zoom: zoom, pan_tilt: pan_tilt}) do
-    body = if zoom, do: [element("tt:Zoom", %{x: zoom})], else: []
+  def encode(%__MODULE__{zoom: zoom, zoom_space: zoom_space, pan_tilt: pan_tilt}) do
+    body =
+      if zoom do
+        attrs = if zoom_space, do: %{x: zoom, space: zoom_space}, else: %{x: zoom}
+        [element("tt:Zoom", attrs)]
+      else
+        []
+      end
+
     body ++ pan_tilt_xml(pan_tilt)
   end
 
@@ -70,8 +101,8 @@ defmodule ExOnvif.PTZ.Vector do
   defp pan_tilt_xml(nil), do: []
   defp pan_tilt_xml(%__MODULE__.PanTilt{x: nil, y: nil}), do: []
 
-  defp pan_tilt_xml(%__MODULE__.PanTilt{x: x, y: y}) do
-    [x: x, y: y]
+  defp pan_tilt_xml(%__MODULE__.PanTilt{x: x, y: y, space: space}) do
+    [x: x, y: y, space: space]
     |> Enum.reject(fn {_, v} -> is_nil(v) end)
     |> Map.new()
     |> then(&[element("tt:PanTilt", &1)])
