@@ -57,7 +57,7 @@ defmodule ExOnvif.PTZ.Vector do
 
   def changeset(ptz_speed, attrs) do
     ptz_speed
-    |> cast(attrs, [:zoom])
+    |> cast(attrs, [:zoom, :zoom_space])
     |> cast_embed(:pan_tilt, with: &pan_tilt_changeset/2)
   end
 
@@ -79,7 +79,8 @@ defmodule ExOnvif.PTZ.Vector do
     xmap(
       doc,
       pan_tilt: ~x"./tt:PanTilt" |> transform_by(&parse_pan_tilt/1),
-      zoom: ~x"./tt:Zoom/@x"s
+      zoom: ~x"./tt:Zoom/@x"s,
+      zoom_space: ~x"./tt:Zoom/@space"s
     )
   end
 

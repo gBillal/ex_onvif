@@ -26,7 +26,8 @@ defmodule ExOnvif.Devices do
   @doc """
   This operation gets basic device information from the device.
   """
-  @spec get_device_information(ExOnvif.Device.t()) :: {:ok, DeviceInformation.t()} | {:error, any()}
+  @spec get_device_information(ExOnvif.Device.t()) ::
+          {:ok, DeviceInformation.t()} | {:error, any()}
   def get_device_information(device) do
     devicemgmt_request(
       device,
@@ -47,7 +48,8 @@ defmodule ExOnvif.Devices do
   @doc """
   This operation gets defined network protocols from a device.
   """
-  @spec get_network_protocols(ExOnvif.Device.t()) :: {:ok, [NetworkProtocol.t()]} | {:error, any()}
+  @spec get_network_protocols(ExOnvif.Device.t()) ::
+          {:ok, [NetworkProtocol.t()]} | {:error, any()}
   def get_network_protocols(device) do
     devicemgmt_request(
       device,
@@ -116,7 +118,7 @@ defmodule ExOnvif.Devices do
   """
   @spec get_services(ExOnvif.Device.t()) :: {:ok, [Service.t()]} | {:error, any()}
   def get_services(device) do
-    body = element(:"tds:GetServices", [element(:"tds:IncludeCapability", false)])
+    body = element(:"tds:GetServices", [element(:"tds:IncludeCapability", true)])
     devicemgmt_request(device, "GetServices", body, &parse_services_response/1)
   end
 
@@ -179,7 +181,8 @@ defmodule ExOnvif.Devices do
   The DayLightSavings flag should be set to true to activate any DST settings of the TimeZone string.
   Clear the DayLightSavings flag if the DST portion of the TimeZone settings should be ignored.
   """
-  @spec set_system_date_and_time(ExOnvif.Device.t(), SystemDateAndTime.t()) :: :ok | {:error, any()}
+  @spec set_system_date_and_time(ExOnvif.Device.t(), SystemDateAndTime.t()) ::
+          :ok | {:error, any()}
   def set_system_date_and_time(device, date_and_time) do
     body = SystemDateAndTime.encode(date_and_time)
     devicemgmt_request(device, "SetSystemDateAndTime", body, fn _body -> :ok end)
