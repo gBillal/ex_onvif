@@ -57,12 +57,34 @@ defmodule ExOnvif.PTZ do
   end
 
   @doc """
+    Returns the the PTZconfigurations 
+  """
+  def get_configuration(device, profile_token) do
+    body = element("tptz:GetConfigurations", element("tptz:ProfileToken", profile_token))
+    ptz_request(device, "GetConfigurations", body, &parse_configuration_response/1)
+  end
+
+  @doc """
   Operation to request PTZ status for the Node in the selected profile.
   """
   @spec get_status(ExOnvif.Device.t(), String.t()) :: {:ok, Status.t()} | {:error, any()}
   def get_status(device, profile_token) do
     body = element("tptz:GetStatus", element("tptz:ProfileToken", profile_token))
     ptz_request(device, "GetStatus", body, &parse_status_response/1)
+  end
+
+  defp parse_configuration_response(xml_response_body) do
+      
+  xml_response_body
+    |> parse(namespace_conformant: true, quiet: true)
+    |> xpath(
+ ~x"//s:Envelope/s:Body/tptz:GetConfigurationsResponse/tptz:PTZConfiguration"e
+      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+      |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+      |> add_namespace("tptz", "http://www.onvif.org/ver20/ptz/wsdl")
+    )
+    |> ExOnvif.PTZ.PTZConfigurations.parse()
+   
   end
 
   defp parse_node_response(xml_response_body) do
@@ -82,7 +104,7 @@ defmodule ExOnvif.PTZ do
     xml_response_body
     |> parse(namespace_conformant: true, quiet: true)
     |> xpath(
-      ~x"//s:Envelope/s:Body/tptz:GetNodesResponse/tptz:PTZNode"el
+      ~x"//s:Envelope/s:Body/tptz:GetConfigurationResponse/tptz:PTZNode"el
       |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
       |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
       |> add_namespace("tptz", "http://www.onvif.org/ver20/ptz/wsdl")
