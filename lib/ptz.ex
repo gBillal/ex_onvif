@@ -10,7 +10,7 @@ defmodule ExOnvif.PTZ do
   import ExOnvif.Utils.Parser
   import SweetXml
 
-  alias ExOnvif.PTZ.{AbsoluteMove, Node, ServiceCapabilities, Status}
+  alias ExOnvif.PTZ.{AbsoluteMove, ContinuousMove, Node, ServiceCapabilities, Status, Stop}
 
   @doc """
   Operation to move pan,tilt or zoom to a absolute destination.
@@ -23,6 +23,29 @@ defmodule ExOnvif.PTZ do
   def absolute_move(device, abs_move) do
     body = AbsoluteMove.encode(abs_move)
     ptz_request(device, "AbsoluteMove", body, fn _body -> :ok end)
+  end
+
+  @doc """
+  Operation for continuous Pan/Tilt and Zoom movements.
+
+  The operation is supported if the PTZNode supports at least one continuous Pan/Tilt or Zoom space.
+  If the space argument is omitted, the default space set by the PTZConfiguration will be used.
+  """
+  @spec continuous_move(ExOnvif.Device.t(), ContinuousMove.t()) :: :ok | {:error, any()}
+  def continuous_move(device, continuous_move) do
+    body = ContinuousMove.encode(continuous_move)
+    ptz_request(device, "ContinuousMove", body, fn _body -> :ok end)
+  end
+
+  @doc """
+  Operation to stop ongoing pan, tilt and zoom movements of absolute, relative and continuous type.
+
+  If no stop argument for pan, tilt or zoom is set, the device will stop all ongoing pan, tilt and zoom movements.
+  """
+  @spec stop(ExOnvif.Device.t(), Stop.t()) :: :ok | {:error, any()}
+  def stop(device, stop) do
+    body = Stop.encode(stop)
+    ptz_request(device, "Stop", body, fn _body -> :ok end)
   end
 
   @doc """
