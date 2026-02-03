@@ -1,57 +1,50 @@
 defmodule ExOnvif.PTZ.PTZConfigurations do
-
-  alias ExOnvif.Schemas.{Space2DDescription,Space1DDescription}
+  alias ExOnvif.Schemas.{Space2DDescription, Space1DDescription, PTControlDirection}
+  alias ExOnvif.PTZ.Vector
 
   use Ecto.Schema
 
   import Ecto.Changeset
   import SweetXml
 
-
-
-
   @type t :: %__MODULE__{}
 
   @primary_key false
   @derive Jason.Encoder
 
-
   embedded_schema do
-   
- field :token, :string
-  field :name, :string
-  field :use_count, :integer
+    field :token, :string
+    field :name, :string
+    field :use_count, :integer
 
-  # Ramps
-  field :move_ramp, :integer
-  field :preset_ramp, :integer
-  field :preset_tour_ramp, :integer
+    # Ramps
+    field :move_ramp, :integer
+    field :present_ramp, :integer
+    field :preset_tour_ramp, :integer
 
-  # Node reference
-  field :node_token, :string
+    # Node reference
+    field :node_token, :string
 
-  # Default coordinate spaces
-  field :default_absolute_pan_tilt_position_space, :string
-  field :default_absolute_zoom_position_space, :string
-  field :default_relative_pan_tilt_translation_space, :string
-  field :default_relative_zoom_translation_space, :string
-  field :default_continuous_pan_tilt_velocity_space, :string
-  field :default_continuous_zoom_velocity_space, :string
+    # Default coordinate spaces
+    field :default_absolute_pan_tilt_position_space, :string
+    field :default_absolute_zoom_position_space, :string
+    field :default_relative_pan_tilt_translation_space, :string
+    field :default_relative_zoom_translation_space, :string
+    field :default_continuous_pan_tilt_velocity_space, :string
+    field :default_continuous_zoom_velocity_space, :string
 
-  # Defaults
-  embeds_one :default_ptz_speed, ExOnvif.PTZ.Vector 
-  field :default_ptz_timeout, :string
+    # Defaults
+    embeds_one :default_ptz_speed, Vector
+    field :default_ptz_timeout, :string
 
-# Limits
-  embeds_one :pan_tilt_limits, Space2DDescription 
-  embeds_one :zoom_limits, Space1DDescription 
+    # Limits
+    embeds_one :pan_tilt_limits, Space2DDescription
+    embeds_one :zoom_limits, Space1DDescription
 
-  # Extensions
-  embeds_one :extension, Extension, primary_key: false do
-    embeds_one :extension, PTControlDirection
-  end
-
-
+    # Extensions
+    embeds_one :extension, Extension, primary_key: false do
+      embeds_one :pt_control_direction, PTControlDirection
+    end
   end
 
   def to_struct(parsed) do
@@ -62,7 +55,15 @@ defmodule ExOnvif.PTZ.PTZConfigurations do
 
   def changeset(module, attrs) do
     module
-    |> cast(attrs, __MODULE__.__schema__(:fields))
+    |> cast(
+      attrs,
+      __MODULE__.__schema__(:fields) --
+        [:default_ptz_speed, :pan_tilt_limits, :extension, :zoom_limits]
+    )
+    |> cast_embed(:default_ptz_speed, with: &Vector.changeset/2)
+    |> cast_embed(:pan_tilt_limits, with: &Space2DDescription.changeset/2)
+    |> cast_embed(:zoom_limits, with: &Space1DDescription.changeset/2)
+    |> cast_embed(:extension, with: &extension_changeset/2)
   end
 
   def parse(doc) do
@@ -75,22 +76,53 @@ defmodule ExOnvif.PTZ.PTZConfigurations do
       present_ramp: ~x"./tt:PresentRamp/text()"s,
       node_token: ~x"./tt:NodeToken/text()"s,
       default_absolute_pan_tilt_position_space:
-      ~x"./tt:DefaultAbsolutePantTiltPositionSpace/text()"s,
-
-      default_absolute_zoom_position_space:
-      ~x"./tt:DefaultAbsoluteZoomPositionSpace/text()"s,
-
+        ~x"./tt:DefaultAbsolutePantTiltPositionSpace/text()"s,
+      default_absolute_zoom_position_space: ~x"./tt:DefaultAbsoluteZoomPositionSpace/text()"s,
       default_relative_pan_tilt_translation_space:
-      ~x"./tt:DefaultRelativePanTiltTranslationSpace/text()"s,
-
+        ~x"./tt:DefaultRelativePanTiltTranslationSpace/text()"s,
       default_relative_zoom_translation_space:
-      ~x"./tt:DefaultRelativeZoomTranslationSpace/text()"s,
-
+        ~x"./tt:DefaultRelativeZoomTranslationSpace/text()"s,
       default_continuous_pan_tilt_velocity_space:
-      ~x"./tt:DefaultContinuousPanTiltVelocitySpace/text()"s,
+        ~x"./tt:DefaultContinuousPanTiltVelocitySpace/text()"s,
+      default_continuous_zoom_velocity_space: ~x"./tt:DefaultContinuousZoomVelocitySpace/text()"s,
+      extension: ~x"./tt:Extension"e |> transform_by(&parse_extension/1),
+      pan_tilt_limits: ~x"./tt:PanTiltLimits"e |> transform_by(&parse_pan_tilt_limits/1),
+      zoom_limits: ~x"./tt:ZoomLimits"e |> transform_by(&parse_zoom_limits/1),
+      default_ptz_speed: ~x"./tt:DefaultPTZSpeed"e |> transform_by(&Vector.parse/1)
+    )
+  end
 
-      default_continuous_zoom_velocity_space:
-      ~x"./tt:DefaultContinuousZoomVelocitySpace/text()"s
+  defp extension_changeset(module, attrs) do
+    module
+    |> cast(attrs, [])
+    |> cast_embed(:pt_control_direction, with: &PTControlDirection.changeset/2)
+  end
+
+  defp parse_pan_tilt_limits(nil), do: nil
+
+  defp parse_pan_tilt_limits(doc) do
+    xmap(
+      doc,
+      range: ~x"./tt:Range"e |> transform_by(&Space2DDescription.parse/1)
+    )
+  end
+
+  defp parse_zoom_limits(nil), do: nil
+
+  defp parse_zoom_limits(doc) do
+    xmap(
+      doc,
+      range: ~x"./tt:Range"e |> transform_by(&Space1DDescription.parse/1)
+    )
+  end
+
+  defp parse_extension(nil), do: nil
+
+  defp parse_extension(doc) do
+    xmap(
+      doc,
+      pt_control_direction:
+        ~x"./tt:PTControlDirection"e |> transform_by(&PTControlDirection.parse/1)
     )
   end
 end

@@ -57,9 +57,15 @@ defmodule ExOnvif.PTZ do
   end
 
   @doc """
-    Returns the the PTZconfigurations 
+  Returns the the PTZconfigurations
+  Get all the existing PTZConfigurations from the device.
+
+  The default Position/Translation/Velocity Spaces are introduced to allow NVCs sending move requests without the need to specify a
+  certain coordinate system. The default Speeds are introduced to control the speed of move requests (absolute, relative, preset),
+  where no explicit speed has been set.
+
   """
-  def get_configuration(device, profile_token) do
+  def get_configurations(device, profile_token) do
     body = element("tptz:GetConfigurations", element("tptz:ProfileToken", profile_token))
     ptz_request(device, "GetConfigurations", body, &parse_configuration_response/1)
   end
@@ -74,17 +80,16 @@ defmodule ExOnvif.PTZ do
   end
 
   defp parse_configuration_response(xml_response_body) do
-      
-  xml_response_body
+    xml_response_body
     |> parse(namespace_conformant: true, quiet: true)
     |> xpath(
- ~x"//s:Envelope/s:Body/tptz:GetConfigurationsResponse/tptz:PTZConfiguration"e
+      ~x"//s:Envelope/s:Body/tptz:GetConfigurationsResponse/tptz:PTZConfiguration"e
       |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
       |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
       |> add_namespace("tptz", "http://www.onvif.org/ver20/ptz/wsdl")
     )
     |> ExOnvif.PTZ.PTZConfigurations.parse()
-   
+    |> ExOnvif.PTZ.PTZConfigurations.to_struct()
   end
 
   defp parse_node_response(xml_response_body) do
