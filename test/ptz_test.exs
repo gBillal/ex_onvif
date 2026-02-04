@@ -260,4 +260,201 @@ defmodule ExOnvif.PTZTest do
              extension: nil
            }
   end
+
+  test "get presets" do
+    xml_response = File.read!("test/fixtures/get_presets.xml")
+
+    device = ExOnvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+
+    response = ExOnvif.PTZ.get_presets(device, "Profile_1")
+
+    expected =  [
+  %ExOnvif.PTZ.Presets{
+    token: "33",
+    name: "Auto Flip",
+    ptz_position: %ExOnvif.PTZ.Vector{
+      pan_tilt: %ExOnvif.PTZ.Vector.PanTilt{x: 0.0, y: 0.0, space: nil},
+      zoom: nil,
+      zoom_space: nil
+    }
+  },
+  %ExOnvif.PTZ.Presets{
+    token: "34",
+    name: "Goto Zero",
+    ptz_position: %ExOnvif.PTZ.Vector{
+      pan_tilt: %ExOnvif.PTZ.Vector.PanTilt{x: 0.0, y: 0.0, space: nil},
+      zoom: nil,
+      zoom_space: nil
+    }
+  },
+  %ExOnvif.PTZ.Presets{
+    token: "35",
+    name: "Self Check",
+    ptz_position: %ExOnvif.PTZ.Vector{
+      pan_tilt: %ExOnvif.PTZ.Vector.PanTilt{x: 0.0, y: 0.0, space: nil},
+      zoom: nil,
+      zoom_space: nil
+    }
+  },
+  %ExOnvif.PTZ.Presets{
+    token: "36",
+    name: "Patrol",
+    ptz_position: %ExOnvif.PTZ.Vector{
+      pan_tilt: %ExOnvif.PTZ.Vector.PanTilt{x: 0.0, y: 0.0, space: nil},
+      zoom: nil,
+      zoom_space: nil
+    }
+  },
+  %ExOnvif.PTZ.Presets{
+    token: "37",
+    name: "Path1",
+    ptz_position: %ExOnvif.PTZ.Vector{
+      pan_tilt: %ExOnvif.PTZ.Vector.PanTilt{x: 0.0, y: 0.0, space: nil},
+      zoom: nil,
+      zoom_space: nil
+    }
+  },
+  %ExOnvif.PTZ.Presets{
+    token: "38",
+    name: "Path2",
+    ptz_position: %ExOnvif.PTZ.Vector{
+      pan_tilt: %ExOnvif.PTZ.Vector.PanTilt{x: 0.0, y: 0.0, space: nil},
+      zoom: nil,
+      zoom_space: nil
+    }
+  },
+  %ExOnvif.PTZ.Presets{
+    token: "39",
+    name: "Path3",
+    ptz_position: %ExOnvif.PTZ.Vector{
+      pan_tilt: %ExOnvif.PTZ.Vector.PanTilt{x: 0.0, y: 0.0, space: nil},
+      zoom: nil,
+      zoom_space: nil
+    }
+  },
+  %ExOnvif.PTZ.Presets{
+    token: "40",
+    name: "Path4",
+    ptz_position: %ExOnvif.PTZ.Vector{
+      pan_tilt: %ExOnvif.PTZ.Vector.PanTilt{x: 0.0, y: 0.0, space: nil},
+      zoom: nil,
+      zoom_space: nil
+    }
+  },
+  %ExOnvif.PTZ.Presets{
+    token: "41",
+    name: "Path5",
+    ptz_position: %ExOnvif.PTZ.Vector{
+      pan_tilt: %ExOnvif.PTZ.Vector.PanTilt{x: 0.0, y: 0.0, space: nil},
+      zoom: nil,
+      zoom_space: nil
+    }
+  },
+  %ExOnvif.PTZ.Presets{
+    token: "42",
+    name: "Path6",
+    ptz_position: %ExOnvif.PTZ.Vector{
+      pan_tilt: %ExOnvif.PTZ.Vector.PanTilt{x: 0.0, y: 0.0, space: nil},
+      zoom: nil,
+      zoom_space: nil
+    }
+  },
+  %ExOnvif.PTZ.Presets{
+    token: "43",
+    name: "Path7",
+    ptz_position: %ExOnvif.PTZ.Vector{
+      pan_tilt: %ExOnvif.PTZ.Vector.PanTilt{x: 0.0, y: 0.0, space: nil},
+      zoom: nil,
+      zoom_space: nil
+    }
+  },
+  %ExOnvif.PTZ.Presets{
+    token: "44",
+    name: "Path8",
+    ptz_position: %ExOnvif.PTZ.Vector{
+      pan_tilt: %ExOnvif.PTZ.Vector.PanTilt{x: 0.0, y: 0.0, space: nil},
+      zoom: nil,
+      zoom_space: nil
+    }
+  },
+  %ExOnvif.PTZ.Presets{
+    token: "45",
+    name: "Pattern1",
+    ptz_position: %ExOnvif.PTZ.Vector{
+      pan_tilt: %ExOnvif.PTZ.Vector.PanTilt{x: 0.0, y: 0.0, space: nil},
+      zoom: nil,
+      zoom_space: nil
+    }
+  },
+  %ExOnvif.PTZ.Presets{
+    token: "46",
+    name: "Pattern2",
+    ptz_position: %ExOnvif.PTZ.Vector{
+      pan_tilt: %ExOnvif.PTZ.Vector.PanTilt{x: 0.0, y: 0.0, space: nil},
+      zoom: nil,
+      zoom_space: nil
+    }
+  },
+  %ExOnvif.PTZ.Presets{
+    token: "47",
+    name: "Pattern3",
+    ptz_position: %ExOnvif.PTZ.Vector{
+      pan_tilt: %ExOnvif.PTZ.Vector.PanTilt{x: 0.0, y: 0.0, space: nil},
+      zoom: nil,
+      zoom_space: nil
+    }
+  },
+  %ExOnvif.PTZ.Presets{
+    token: "48",
+    name: "Pattern4",
+    ptz_position: %ExOnvif.PTZ.Vector{
+      pan_tilt: %ExOnvif.PTZ.Vector.PanTilt{x: 0.0, y: 0.0, space: nil},
+      zoom: nil,
+      zoom_space: nil
+    }
+  },
+  %ExOnvif.PTZ.Presets{
+    token: "49",
+    name: "Stop Scan",
+    ptz_position: %ExOnvif.PTZ.Vector{
+      pan_tilt: %ExOnvif.PTZ.Vector.PanTilt{x: 0.0, y: 0.0, space: nil},
+      zoom: nil,
+      zoom_space: nil
+    }
+  },
+  %ExOnvif.PTZ.Presets{
+    token: "50",
+    name: "Auto Scan",
+    ptz_position: %ExOnvif.PTZ.Vector{
+      pan_tilt: %ExOnvif.PTZ.Vector.PanTilt{x: 0.0, y: 0.0, space: nil},
+      zoom: nil,
+      zoom_space: nil
+    }
+  },
+  %ExOnvif.PTZ.Presets{
+    token: "51",
+    name: "Tilt Scan",
+    ptz_position: %ExOnvif.PTZ.Vector{
+      pan_tilt: %ExOnvif.PTZ.Vector.PanTilt{x: 0.0, y: 0.0, space: nil},
+      zoom: nil,
+      zoom_space: nil
+    }
+  },
+  %ExOnvif.PTZ.Presets{
+    token: "52",
+    name: "Panorama Scan",
+    ptz_position: %ExOnvif.PTZ.Vector{
+      pan_tilt: %ExOnvif.PTZ.Vector.PanTilt{x: 0.0, y: 0.0, space: nil},
+      zoom: nil,
+      zoom_space: nil
+    }
+  }
+]
+   
+  end
 end
