@@ -10,7 +10,7 @@ defmodule ExOnvif.PTZ do
   import ExOnvif.Utils.Parser
   import SweetXml
 
-  alias ExOnvif.PTZ.{AbsoluteMove, ContinuousMove, Node, ServiceCapabilities, Status, Stop}
+  alias ExOnvif.PTZ.{AbsoluteMove, ContinuousMove, Node, ServiceCapabilities, Status, Stop, HomePosition}
 
   @doc """
   Operation to move pan,tilt or zoom to a absolute destination.
@@ -136,6 +136,9 @@ defmodule ExOnvif.PTZ do
     ptz_request(device, "SetPreset", body, &parse_set_preset/1)
   end
 
+  @doc"""
+  Operation to remove a PTZ preset for the Node in the selected profile. The operation is supported if the PresetPosition capability exists for teh Node in the selected profile.
+  """
   @spec remove_preset(ExOnvif.Device.t(),String.t(), String.t()) :: {:ok, String.t()} 
   def remove_preset(device, profile_token, preset_token) do
     body =
@@ -147,11 +150,34 @@ defmodule ExOnvif.PTZ do
     ptz_request(device, "RemovePreset", body, fn _body -> :ok end)
   end
 
+  @doc """
 
+  Operation to go to a saved preset position for the PTZNode in the selected profile. The operation is supported if there is support for at least on PTZ preset by the PTZNode.
+  """
   @spec goto_preset(ExOnvif.Device.t(), ExOnvif.PTZ.Presets.preset_t()) :: :ok
   def goto_preset(device, move) do
     body = ExOnvif.PTZ.Presets.encode(move)
     ptz_request(device, "GotoPreset", body, fn _body -> :ok end)
+  end
+
+
+  @doc"""
+
+  Operation to remove a PTZ preset for the Node in the selected profile.
+  """
+  @spec set_home_position(ExOnvif.Device.t(), String.t()) :: :ok
+  def set_home_position(device, profile_token) do
+    body = element("tptz:SetHomePosition", element("tptz:ProfileToken", profile_token))
+    ptz_request(device, "SetHomePosition", body, fn _body -> :ok end)
+  end
+
+  @doc"""
+    Operation to move the PTZ device to it's "home" position. The operation is supported if the HomeSupported element in the PTZNode is true.
+  """
+  @spec goto_home_position(ExOnvif.Device.t(), HomePosition.t()) :: :ok
+  def goto_home_position(device, home_position) do
+    body = HomePosition.encode(home_position)
+    ptz_request(device, "GotoHomePosition", body, fn _body -> :ok end)
   end
 
   defp parse_set_preset(xml_response_body) do
