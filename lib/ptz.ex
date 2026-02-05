@@ -113,6 +113,16 @@ defmodule ExOnvif.PTZ do
     ptz_request(device, "GetPresets", body, &parse_presets/1)
   end
 
+  @doc """
+
+  The SetPreset command saves the current device position parameters so that the device can move to the saved preset position through the GotoPreset operation.
+  In order to create a new preset, the SetPresetRequest contains no PresetToken. 
+  If creation is successful, the Response contains the PresetToken which uniquely identifies the Preset. 
+  An existing Preset can be overwritten by specifying the PresetToken of the corresponding Preset. 
+  In both cases (overwriting or creation) an optional PresetName can be specified. 
+  The operation fails if the PTZ device is moving during the SetPreset operation. The device MAY internally save additional states such as 
+  imaging properties in the PTZ Preset which then should be recalled in the GotoPreset operation.
+  """
   @spec set_preset(ExOnvif.Device.t(), String.t(), String.t(), String.t()) :: {:ok, String.t()} 
   def set_preset(device, profile_token, preset_name, preset_token ) do
 
@@ -136,7 +146,6 @@ defmodule ExOnvif.PTZ do
 
     ptz_request(device, "RemovePreset", body, fn _body -> :ok end)
   end
-
 
 
   @spec goto_preset(ExOnvif.Device.t(), ExOnvif.PTZ.Presets.preset_t()) :: :ok
