@@ -107,10 +107,38 @@ defmodule ExOnvif.PTZ do
 
     presets
   """
-  @spec get_presets(ExOnvif.Device.t(), String.t()) :: {:ok, any()}
+  @spec get_presets(ExOnvif.Device.t(), String.t()) :: {:ok, ExOnvif.PTZ.Presets.t()}
   def get_presets(device, profile_token) do
     body = element("tptz:GetPresets", element("tptz:ProfileToken", profile_token))
     ptz_request(device, "GetPresets", body, &parse_presets/1)
+  end
+
+  @spec set_preset(ExOnvif.Device.t(), String.t(), String.t(), String.t()) :: {:ok, String.t()} 
+  def set_preset(device, profile_token, preset_name, preset_token ) do
+
+body =
+  element("tptz:SetPreset", [
+    element("tptz:ProfileToken", profile_token),
+    element("tptz:PresetName", preset_name),
+    element("tptz:PresetToken", preset_token)
+  ])
+
+    ptz_request(device, "SetPreset", body, &parse_set_preset/1)
+  end
+
+
+  defp parse_set_preset(xml_response_body) do
+    xml_response_body
+    |> parse(namespace_conformant: true, quiet: true)
+    |> xpath(
+      ~x"//s:Envelope/s:Body"e
+      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+      |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+      |> add_namespace("tptz", "http://www.onvif.org/ver20/ptz/wsdl")
+    )
+    |> ExOnvif.PTZ.SetPreset.parse()
+    |> ExOnvif.PTZ.SetPreset.to_struct()
+
   end
 
   defp parse_configuration_response(xml_response_body) do
