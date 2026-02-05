@@ -105,7 +105,7 @@ defmodule ExOnvif.PTZ do
 
   @doc """
 
-    presets
+  Operation to request all PTZ presets for the PTZNode in the selected profile. The operation is supported if there is support for at least on PTZ preset by the PTZNode.
   """
   @spec get_presets(ExOnvif.Device.t(), String.t()) :: {:ok, ExOnvif.PTZ.Presets.t()}
   def get_presets(device, profile_token) do
@@ -116,16 +116,34 @@ defmodule ExOnvif.PTZ do
   @spec set_preset(ExOnvif.Device.t(), String.t(), String.t(), String.t()) :: {:ok, String.t()} 
   def set_preset(device, profile_token, preset_name, preset_token ) do
 
-body =
-  element("tptz:SetPreset", [
-    element("tptz:ProfileToken", profile_token),
-    element("tptz:PresetName", preset_name),
-    element("tptz:PresetToken", preset_token)
-  ])
+    body =
+      element("tptz:SetPreset", [
+        element("tptz:ProfileToken", profile_token),
+        element("tptz:PresetName", preset_name),
+        element("tptz:PresetToken", preset_token)
+      ])
 
     ptz_request(device, "SetPreset", body, &parse_set_preset/1)
   end
 
+  @spec remove_preset(ExOnvif.Device.t(),String.t(), String.t()) :: {:ok, String.t()} 
+  def remove_preset(device, profile_token, preset_token) do
+    body =
+      element("tptz:RemovePreset", [
+        element("tptz:ProfileToken", profile_token),
+        element("tptz:PresetToken", preset_token)
+      ])
+
+    ptz_request(device, "RemovePreset", body, fn _body -> :ok end)
+  end
+
+
+
+  @spec goto_preset(ExOnvif.Device.t(), ExOnvif.PTZ.Presets.preset_t()) :: :ok
+  def goto_preset(device, move) do
+    body = ExOnvif.PTZ.Presets.encode(move)
+    ptz_request(device, "GotoPreset", body, fn _body -> :ok end)
+  end
 
   defp parse_set_preset(xml_response_body) do
     xml_response_body
@@ -166,6 +184,7 @@ body =
     |> Node.parse()
     |> Node.to_struct()
   end
+
 
   defp parse_nodes_response(xml_response_body) do
     xml_response_body
