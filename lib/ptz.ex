@@ -163,7 +163,9 @@ defmodule ExOnvif.PTZ do
 
   @doc"""
 
-  Operation to remove a PTZ preset for the Node in the selected profile.
+  Operation to save current position as the home position. 
+  The SetHomePosition command returns with a failure if the “home” position is fixed and cannot be overwritten. 
+  If the SetHomePosition is successful, it is possible to recall the Home Position with the GotoHomePosition command.
   """
   @spec set_home_position(ExOnvif.Device.t(), String.t()) :: :ok
   def set_home_position(device, profile_token) do
