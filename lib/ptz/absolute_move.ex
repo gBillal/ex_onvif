@@ -40,12 +40,22 @@ defmodule ExOnvif.PTZ.AbsoluteMove do
   end
 
   def encode(%__MODULE__{} = absolute_move) do
-    element(
-      "tptz:AbsoluteMove",
-      element("tptz:ProfileToken", absolute_move.profile_token)
-      |> element("tptz:Position", Vector.encode(absolute_move.position))
-      |> element("tptz:Speed", Vector.encode(absolute_move.speed))
-    )
+    # Build in reverse order since element() prepends to list
+    # We want: ProfileToken, Position, Speed
+    # So build: Speed, Position, ProfileToken
+    base =
+      if absolute_move.speed do
+        element("tptz:Speed", Vector.encode(absolute_move.speed))
+      else
+        []
+      end
+
+    base =
+      base
+      |> element("tptz:Position", nil, Vector.encode(absolute_move.position))
+      |> element("tptz:ProfileToken", nil, absolute_move.profile_token)
+
+    element("tptz:AbsoluteMove", base)
   end
 
   def changeset(absolute_move, attrs) do

@@ -23,6 +23,7 @@ defmodule ExOnvif.Media.Profile.AudioEncoderConfiguration do
     field(:encoding, Ecto.Enum,
       values: [
         g711: "G711",
+        g722: "G722",
         g726: "G726",
         aac: "AAC",
         pcmu: "PCMU",
