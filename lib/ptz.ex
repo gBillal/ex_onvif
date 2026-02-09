@@ -10,7 +10,7 @@ defmodule ExOnvif.PTZ do
   import ExOnvif.Utils.Parser
   import SweetXml
 
-  alias ExOnvif.PTZ.{AbsoluteMove, Node, ServiceCapabilities, Status}
+  alias ExOnvif.PTZ.{AbsoluteMove, Node, ServiceCapabilities, Status, HomePosition}
 
   @doc """
   Operation to move pan,tilt or zoom to a absolute destination.
@@ -63,6 +63,26 @@ defmodule ExOnvif.PTZ do
   def get_status(device, profile_token) do
     body = element("tptz:GetStatus", element("tptz:ProfileToken", profile_token))
     ptz_request(device, "GetStatus", body, &parse_status_response/1)
+  end
+
+  @doc """
+  Operation to save current position as the home position. 
+  The SetHomePosition command returns with a failure if the “home” position is fixed and cannot be overwritten. 
+  If the SetHomePosition is successful, it is possible to recall the Home Position with the GotoHomePosition command.
+  """
+  @spec set_home_position(ExOnvif.Device.t(), String.t()) :: :ok
+  def set_home_position(device, profile_token) do
+    body = element("tptz:SetHomePosition", element("tptz:ProfileToken", profile_token))
+    ptz_request(device, "SetHomePosition", body, fn _body -> :ok end)
+  end
+
+  @doc """
+  Operation to move the PTZ device to it's "home" position. The operation is supported if the HomeSupported element in the PTZNode is true.
+  """
+  @spec goto_home_position(ExOnvif.Device.t(), HomePosition.t()) :: :ok
+  def goto_home_position(device, home_position) do
+    body = HomePosition.encode(home_position)
+    ptz_request(device, "GotoHomePosition", body, fn _body -> :ok end)
   end
 
   defp parse_node_response(xml_response_body) do
