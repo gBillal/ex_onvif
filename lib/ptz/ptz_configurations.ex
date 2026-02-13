@@ -1,4 +1,4 @@
-defmodule ExOnvif.PTZ.PTZConfigurations do
+defmodule ExOnvif.PTZ.Configurations do
   alias ExOnvif.Schemas.{Space2DDescription, Space1DDescription, PTControlDirection}
   alias ExOnvif.PTZ.Vector
 
@@ -17,15 +17,12 @@ defmodule ExOnvif.PTZ.PTZConfigurations do
     field :name, :string
     field :use_count, :integer
 
-    # Ramps
     field :move_ramp, :integer
     field :present_ramp, :integer
     field :preset_tour_ramp, :integer
 
-    # Node reference
     field :node_token, :string
 
-    # Default coordinate spaces
     field :default_absolute_pan_tilt_position_space, :string
     field :default_absolute_zoom_position_space, :string
     field :default_relative_pan_tilt_translation_space, :string
@@ -33,15 +30,12 @@ defmodule ExOnvif.PTZ.PTZConfigurations do
     field :default_continuous_pan_tilt_velocity_space, :string
     field :default_continuous_zoom_velocity_space, :string
 
-    # Defaults
     embeds_one :default_ptz_speed, Vector
     field :default_ptz_timeout, :string
 
-    # Limits
     embeds_one :pan_tilt_limits, Space2DDescription
     embeds_one :zoom_limits, Space1DDescription
 
-    # Extensions
     embeds_one :extension, Extension, primary_key: false do
       embeds_one :pt_control_direction, PTControlDirection
     end

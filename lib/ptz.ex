@@ -79,8 +79,8 @@ defmodule ExOnvif.PTZ do
       |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
       |> add_namespace("tptz", "http://www.onvif.org/ver20/ptz/wsdl")
     )
-    |> ExOnvif.PTZ.PTZConfigurations.parse()
-    |> ExOnvif.PTZ.PTZConfigurations.to_struct()
+    |> ExOnvif.PTZ.Configurations.parse()
+    |> ExOnvif.PTZ.Configurations.to_struct()
   end
 
   @doc """
