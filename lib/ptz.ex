@@ -10,7 +10,7 @@ defmodule ExOnvif.PTZ do
   import ExOnvif.Utils.Parser
   import SweetXml
 
-  alias ExOnvif.PTZ.{AbsoluteMove, ContinuousMove, Node, ServiceCapabilities, Status, Stop, HomePosition}
+  alias ExOnvif.PTZ.{AbsoluteMove, ContinuousMove, Node, ServiceCapabilities, Status, Stop, Vector}
 
   @doc """
   Operation to move pan,tilt or zoom to a absolute destination.
@@ -102,9 +102,13 @@ defmodule ExOnvif.PTZ do
   @doc """
   Operation to move the PTZ device to it's "home" position. The operation is supported if the HomeSupported element in the PTZNode is true.
   """
-  @spec goto_home_position(ExOnvif.Device.t(), HomePosition.t()) :: :ok
-  def goto_home_position(device, home_position) do
-    body = HomePosition.encode(home_position)
+  @spec goto_home_position(ExOnvif.Device.t(), String.t(), Vector.t()) :: :ok
+  def goto_home_position(device,  profile_token, speed \\ []) do
+    body = 
+      element("tptz:Speed", Vector.encode(speed))
+      |> element("tptz:ProfileToken", nil, profile_token)
+      |> then(&element("tptz:GotoHomePosition", &1))
+      
     ptz_request(device, "GotoHomePosition", body, fn _body -> :ok end)
   end
 
