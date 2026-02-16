@@ -11,7 +11,6 @@ defmodule ExOnvif.PTZ.Configurations do
 
   @primary_key false
   @derive Jason.Encoder
-
   embedded_schema do
     field :token, :string
     field :name, :string
