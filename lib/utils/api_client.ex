@@ -216,13 +216,13 @@ defmodule ExOnvif.Utils.ApiClient do
   end
 
   defp parse_response({:error, response}, _parser_fn) do
-    {:error, %{status: nil, response: parse_error_response(response)}}
+    {:error, %{status: nil, response: response}}
   end
 
   defp parse_error_response(xml_response) do
     xml_response
     |> xmap(
-      code: ~x"//SOAP-ENV:Fault/SOAP-ENV:Code/SOAP-ENV:Value/text()"s,
+      origin: ~x"//SOAP-ENV:Fault/SOAP-ENV:Code/SOAP-ENV:Value/text()"s,
       subcode: ~x"//SOAP-ENV:Fault/SOAP-ENV:Code/SOAP-ENV:Subcode/SOAP-ENV:Value/text()"s,
       subsubcode: ~x"//SOAP-ENV:Fault/SOAP-ENV:Code/SOAP-ENV:Subcode/SOAP-ENV:Subcode/SOAP-ENV:Value/text()"s,
       reason: ~x"//SOAP-ENV:Fault/SOAP-ENV:Reason/SOAP-ENV:Text/text()"s
