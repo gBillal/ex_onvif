@@ -105,10 +105,14 @@ defmodule ExOnvif.PTZ do
   @spec goto_home_position(ExOnvif.Device.t(), String.t(), Vector.t()) :: :ok
   def goto_home_position(device,  profile_token, speed \\ []) do
     body = 
-      element("tptz:Speed", Vector.encode(speed))
+      if speed != [] do
+        element("tptz:Speed", Vector.encode(speed))
+      else
+        []
+      end
       |> element("tptz:ProfileToken", nil, profile_token)
       |> then(&element("tptz:GotoHomePosition", &1))
-      
+
     ptz_request(device, "GotoHomePosition", body, fn _body -> :ok end)
   end
 
