@@ -39,8 +39,7 @@ defmodule ExOnvif.Event do
   @doc """
   Returns the capabilities of the event service.
   """
-  @spec get_service_capabilities(ExOnvif.Device.t()) ::
-          {:ok, ExOnvif.Event.ServiceCapabilities.t()}
+  @spec get_service_capabilities(ExOnvif.Device.t()) :: {:ok, ExOnvif.Event.ServiceCapabilities.t()}
   def get_service_capabilities(device) do
     event_request(
       device,
