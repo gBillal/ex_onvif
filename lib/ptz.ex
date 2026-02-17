@@ -103,13 +103,10 @@ defmodule ExOnvif.PTZ do
   Operation to move the PTZ device to it's "home" position. The operation is supported if the HomeSupported element in the PTZNode is true.
   """
   @spec goto_home_position(ExOnvif.Device.t(), String.t(), Vector.t()) :: :ok
-  def goto_home_position(device,  profile_token, speed \\ []) do
+  @spec goto_home_position(ExOnvif.Device.t(), String.t()) :: :ok
+  def goto_home_position(device,  profile_token, speed \\ nil) do
     body = 
-      if speed != [] do
-        element("tptz:Speed", Vector.encode(speed))
-      else
-        []
-      end
+      element("tptz:Speed", Vector.encode(speed))
       |> element("tptz:ProfileToken", nil, profile_token)
       |> then(&element("tptz:GotoHomePosition", &1))
 
