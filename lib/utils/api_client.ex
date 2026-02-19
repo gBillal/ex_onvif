@@ -1,5 +1,6 @@
 defmodule ExOnvif.Utils.ApiClient do
   @moduledoc false
+  import SweetXml 
 
   @devicemgmt_namespaces [
     "xmlns:tds": "http://www.onvif.org/ver10/device/wsdl",
@@ -211,10 +212,20 @@ defmodule ExOnvif.Utils.ApiClient do
 
   defp parse_response({:ok, %{status: status_code, body: body}}, _parser_fn)
        when status_code >= 400 do
-    {:error, %{status: status_code, response: body}}
+    {:error, %{status: status_code, response: parse_error_response(body)}}
   end
 
   defp parse_response({:error, response}, _parser_fn) do
     {:error, %{status: nil, response: response}}
+  end
+
+  defp parse_error_response(xml_response) do
+    xml_response
+    |> xmap(
+      origin: ~x"//SOAP-ENV:Fault/SOAP-ENV:Code/SOAP-ENV:Value/text()"s,
+      subcode: ~x"//SOAP-ENV:Fault/SOAP-ENV:Code/SOAP-ENV:Subcode/SOAP-ENV:Value/text()"s,
+      subsubcode: ~x"//SOAP-ENV:Fault/SOAP-ENV:Code/SOAP-ENV:Subcode/SOAP-ENV:Subcode/SOAP-ENV:Value/text()"s,
+      reason: ~x"//SOAP-ENV:Fault/SOAP-ENV:Reason/SOAP-ENV:Text/text()"s
+    )
   end
 end
