@@ -153,7 +153,7 @@ defmodule ExOnvif.PTZ do
   The operation is supported if there is support for at least on PTZ preset by the PTZNode.
   """
   @spec get_presets(ExOnvif.Device.t(), String.t()) ::
-          [ExOnvif.PTZ.Presets.preset_t()] | {:error, any()}
+          [Preset.preset_t()] | {:error, any()}
   def get_presets(device, profile_token) do
     body = element("tptz:GetPresets", element("tptz:ProfileToken", profile_token))
     ptz_request(device, "GetPresets", body, &parse_presets/1)
@@ -198,7 +198,7 @@ defmodule ExOnvif.PTZ do
   """
   @spec goto_preset(ExOnvif.Device.t(), ExOnvif.PTZ.Presets.preset_t()) :: :ok
   def goto_preset(device, move) do
-    body = ExOnvif.PTZ.Presets.encode(move)
+    body = Preset.encode(move)
     ptz_request(device, "GotoPreset", body, fn _body -> :ok end)
   end
 
@@ -229,7 +229,7 @@ defmodule ExOnvif.PTZ do
         |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
         |> add_namespace("tptz", "http://www.onvif.org/ver20/ptz/wsdl")
     )
-    |> ExOnvif.PTZ.Presets.to_struct()
+    |> Preset.to_struct()
   end
 
   defp parse_node_response(xml_response_body) do

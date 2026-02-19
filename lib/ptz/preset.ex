@@ -1,4 +1,4 @@
-defmodule ExOnvif.PTZ.Presets do
+defmodule ExOnvif.PTZ.Preset do
   use Ecto.Schema
 
   import Ecto.Changeset
@@ -11,14 +11,14 @@ defmodule ExOnvif.PTZ.Presets do
   @type preset_t :: %{
           profile_token: String.t(),
           preset_token: String.t(),
-          speed: String.t() | nil
+          speed: Vector.t() | nil
         }
 
   @primary_key false
   embedded_schema do
     field :token, :string
     field :name, :string
-    embeds_one :ptz_position, Vector
+    embeds_one :position, Vector
   end
 
   @spec new(String.t(), String.t(), Vector.t() | nil) :: preset_t()
@@ -33,14 +33,7 @@ defmodule ExOnvif.PTZ.Presets do
 
   def encode(preset) do
     base =
-      if preset.speed do
-        element("tptz:Speed", Vector.encode(preset.speed))
-      else
-        []
-      end
-
-    base =
-      base
+      element("tptz:Speed", Vector.encode(preset.speed))
       |> element("tptz:PresetToken", nil, preset.preset_token)
       |> element("tptz:ProfileToken", nil, preset.profile_token)
 
@@ -61,7 +54,7 @@ defmodule ExOnvif.PTZ.Presets do
 
   def changeset(module, attrs) do
     module
-    |> cast(attrs, __MODULE__.__schema__(:fields) -- [:ptz_position])
-    |> cast_embed(:ptz_position, with: &Vector.changeset/2)
+    |> cast(attrs, __MODULE__.__schema__(:fields) -- [:position])
+    |> cast_embed(:position, with: &Vector.changeset/2)
   end
 end
