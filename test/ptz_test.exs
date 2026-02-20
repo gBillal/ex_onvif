@@ -210,4 +210,54 @@ defmodule ExOnvif.PTZTest do
              utc_time: ~U[2025-04-05 20:37:31Z]
            }
   end
+
+  test "get ptz configurations" do
+    xml_response = File.read!("test/fixtures/get_ptz_configurations.xml")
+
+    device = ExOnvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+    {:ok, response} = ExOnvif.PTZ.get_configurations(device, "Profile_1")
+
+    assert response == %ExOnvif.PTZ.PTZConfigurations{
+             default_absolute_pan_tilt_position_space:
+               "http://www.onvif.org/ver10/tptz/PanTiltSpaces/PositionGenericSpace",
+             default_absolute_zoom_position_space:
+               "http://www.onvif.org/ver10/tptz/ZoomSpaces/PositionGenericSpace",
+             default_continuous_pan_tilt_velocity_space:
+               "http://www.onvif.org/ver10/tptz/PanTiltSpaces/VelocityGenericSpace",
+             default_continuous_zoom_velocity_space:
+               "http://www.onvif.org/ver10/tptz/ZoomSpaces/VelocityGenericSpace",
+             default_ptz_speed: %ExOnvif.PTZ.Vector{
+               pan_tilt: %ExOnvif.PTZ.Vector.PanTilt{
+                 space: "http://www.onvif.org/ver10/tptz/PanTiltSpaces/GenericSpeedSpace",
+                 x: 0.1,
+                 y: 0.1
+               },
+               zoom: 1.0
+             },
+             default_ptz_timeout: "PT0H0M1S",
+             default_relative_pan_tilt_translation_space:
+               "http://www.onvif.org/ver10/tptz/PanTiltSpaces/TranslationGenericSpace",
+             default_relative_zoom_translation_space:
+               "http://www.onvif.org/ver10/tptz/ZoomSpaces/TranslationGenericSpace",
+             extension: nil,
+             move_ramp: nil,
+             name: "PTZ",
+             node_token: "PTZNodeToken",
+             pan_tilt_limits: %ExOnvif.Schemas.Space2DDescription{
+               uri: nil,
+               x_range: nil,
+               y_range: nil
+             },
+             present_ramp: nil,
+             preset_tour_ramp: nil,
+             token: "PTZToken",
+             use_count: 1,
+             zoom_limits: %ExOnvif.Schemas.Space1DDescription{uri: nil, x_range: nil}
+           }
+  end
 end

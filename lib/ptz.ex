@@ -10,7 +10,7 @@ defmodule ExOnvif.PTZ do
   import ExOnvif.Utils.Parser
   import SweetXml
 
-  alias ExOnvif.PTZ.{AbsoluteMove, Node, ServiceCapabilities, Status, Preset}
+  alias ExOnvif.PTZ.{AbsoluteMove, ContinuousMove, Node, ServiceCapabilities, Status, Preset, Stop, Vector}
 
   @doc """
   Operation to move pan,tilt or zoom to a absolute destination.
@@ -23,6 +23,29 @@ defmodule ExOnvif.PTZ do
   def absolute_move(device, abs_move) do
     body = AbsoluteMove.encode(abs_move)
     ptz_request(device, "AbsoluteMove", body, fn _body -> :ok end)
+  end
+
+  @doc """
+  Operation for continuous Pan/Tilt and Zoom movements.
+
+  The operation is supported if the PTZNode supports at least one continuous Pan/Tilt or Zoom space.
+  If the space argument is omitted, the default space set by the PTZConfiguration will be used.
+  """
+  @spec continuous_move(ExOnvif.Device.t(), ContinuousMove.t()) :: :ok | {:error, any()}
+  def continuous_move(device, continuous_move) do
+    body = ContinuousMove.encode(continuous_move)
+    ptz_request(device, "ContinuousMove", body, fn _body -> :ok end)
+  end
+
+  @doc """
+  Operation to stop ongoing pan, tilt and zoom movements of absolute, relative and continuous type.
+
+  If no stop argument for pan, tilt or zoom is set, the device will stop all ongoing pan, tilt and zoom movements.
+  """
+  @spec stop(ExOnvif.Device.t(), Stop.t()) :: :ok | {:error, any()}
+  def stop(device, stop) do
+    body = Stop.encode(stop)
+    ptz_request(device, "Stop", body, fn _body -> :ok end)
   end
 
   @doc """
@@ -57,12 +80,64 @@ defmodule ExOnvif.PTZ do
   end
 
   @doc """
+  Returns the the PTZconfigurations
+  Get all the existing PTZConfigurations from the device.
+
+  The default Position/Translation/Velocity Spaces are introduced to allow NVCs sending move requests without the need to specify a
+  certain coordinate system. The default Speeds are introduced to control the speed of move requests (absolute, relative, preset),
+  where no explicit speed has been set.
+
+  """
+  def get_configurations(device, profile_token) do
+    body = element("tptz:GetConfigurations", element("tptz:ProfileToken", profile_token))
+    ptz_request(device, "GetConfigurations", body, &parse_configuration_response/1)
+  end
+
+  defp parse_configuration_response(xml_response_body) do
+    xml_response_body
+    |> parse(namespace_conformant: true, quiet: true)
+    |> xpath(
+      ~x"//s:Envelope/s:Body/tptz:GetConfigurationsResponse/tptz:PTZConfiguration"e
+      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+      |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+      |> add_namespace("tptz", "http://www.onvif.org/ver20/ptz/wsdl")
+    )
+    |> ExOnvif.PTZ.Configurations.parse()
+    |> ExOnvif.PTZ.Configurations.to_struct()
+  end
+
+  @doc """
   Operation to request PTZ status for the Node in the selected profile.
   """
   @spec get_status(ExOnvif.Device.t(), String.t()) :: {:ok, Status.t()} | {:error, any()}
   def get_status(device, profile_token) do
     body = element("tptz:GetStatus", element("tptz:ProfileToken", profile_token))
     ptz_request(device, "GetStatus", body, &parse_status_response/1)
+  end
+
+  @doc """
+  Operation to save current position as the home position.
+  The SetHomePosition command returns with a failure if the “home” position is fixed and cannot be overwritten.
+  If the SetHomePosition is successful, it is possible to recall the Home Position with the GotoHomePosition command.
+  """
+  @spec set_home_position(ExOnvif.Device.t(), String.t()) :: :ok
+  def set_home_position(device, profile_token) do
+    body = element("tptz:SetHomePosition", element("tptz:ProfileToken", profile_token))
+    ptz_request(device, "SetHomePosition", body, fn _body -> :ok end)
+  end
+
+  @doc """
+  Operation to move the PTZ device to it's "home" position. The operation is supported if the HomeSupported element in the PTZNode is true.
+  """
+  @spec goto_home_position(ExOnvif.Device.t(), String.t(), Vector.t()) :: :ok
+  @spec goto_home_position(ExOnvif.Device.t(), String.t()) :: :ok
+  def goto_home_position(device,  profile_token, speed \\ nil) do
+    body =
+      element("tptz:Speed", Vector.encode(speed))
+      |> element("tptz:ProfileToken", nil, profile_token)
+      |> then(&element("tptz:GotoHomePosition", &1))
+
+    ptz_request(device, "GotoHomePosition", body, fn _body -> :ok end)
   end
 
   @doc """

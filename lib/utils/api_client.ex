@@ -187,6 +187,11 @@ defmodule ExOnvif.Utils.ApiClient do
   end
 
   defp do_request(device, service_path, namespaces, action, content, parser_fn) do
+    request_body = %ExOnvif.Request{
+      content: XmlBuilder.element(:"s:Body", List.wrap(content)),
+      namespaces: namespaces
+    }
+
     device
     |> ExOnvif.API.client(service_path: service_path)
     |> Tesla.request(
@@ -195,10 +200,7 @@ defmodule ExOnvif.Utils.ApiClient do
         {"Content-Type", "application/soap+xml"},
         {"SOAPAction", action}
       ],
-      body: %ExOnvif.Request{
-        content: XmlBuilder.element(:"s:Body", List.wrap(content)),
-        namespaces: namespaces
-      }
+      body: request_body
     )
     |> parse_response(parser_fn)
   end
