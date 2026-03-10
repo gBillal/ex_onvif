@@ -9,7 +9,7 @@ defmodule ExOnvif.Event do
   import ExOnvif.Utils.XmlBuilder
   import SweetXml
 
-  alias ExOnvif.Event.{PullPointSubscription, ServiceCapabilities}
+  alias ExOnvif.Event.{EventProperties, PullPointSubscription, ServiceCapabilities}
 
   @doc """
   This method returns a PullPointSubscription that can be polled using PullMessages.
@@ -37,9 +37,24 @@ defmodule ExOnvif.Event do
   end
 
   @doc """
+  Returns the event properties of the device, including the supported topic set with
+  message descriptions for each topic.
+  """
+  @spec get_event_properties(ExOnvif.Device.t()) :: {:ok, ExOnvif.Event.EventProperties.t()}
+  def get_event_properties(device) do
+    event_request(
+      device,
+      "GetEventProperties",
+      :"tev:GetEventProperties",
+      &parse_event_properties/1
+    )
+  end
+
+  @doc """
   Returns the capabilities of the event service.
   """
-  @spec get_service_capabilities(ExOnvif.Device.t()) :: {:ok, ExOnvif.Event.ServiceCapabilities.t()}
+  @spec get_service_capabilities(ExOnvif.Device.t()) ::
+          {:ok, ExOnvif.Event.ServiceCapabilities.t()}
   def get_service_capabilities(device) do
     event_request(
       device,
@@ -71,5 +86,18 @@ defmodule ExOnvif.Event do
     )
     |> ServiceCapabilities.parse()
     |> ServiceCapabilities.to_struct()
+  end
+
+  defp parse_event_properties(xml_response_body) do
+    xml_response_body
+    |> parse(namespace_conformant: true, quiet: true)
+    |> xpath(
+      ~x"//s:Envelope/s:Body/tev:GetEventPropertiesResponse"e
+      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+      |> add_namespace("tev", "http://www.onvif.org/ver10/events/wsdl")
+      |> add_namespace("wsnt", "http://docs.oasis-open.org/wsn/bw-2")
+    )
+    |> EventProperties.parse()
+    |> EventProperties.to_struct()
   end
 end

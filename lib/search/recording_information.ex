@@ -32,7 +32,9 @@ defmodule ExOnvif.Search.RecordingInformation do
       @derive Jason.Encoder
       field(:track_token, :string)
 
-      field(:track_type, Ecto.Enum, values: [audio: "Audio", video: "Video", metadata: "Metadata"])
+      field(:track_type, Ecto.Enum,
+        values: [audio: "Audio", video: "Video", metadata: "Metadata"]
+      )
 
       field(:description, :string)
       field(:data_from, :utc_datetime)

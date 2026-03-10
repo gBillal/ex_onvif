@@ -24,7 +24,9 @@ defmodule ExOnvif.Media2.Profile.VideoEncoder do
     field(:profile, :string)
     field(:guaranteed_frame_rate, :boolean, default: false)
 
-    field(:encoding, Ecto.Enum, values: [jpeg: "JPEG", mpeg4: "MPEG4", h264: "H264", h265: "H265"])
+    field(:encoding, Ecto.Enum,
+      values: [jpeg: "JPEG", mpeg4: "MPEG4", h264: "H264", h265: "H265"]
+    )
 
     field(:quality, :float)
 

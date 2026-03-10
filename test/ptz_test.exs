@@ -201,7 +201,8 @@ defmodule ExOnvif.PTZTest do
                  y: -0.618316,
                  space: "http://www.onvif.org/ver10/tptz/PanTiltSpaces/PositionGenericSpace"
                },
-               zoom: 0.0
+               zoom: 0.0,
+               zoom_space: "http://www.onvif.org/ver10/tptz/ZoomSpaces/PositionGenericSpace"
              },
              move_status: %ExOnvif.PTZ.Status.MoveStatus{
                pan_tilt: :idle,
@@ -222,7 +223,7 @@ defmodule ExOnvif.PTZTest do
 
     {:ok, response} = ExOnvif.PTZ.get_configurations(device, "Profile_1")
 
-    assert response == %ExOnvif.PTZ.PTZConfigurations{
+    assert response == %ExOnvif.PTZ.Configurations{
              default_absolute_pan_tilt_position_space:
                "http://www.onvif.org/ver10/tptz/PanTiltSpaces/PositionGenericSpace",
              default_absolute_zoom_position_space:
@@ -237,7 +238,8 @@ defmodule ExOnvif.PTZTest do
                  x: 0.1,
                  y: 0.1
                },
-               zoom: 1.0
+               zoom: 1.0,
+               zoom_space: "http://www.onvif.org/ver10/tptz/ZoomSpaces/ZoomGenericSpeedSpace"
              },
              default_ptz_timeout: "PT0H0M1S",
              default_relative_pan_tilt_translation_space:

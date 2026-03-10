@@ -34,7 +34,9 @@ defmodule ExOnvif.Media.Profile.VideoSourceConfiguration do
 
         embeds_one :extension, Extension, primary_key: false, on_replace: :update do
           @derive Jason.Encoder
-          embeds_one :lens_description, LensDescription, primary_key: false, on_replace: :update do
+          embeds_one :lens_description, LensDescription,
+            primary_key: false,
+            on_replace: :update do
             @derive Jason.Encoder
             field(:focal_length, :float)
             field(:x_factor, :float)
@@ -53,7 +55,9 @@ defmodule ExOnvif.Media.Profile.VideoSourceConfiguration do
             end
           end
 
-          embeds_one :scene_orientation, SceneOrientation, primary_key: false, on_replace: :update do
+          embeds_one :scene_orientation, SceneOrientation,
+            primary_key: false,
+            on_replace: :update do
             @derive Jason.Encoder
             field(:mode, Ecto.Enum, values: [manual: "MANUAL", auto: "AUTO"])
             field(:orientation, :string)

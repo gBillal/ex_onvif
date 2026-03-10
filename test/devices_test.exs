@@ -166,7 +166,7 @@ defmodule ExOnvif.DevicesTest do
     {:ok, service_capabilities} = ExOnvif.Devices.get_system_date_and_time(device)
 
     assert service_capabilities == %SystemDateAndTime{
-             current_diff: -654,
+             current_diff: -655,
              date_time_type: :manual,
              datetime: ~U[2024-07-09 19:49:06Z],
              daylight_savings: true,

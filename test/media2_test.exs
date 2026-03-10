@@ -51,7 +51,15 @@ defmodule ExOnvif.Media2Test do
                  "Analytics"
                ]
              },
-             streaming_capabilities: nil,
+             streaming_capabilities: %ServiceCapabilities.StreamingCapabilities{
+               rtsp_streaming: true,
+               rtp_multicast: true,
+               rtp_rtsp_tcp: true,
+               non_aggregated_control: false,
+               rtsp_web_socket_uri: nil,
+               auto_start_multicast: false,
+               secure_rtsp_streaming: false
+             },
              media_signing_protocol: nil
            } == response
 
