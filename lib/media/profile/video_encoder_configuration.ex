@@ -37,7 +37,9 @@ defmodule ExOnvif.Media.Profile.VideoEncoderConfiguration do
       field(:bitrate_limit, :integer)
     end
 
-    embeds_one :mpeg4_configuration, Mpeg4Configuration, primary_key: false, on_replace: :update do
+    embeds_one :mpeg4_configuration, Mpeg4Configuration,
+      primary_key: false,
+      on_replace: :update do
       @derive Jason.Encoder
       field(:gov_length, :integer)
       field(:mpeg4_profile, Ecto.Enum, values: [simple: "SP", advanced_simple: "ASP"])

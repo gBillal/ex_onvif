@@ -10,7 +10,15 @@ defmodule ExOnvif.PTZ do
   import ExOnvif.Utils.Parser
   import SweetXml
 
-  alias ExOnvif.PTZ.{AbsoluteMove, ContinuousMove, Node, ServiceCapabilities, Status, Stop, Vector}
+  alias ExOnvif.PTZ.{
+    AbsoluteMove,
+    ContinuousMove,
+    Node,
+    ServiceCapabilities,
+    Status,
+    Stop,
+    Vector
+  }
 
   @doc """
   Operation to move pan,tilt or zoom to a absolute destination.
@@ -131,8 +139,8 @@ defmodule ExOnvif.PTZ do
   """
   @spec goto_home_position(ExOnvif.Device.t(), String.t(), Vector.t()) :: :ok
   @spec goto_home_position(ExOnvif.Device.t(), String.t()) :: :ok
-  def goto_home_position(device,  profile_token, speed \\ nil) do
-    body = 
+  def goto_home_position(device, profile_token, speed \\ nil) do
+    body =
       element("tptz:Speed", Vector.encode(speed))
       |> element("tptz:ProfileToken", nil, profile_token)
       |> then(&element("tptz:GotoHomePosition", &1))

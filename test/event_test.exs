@@ -3,8 +3,112 @@ defmodule ExOnvif.EventTest do
 
   @moduletag capture_log: true
 
-  alias ExOnvif.Event.{Messages, NotificationMessage, PullPointSubscription, ServiceCapabilities}
+  alias ExOnvif.Event.{
+    EventProperties,
+    ItemDescription,
+    Messages,
+    NotificationMessage,
+    PullPointSubscription,
+    ServiceCapabilities
+  }
+
   alias ExOnvif.Schemas.SimpleItem
+
+  test "get event properties" do
+    xml_response = File.read!("test/fixtures/get_event_properties.xml")
+
+    device = ExOnvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+    {:ok, response} = ExOnvif.Event.get_event_properties(device)
+
+    assert %EventProperties{
+             topic_namespace_location: ["http://www.onvif.org/onvif/ver10/topics/topicns.xml"],
+             fixed_topic_set: true,
+             topic_expression_dialect: [
+               "http://www.onvif.org/ver10/tev/topicExpression/ConcreteSet",
+               "http://docs.oasis-open.org/wsn/t-1/TopicExpression/Concrete"
+             ],
+             message_content_filter_dialect: [
+               "http://www.onvif.org/ver10/tev/messageContentFilter/ItemFilter"
+             ],
+             message_content_schema_location: [
+               "http://www.onvif.org/onvif/ver10/schema/onvif.xsd"
+             ]
+           } = response
+
+    # 31 leaf topics across the topic tree (namespace prefixes are preserved in paths)
+    assert length(response.topic_sets) == 31
+
+    # Topic with SimpleItemDescription in source and data
+    motion_alarm =
+      Enum.find(response.topic_sets, &(&1.path == "tns1:VideoSource/MotionAlarm"))
+
+    assert %EventProperties.TopicSet{
+             path: "tns1:VideoSource/MotionAlarm",
+             message_description: %EventProperties.TopicSet.MessageDescription{
+               is_property: true,
+               source: [
+                 %ItemDescription{name: "Source", type: "tt:ReferenceToken", kind: :simple}
+               ],
+               key: [],
+               data: [%ItemDescription{name: "State", type: "xs:boolean", kind: :simple}]
+             }
+           } = motion_alarm
+
+    # Topic with ElementItemDescription in data
+    profile =
+      Enum.find(response.topic_sets, &(&1.path == "tns1:Configuration/Profile"))
+
+    assert %EventProperties.TopicSet{
+             message_description: %EventProperties.TopicSet.MessageDescription{
+               is_property: false,
+               source: [%ItemDescription{name: "Token", type: "tt:ReferenceToken", kind: :simple}],
+               data: [
+                 %ItemDescription{
+                   name: "Configuration",
+                   type: "tt:Profile",
+                   kind: :element
+                 }
+               ]
+             }
+           } = profile
+
+    # Topic with Key element
+    objects_inside =
+      Enum.find(
+        response.topic_sets,
+        &(&1.path == "tns1:RuleEngine/FieldDetector/ObjectsInside")
+      )
+
+    assert %EventProperties.TopicSet{
+             message_description: %EventProperties.TopicSet.MessageDescription{
+               is_property: true,
+               source: [
+                 %ItemDescription{name: "VideoSourceConfigurationToken", kind: :simple},
+                 %ItemDescription{name: "VideoAnalyticsConfigurationToken", kind: :simple},
+                 %ItemDescription{name: "Rule", kind: :simple}
+               ],
+               key: [%ItemDescription{name: "ObjectId", type: "xs:integer", kind: :simple}],
+               data: [%ItemDescription{name: "IsInside", type: "xs:boolean", kind: :simple}]
+             }
+           } = objects_inside
+
+    # Topic with no MessageDescription
+    ethernet_broken =
+      Enum.find(
+        response.topic_sets,
+        &(&1.path == "tns1:Device/tnshik:Network/tnshik:EthernetBroken")
+      )
+
+    assert %EventProperties.TopicSet{
+             path: "tns1:Device/tnshik:Network/tnshik:EthernetBroken",
+             message_description: nil
+           } = ethernet_broken
+  end
 
   test "create pull point subscription" do
     xml_response = File.read!("test/fixtures/create_pull_point_subscription.xml")
