@@ -2,17 +2,11 @@ defmodule ExOnvif.PTZ.Preset do
   use Ecto.Schema
 
   import Ecto.Changeset
-  import ExOnvif.Utils.XmlBuilder
+  import SweetXml
 
   alias ExOnvif.PTZ.Vector
 
   @type t :: %__MODULE__{}
-
-  @type preset_t :: %{
-          profile_token: String.t(),
-          preset_token: String.t(),
-          speed: Vector.t() | nil
-        }
 
   @primary_key false
   embedded_schema do
@@ -21,8 +15,8 @@ defmodule ExOnvif.PTZ.Preset do
     embeds_one :position, Vector
   end
 
-  @spec new(String.t(), String.t(), Vector.t() | nil) :: preset_t()
-  @spec new(String.t(), String.t()) :: preset_t()
+  @spec new(String.t(), String.t(), Vector.t() | nil) :: t()
+  @spec new(String.t(), String.t()) :: t()
   def new(profile_token, preset_token, speed \\ nil) do
     %{
       profile_token: profile_token,
@@ -31,30 +25,24 @@ defmodule ExOnvif.PTZ.Preset do
     }
   end
 
-  def encode(preset) do
-    base =
-      element("tptz:Speed", Vector.encode(preset.speed))
-      |> element("tptz:PresetToken", nil, preset.preset_token)
-      |> element("tptz:ProfileToken", nil, preset.profile_token)
-
-    element("tptz:GotoPreset", base)
+  def parse(preset) do
+    xmap(
+      preset,
+      token: ~x"./@token"s,
+      name: ~x"./tt:Name/text()"s,
+      ptz_position: ~x"./tt:PTZPosition"o |> transform_by(&Vector.parse/1)
+    )
   end
 
-  def to_struct(presets) do
-    presets
-    |> Enum.map(fn preset ->
-      {:ok, pres} =
-        %__MODULE__{}
-        |> changeset(preset)
-        |> apply_action(:validate)
-
-      pres
-    end)
+  def to_struct(preset) do
+    %__MODULE__{}
+    |> changeset(preset)
+    |> apply_action(:validate)
   end
 
   def changeset(module, attrs) do
     module
-    |> cast(attrs, __MODULE__.__schema__(:fields) -- [:position])
+    |> cast(attrs, [:token, :name])
     |> cast_embed(:position, with: &Vector.changeset/2)
   end
 end

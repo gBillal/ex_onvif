@@ -14,6 +14,7 @@ defmodule ExOnvif.PTZ do
     AbsoluteMove,
     ContinuousMove,
     Node,
+    Preset,
     ServiceCapabilities,
     Status,
     Stop,
@@ -141,14 +142,14 @@ defmodule ExOnvif.PTZ do
   @spec goto_home_position(ExOnvif.Device.t(), String.t()) :: :ok
   def goto_home_position(device, profile_token, speed \\ nil) do
     body =
-      element("tptz:Speed", Vector.encode(speed))
-      |> element("tptz:ProfileToken", nil, profile_token)
+      element("tptz:Speed", speed && Vector.encode(speed))
+      |> element("tptz:ProfileToken", profile_token)
       |> then(&element("tptz:GotoHomePosition", &1))
 
     ptz_request(device, "GotoHomePosition", body, fn _body -> :ok end)
   end
 
-  @doc"""
+  @doc """
   Operation to request all PTZ presets for the PTZNode in the selected profile.
   The operation is supported if there is support for at least on PTZ preset by the PTZNode.
   """
@@ -159,6 +160,8 @@ defmodule ExOnvif.PTZ do
     ptz_request(device, "GetPresets", body, &parse_presets/1)
   end
 
+  @type set_preset_options :: %{optional(:name) => String.t(), optional(:token) => String.t()}
+
   @doc """
 
   The SetPreset command saves the current device position parameters so that the device can move to the saved preset position through the GotoPreset operation.
@@ -167,13 +170,14 @@ defmodule ExOnvif.PTZ do
   An existing Preset can be overwritten by specifying the PresetToken of the corresponding Preset. In both cases (overwriting or creation) an optional PresetName can be specified. The operation fails if the PTZ device is moving during the SetPreset operation.
   The device MAY internally save additional states such as imaging properties in the PTZ Preset which then should be recalled in the GotoPreset operation.
   """
-  @spec set_preset(ExOnvif.Device.t(), String.t(), String.t(), String.t()) :: {:ok, String.t()}
-  def set_preset(device, profile_token, preset_name, preset_token) do
+  @spec set_preset(ExOnvif.Device.t(), String.t()) :: {:ok, String.t()}
+  @spec set_preset(ExOnvif.Device.t(), String.t(), set_preset_options()) :: {:ok, String.t()}
+  def set_preset(device, profile_token, options \\ []) do
     body =
       element("tptz:SetPreset", [
         element("tptz:ProfileToken", profile_token),
-        element("tptz:PresetName", preset_name),
-        element("tptz:PresetToken", preset_token)
+        element("tptz:PresetName", options[:name]),
+        element("tptz:PresetToken", options[:token])
       ])
 
     ptz_request(device, "SetPreset", body, &parse_set_preset/1)
@@ -196,9 +200,14 @@ defmodule ExOnvif.PTZ do
   @doc """
   Operation to go to a saved preset position for the PTZNode in the selected profile. The operation is supported if there is support for at least on PTZ preset by the PTZNode.
   """
-  @spec goto_preset(ExOnvif.Device.t(), ExOnvif.PTZ.Presets.preset_t()) :: :ok
-  def goto_preset(device, move) do
-    body = Preset.encode(move)
+  @spec goto_preset(ExOnvif.Device.t(), String.t(), String.t(), Vector.t() | nil) :: :ok
+  def goto_preset(device, profile_token, preset_token, move \\ nil) do
+    body =
+      element("tptz:Speed", move && Vector.encode(move))
+      |> element("tptz:PresetToken", preset_token)
+      |> element("tptz:ProfileToken", profile_token)
+      |> then(&element("tptz:GotoPreset", &1))
+
     ptz_request(device, "GotoPreset", body, fn _body -> :ok end)
   end
 
@@ -206,30 +215,23 @@ defmodule ExOnvif.PTZ do
     xml_response_body
     |> parse(namespace_conformant: true, quiet: true)
     |> xpath(
-      ~x"//s:Envelope/s:Body"e
+      ~x"//s:Envelope/s:Body/SetPresetResponse/PresetToken"s
       |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
       |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
       |> add_namespace("tptz", "http://www.onvif.org/ver20/ptz/wsdl")
     )
-    |> ExOnvif.PTZ.SetPreset.parse()
-    |> ExOnvif.PTZ.SetPreset.to_struct()
   end
 
   defp parse_presets(xml_response_body) do
     xml_response_body
     |> parse(namespace_conformant: true, quiet: true)
     |> xpath(
-      ~x"//tptz:GetPresetsResponse/tptz:Preset"l,
-      token: ~x"./@token"s,
-      name: ~x"./tt:Name/text()"s,
-      ptz_position:
-        ~x"./tt:PTZPosition"
-        |> transform_by(&ExOnvif.PTZ.Vector.parse/1)
-        |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
-        |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
-        |> add_namespace("tptz", "http://www.onvif.org/ver20/ptz/wsdl")
+      ~x"//s:Envelope/s:Body/tptz:GetPresetsResponse/tptz:Preset"el
+      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+      |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
+      |> add_namespace("tptz", "http://www.onvif.org/ver20/ptz/wsdl")
     )
-    |> Preset.to_struct()
+    |> parse_map_reduce(Preset)
   end
 
   defp parse_node_response(xml_response_body) do

@@ -75,6 +75,8 @@ defmodule ExOnvif.PTZ.Vector do
     body ++ pan_tilt_xml(pan_tilt)
   end
 
+  def parse(nil), do: nil
+
   def parse(doc) do
     xmap(
       doc,
