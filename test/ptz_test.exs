@@ -3,7 +3,7 @@ defmodule ExOnvif.PTZTest do
 
   @moduletag capture_log: true
 
-  alias ExOnvif.PTZ.{Node, ServiceCapabilities, Status}
+  alias ExOnvif.PTZ.{Node, Preset, ServiceCapabilities, Status}
   alias ExOnvif.Schemas.FloatRange
 
   test "get node" do
@@ -210,6 +210,112 @@ defmodule ExOnvif.PTZTest do
              },
              utc_time: ~U[2025-04-05 20:37:31Z]
            }
+  end
+
+  test "get presets" do
+    xml_response = File.read!("test/fixtures/get_ptz_presets.xml")
+
+    device = ExOnvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+    {:ok, presets} = ExOnvif.PTZ.get_presets(device, "Profile_1")
+
+    assert presets == [
+             %Preset{
+               token: "PresetToken001",
+               name: "Entrance",
+               position: %ExOnvif.PTZ.Vector{
+                 pan_tilt: %ExOnvif.PTZ.Vector.PanTilt{
+                   x: 0.5,
+                   y: 0.25,
+                   space: "http://www.onvif.org/ver10/tptz/PanTiltSpaces/PositionGenericSpace"
+                 },
+                 zoom: 0.0,
+                 zoom_space: "http://www.onvif.org/ver10/tptz/ZoomSpaces/PositionGenericSpace"
+               }
+             },
+             %Preset{
+               token: "PresetToken002",
+               name: "Parking",
+               position: %ExOnvif.PTZ.Vector{
+                 pan_tilt: %ExOnvif.PTZ.Vector.PanTilt{
+                   x: -0.3,
+                   y: -0.1,
+                   space: "http://www.onvif.org/ver10/tptz/PanTiltSpaces/PositionGenericSpace"
+                 },
+                 zoom: 0.5,
+                 zoom_space: "http://www.onvif.org/ver10/tptz/ZoomSpaces/PositionGenericSpace"
+               }
+             }
+           ]
+  end
+
+  test "set preset creates new preset and returns token" do
+    xml_response = File.read!("test/fixtures/set_ptz_preset.xml")
+
+    device = ExOnvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+    assert {:ok, "PresetToken001"} = ExOnvif.PTZ.set_preset(device, "Profile_1", name: "Entrance")
+  end
+
+  test "set preset overwrites existing preset" do
+    xml_response = File.read!("test/fixtures/set_ptz_preset.xml")
+
+    device = ExOnvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+    assert {:ok, "PresetToken001"} =
+             ExOnvif.PTZ.set_preset(device, "Profile_1",
+               name: "Entrance",
+               token: "PresetToken001"
+             )
+  end
+
+  test "remove preset returns :ok" do
+    xml_response = File.read!("test/fixtures/remove_ptz_preset.xml")
+
+    device = ExOnvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+    assert :ok = ExOnvif.PTZ.remove_preset(device, "Profile_1", "PresetToken001")
+  end
+
+  test "goto preset returns :ok" do
+    xml_response = File.read!("test/fixtures/goto_ptz_preset.xml")
+
+    device = ExOnvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+    assert :ok = ExOnvif.PTZ.goto_preset(device, "Profile_1", "PresetToken001")
+  end
+
+  test "goto preset with speed" do
+    xml_response = File.read!("test/fixtures/goto_ptz_preset.xml")
+
+    device = ExOnvif.Factory.device()
+
+    Mimic.expect(Tesla, :request, fn _client, _opts ->
+      {:ok, %{status: 200, body: xml_response}}
+    end)
+
+    speed = ExOnvif.PTZ.Vector.new(0.5, 0.5, 0.0)
+    assert :ok = ExOnvif.PTZ.goto_preset(device, "Profile_1", "PresetToken001", speed)
   end
 
   test "get ptz configurations" do

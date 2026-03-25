@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://www.w3.org/2003/05/soap-envelope" xmlns:tt="http://www.onvif.org/ver10/schema" xmlns:tptz="http://www.onvif.org/ver20/ptz/wsdl">
+    <SOAP-ENV:Header></SOAP-ENV:Header>
+    <SOAP-ENV:Body>
+        <tptz:GetPresetsResponse>
+            <tptz:Preset token="PresetToken001">
+                <tt:Name>Entrance</tt:Name>
+                <tt:PTZPosition>
+                    <tt:PanTilt x="0.5" y="0.25" space="http://www.onvif.org/ver10/tptz/PanTiltSpaces/PositionGenericSpace"></tt:PanTilt>
+                    <tt:Zoom x="0.0" space="http://www.onvif.org/ver10/tptz/ZoomSpaces/PositionGenericSpace"></tt:Zoom>
+                </tt:PTZPosition>
+            </tptz:Preset>
+            <tptz:Preset token="PresetToken002">
+                <tt:Name>Parking</tt:Name>
+                <tt:PTZPosition>
+                    <tt:PanTilt x="-0.3" y="-0.1" space="http://www.onvif.org/ver10/tptz/PanTiltSpaces/PositionGenericSpace"></tt:PanTilt>
+                    <tt:Zoom x="0.5" space="http://www.onvif.org/ver10/tptz/ZoomSpaces/PositionGenericSpace"></tt:Zoom>
+                </tt:PTZPosition>
+            </tptz:Preset>
+        </tptz:GetPresetsResponse>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

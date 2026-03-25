@@ -167,7 +167,7 @@ defmodule ExOnvif.Discovery do
       {:udp, _port, device_ip, device_port, udp_response} ->
         valid_probes =
           case parse_udp_xml_response(udp_response) do
-            {:ok, probe_response} ->
+            {:ok, %Probe{} = probe_response} ->
               string_device_ip = device_ip |> :inet.ntoa() |> List.to_string()
 
               [
