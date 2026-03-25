@@ -30,7 +30,7 @@ defmodule ExOnvif.PTZ.Preset do
       preset,
       token: ~x"./@token"s,
       name: ~x"./tt:Name/text()"s,
-      ptz_position: ~x"./tt:PTZPosition"o |> transform_by(&Vector.parse/1)
+      position: ~x"./tt:PTZPosition"o |> transform_by(&Vector.parse/1)
     )
   end
 

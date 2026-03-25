@@ -21,6 +21,8 @@ defmodule ExOnvif.PTZ do
     Vector
   }
 
+  @type profile_token :: String.t()
+
   @doc """
   Operation to move pan,tilt or zoom to a absolute destination.
 
@@ -97,22 +99,11 @@ defmodule ExOnvif.PTZ do
   where no explicit speed has been set.
 
   """
+  @spec get_configurations(ExOnvif.Device.t(), profile_token()) ::
+          {:ok, [Configurations.t()]} | {:error, any()}
   def get_configurations(device, profile_token) do
     body = element("tptz:GetConfigurations", element("tptz:ProfileToken", profile_token))
     ptz_request(device, "GetConfigurations", body, &parse_configuration_response/1)
-  end
-
-  defp parse_configuration_response(xml_response_body) do
-    xml_response_body
-    |> parse(namespace_conformant: true, quiet: true)
-    |> xpath(
-      ~x"//s:Envelope/s:Body/tptz:GetConfigurationsResponse/tptz:PTZConfiguration"e
-      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
-      |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
-      |> add_namespace("tptz", "http://www.onvif.org/ver20/ptz/wsdl")
-    )
-    |> ExOnvif.PTZ.Configurations.parse()
-    |> ExOnvif.PTZ.Configurations.to_struct()
   end
 
   @doc """
@@ -138,12 +129,11 @@ defmodule ExOnvif.PTZ do
   @doc """
   Operation to move the PTZ device to it's "home" position. The operation is supported if the HomeSupported element in the PTZNode is true.
   """
-  @spec goto_home_position(ExOnvif.Device.t(), String.t(), Vector.t()) :: :ok
-  @spec goto_home_position(ExOnvif.Device.t(), String.t()) :: :ok
+  @spec goto_home_position(ExOnvif.Device.t(), String.t(), Vector.t() | nil) :: :ok
   def goto_home_position(device, profile_token, speed \\ nil) do
     body =
-      element("tptz:Speed", speed && Vector.encode(speed))
-      |> element("tptz:ProfileToken", profile_token)
+      element("tptz:Speed", Vector.encode(speed))
+      |> element("tt:ProfileToken", profile_token)
       |> then(&element("tptz:GotoHomePosition", &1))
 
     ptz_request(device, "GotoHomePosition", body, fn _body -> :ok end)
@@ -153,14 +143,14 @@ defmodule ExOnvif.PTZ do
   Operation to request all PTZ presets for the PTZNode in the selected profile.
   The operation is supported if there is support for at least on PTZ preset by the PTZNode.
   """
-  @spec get_presets(ExOnvif.Device.t(), String.t()) ::
+  @spec get_presets(ExOnvif.Device.t(), profile_token()) ::
           [Preset.preset_t()] | {:error, any()}
   def get_presets(device, profile_token) do
     body = element("tptz:GetPresets", element("tptz:ProfileToken", profile_token))
     ptz_request(device, "GetPresets", body, &parse_presets/1)
   end
 
-  @type set_preset_options :: %{optional(:name) => String.t(), optional(:token) => String.t()}
+  @type set_preset_options :: [{:name, String.t()} | {:token, String.t()}]
 
   @doc """
 
@@ -170,8 +160,8 @@ defmodule ExOnvif.PTZ do
   An existing Preset can be overwritten by specifying the PresetToken of the corresponding Preset. In both cases (overwriting or creation) an optional PresetName can be specified. The operation fails if the PTZ device is moving during the SetPreset operation.
   The device MAY internally save additional states such as imaging properties in the PTZ Preset which then should be recalled in the GotoPreset operation.
   """
-  @spec set_preset(ExOnvif.Device.t(), String.t()) :: {:ok, String.t()}
-  @spec set_preset(ExOnvif.Device.t(), String.t(), set_preset_options()) :: {:ok, String.t()}
+  @spec set_preset(ExOnvif.Device.t(), profile_token(), set_preset_options()) ::
+          {:ok, String.t()} | {:error, any()}
   def set_preset(device, profile_token, options \\ []) do
     body =
       element("tptz:SetPreset", [
@@ -184,9 +174,10 @@ defmodule ExOnvif.PTZ do
   end
 
   @doc """
-  Operation to remove a PTZ preset for the Node in the selected profile. The operation is supported if the PresetPosition capability exists for teh Node in the selected profile.
+  Operation to remove a PTZ preset for the Node in the selected profile.
+  The operation is supported if the PresetPosition capability exists for the Node in the selected profile.
   """
-  @spec remove_preset(ExOnvif.Device.t(), String.t(), String.t()) :: {:ok, String.t()}
+  @spec remove_preset(ExOnvif.Device.t(), profile_token(), String.t()) :: {:ok, String.t()}
   def remove_preset(device, profile_token, preset_token) do
     body =
       element("tptz:RemovePreset", [
@@ -200,7 +191,7 @@ defmodule ExOnvif.PTZ do
   @doc """
   Operation to go to a saved preset position for the PTZNode in the selected profile. The operation is supported if there is support for at least on PTZ preset by the PTZNode.
   """
-  @spec goto_preset(ExOnvif.Device.t(), String.t(), String.t(), Vector.t() | nil) :: :ok
+  @spec goto_preset(ExOnvif.Device.t(), profile_token(), String.t(), Vector.t() | nil) :: :ok
   def goto_preset(device, profile_token, preset_token, move \\ nil) do
     body =
       element("tptz:Speed", move && Vector.encode(move))
@@ -211,15 +202,28 @@ defmodule ExOnvif.PTZ do
     ptz_request(device, "GotoPreset", body, fn _body -> :ok end)
   end
 
-  defp parse_set_preset(xml_response_body) do
+  defp parse_configuration_response(xml_response_body) do
     xml_response_body
     |> parse(namespace_conformant: true, quiet: true)
     |> xpath(
-      ~x"//s:Envelope/s:Body/SetPresetResponse/PresetToken"s
+      ~x"//s:Envelope/s:Body/tptz:GetConfigurationsResponse/tptz:PTZConfiguration"e
       |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
       |> add_namespace("tt", "http://www.onvif.org/ver10/schema")
       |> add_namespace("tptz", "http://www.onvif.org/ver20/ptz/wsdl")
     )
+    |> ExOnvif.PTZ.Configurations.parse()
+    |> ExOnvif.PTZ.Configurations.to_struct()
+  end
+
+  defp parse_set_preset(xml_response_body) do
+    xml_response_body
+    |> parse(namespace_conformant: true, quiet: true)
+    |> xpath(
+      ~x"//s:Envelope/s:Body/tptz:SetPresetResponse/tptz:PresetToken/text()"s
+      |> add_namespace("s", "http://www.w3.org/2003/05/soap-envelope")
+      |> add_namespace("tptz", "http://www.onvif.org/ver20/ptz/wsdl")
+    )
+    |> then(&{:ok, &1})
   end
 
   defp parse_presets(xml_response_body) do
