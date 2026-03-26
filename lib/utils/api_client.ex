@@ -211,7 +211,10 @@ defmodule ExOnvif.Utils.ApiClient do
 
   defp parse_response({:ok, %{status: status_code, body: body}}, _parser_fn)
        when status_code >= 400 do
-    {:error, %{status: status_code, response: body}}
+    case ExOnvif.Fault.parse(body) do
+      {:ok, fault} -> {:error, fault}
+      _ -> {:error, %{status: status_code, response: body}}
+    end
   end
 
   defp parse_response({:error, response}, _parser_fn) do

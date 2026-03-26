@@ -33,7 +33,7 @@ defmodule ExOnvif.Media2 do
   If a configuration exists in the media profile, it will be replaced. A device shall support adding a compatible Configuration to a Profile
   containing a VideoSourceConfiguration and shall support streaming video data of such a profile.
   """
-  @spec add_configuration(ExOnvif.Device.t(), AddConfiguration.t()) :: :ok | {:error, any()}
+  @spec add_configuration(ExOnvif.Device.t(), AddConfiguration.t()) :: :ok | ExOnvif.error()
   def add_configuration(device, config) do
     body = AddConfiguration.encode(config)
     media2_request(device, "AddConfiguration", body, fn _body -> :ok end)
@@ -49,7 +49,7 @@ defmodule ExOnvif.Media2 do
           ExOnvif.Device.t(),
           String.t(),
           [%{type: String.t(), token: String.t()}]
-        ) :: {:ok, String.t()} | {:error, any()}
+        ) :: {:ok, String.t()} | ExOnvif.error()
   def create_profile(device, name, configs \\ []) do
     configs =
       Enum.reduce(configs, [], fn config, acc ->
@@ -72,9 +72,9 @@ defmodule ExOnvif.Media2 do
   token is provided only a single configuration will be returned.
   """
   @spec get_audio_encoder_configurations(Device.t(), encoder_options_opts()) ::
-          {:ok, [AudioEncoderConfiguration.t()]} | {:error, any()}
+          {:ok, [AudioEncoderConfiguration.t()]} | ExOnvif.error()
   @spec get_audio_encoder_configurations(Device.t()) ::
-          {:ok, [AudioEncoderConfiguration.t()]} | {:error, any()}
+          {:ok, [AudioEncoderConfiguration.t()]} | ExOnvif.error()
   def get_audio_encoder_configurations(device, opts \\ []) do
     body = encode_encoder_options("GetAudioEncoderConfigurations", opts)
 
@@ -93,7 +93,7 @@ defmodule ExOnvif.Media2 do
   configuration will be returned.
   """
   @spec get_metadata_configurations(Device.t(), encoder_options_opts()) ::
-          {:ok, [MetadataConfiguration.t()]} | {:error, any()}
+          {:ok, [MetadataConfiguration.t()]} | ExOnvif.error()
   def get_metadata_configurations(device, opts \\ []) do
     body = encode_encoder_options("GetMetadataConfigurations", opts)
 
@@ -113,7 +113,7 @@ defmodule ExOnvif.Media2 do
   The Jpeg settings (like resolution or quality) may be taken from the profile if suitable. The provided image will be updated automatically
   and independent from calls to GetSnapshotUri.
   """
-  @spec get_snapshot_uri(Device.t(), String.t()) :: {:ok, String.t()} | {:error, any()}
+  @spec get_snapshot_uri(Device.t(), String.t()) :: {:ok, String.t()} | ExOnvif.error()
   def get_snapshot_uri(device, profile_token) do
     body = element("tr2:GetSnapshotUri", element("tr2:ProfileToken", profile_token))
     media2_request(device, "GetSnapshotUri", body, &parse_get_snapshot_uri_response/1)
@@ -133,7 +133,7 @@ defmodule ExOnvif.Media2 do
   If a multicast stream is requested at least one of VideoEncoder2Configuration, AudioEncoder2Configuration and MetadataConfiguration
   shall have a valid multicast setting.
   """
-  @spec get_stream_uri(ExOnvif.Device.t(), String.t()) :: {:ok, String.t()} | {:error, any()}
+  @spec get_stream_uri(ExOnvif.Device.t(), String.t()) :: {:ok, String.t()} | ExOnvif.error()
   def get_stream_uri(device, profile_token) do
     body =
       element(
@@ -152,7 +152,7 @@ defmodule ExOnvif.Media2 do
     * Otherwise the requested list of configurations shall for each profile include the configurations present as Type.
   """
   @spec get_profiles(Device.t(), token: String.t(), type: [String.t()]) ::
-          {:ok, [Profile.t()]} | {:error, map()}
+          {:ok, [Profile.t()]} | ExOnvif.error()
   def get_profiles(device, opts \\ []) do
     body =
       element(
@@ -167,7 +167,7 @@ defmodule ExOnvif.Media2 do
   @doc """
   Returns the capabilities of the media service.
   """
-  @spec get_service_capabilities(Device.t()) :: {:ok, ServiceCapabilities.t()} | {:error, any()}
+  @spec get_service_capabilities(Device.t()) :: {:ok, ServiceCapabilities.t()} | ExOnvif.error()
   def get_service_capabilities(device) do
     body = element(:"tr2:GetServiceCapabilities")
     media2_request(device, "GetServiceCapabilities", body, &parse_service_capabilities/1)
@@ -184,7 +184,7 @@ defmodule ExOnvif.Media2 do
   @spec get_video_encoder_configuration_options(
           Device.t(),
           encoder_options_opts()
-        ) :: {:ok, [VideoEncoderConfigurationOption.t()]} | {:error, any()}
+        ) :: {:ok, [VideoEncoderConfigurationOption.t()]} | ExOnvif.error()
   def get_video_encoder_configuration_options(device, opts \\ []) do
     body = encode_encoder_options("GetVideoEncoderConfigurationOptions", opts)
 
@@ -205,7 +205,7 @@ defmodule ExOnvif.Media2 do
   @spec get_video_encoder_configurations(
           ExOnvif.Device.t(),
           encoder_options_opts()
-        ) :: {:ok, [VideoEncoderConfiguration.t()]} | {:error, any()}
+        ) :: {:ok, [VideoEncoderConfiguration.t()]} | ExOnvif.error()
   def get_video_encoder_configurations(device, opts \\ []) do
     body = encode_encoder_options("GetVideoEncoderConfigurations", opts)
 
@@ -224,9 +224,9 @@ defmodule ExOnvif.Media2 do
   is provided only a single configuration will be returned.
   """
   @spec get_video_source_configurations(ExOnvif.Device.t()) ::
-          {:ok, [VideoSourceConfiguration.t()]} | {:error, any()}
+          {:ok, [VideoSourceConfiguration.t()]} | ExOnvif.error()
   @spec get_video_source_configurations(ExOnvif.Device.t(), encoder_options_opts()) ::
-          {:ok, [VideoSourceConfiguration.t()]} | {:error, any()}
+          {:ok, [VideoSourceConfiguration.t()]} | ExOnvif.error()
   def get_video_source_configurations(device, opts \\ []) do
     body = encode_encoder_options("GetVideoSourceConfigurations", opts)
 
@@ -247,7 +247,7 @@ defmodule ExOnvif.Media2 do
   @spec set_audio_encoder_configuration(
           ExOnvif.Device.t(),
           AudioEncoderConfiguration.t()
-        ) :: :ok | {:error, any()}
+        ) :: :ok | ExOnvif.error()
   def set_audio_encoder_configuration(device, audio_configuration) do
     body =
       element(
@@ -269,7 +269,7 @@ defmodule ExOnvif.Media2 do
   shall adhere to the timeout value signaled via RTSP.
   """
   @spec set_video_encoder_configuration(ExOnvif.Device.t(), VideoEncoder.t()) ::
-          :ok | {:error, any()}
+          :ok | ExOnvif.error()
   def set_video_encoder_configuration(device, video_configuration) do
     body = element("tr2:SetVideoEncoderConfiguration", VideoEncoder.encode(video_configuration))
     media2_request(device, "SetVideoEncoderConfiguration", body, fn _body -> :ok end)

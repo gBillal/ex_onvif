@@ -17,7 +17,7 @@ defmodule ExOnvif.Replay do
   The URI is valid only as it is specified in the response.
   """
   @spec get_replay_uri(ExOnvif.Device.t(), String.t(), stream: String.t(), protocol: String.t()) ::
-          {:ok, String.t()} | {:error, any()}
+          {:ok, String.t()} | ExOnvif.error()
   def get_replay_uri(device, recording_token, opts \\ []) do
     body =
       element(
@@ -40,7 +40,7 @@ defmodule ExOnvif.Replay do
   Returns the capabilities of the replay service.
   """
   @spec get_service_capabilities(ExOnvif.Device.t()) ::
-          {:ok, ServiceCapabilities.t()} | {:error, any()}
+          {:ok, ServiceCapabilities.t()} | ExOnvif.error()
   def get_service_capabilities(device) do
     body = element(:"trp:GetServiceCapabilities")
     replay_request(device, "GetServiceCapabilities", body, &parse_service_capabilities/1)

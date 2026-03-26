@@ -19,7 +19,7 @@ defmodule ExOnvif.Event do
   If no Filter is specified the pullpoint notifies all occurring events to the client.
   """
   @spec create_pull_point_subscription(ExOnvif.Device.t(), String.t() | nil) ::
-          {:ok, PullPointSubscription.t()} | {:error, any()}
+          {:ok, PullPointSubscription.t()} | ExOnvif.error()
   def create_pull_point_subscription(device, filter \\ nil) do
     filter_element =
       if filter do
@@ -40,7 +40,7 @@ defmodule ExOnvif.Event do
   Returns the event properties of the device, including the supported topic set with
   message descriptions for each topic.
   """
-  @spec get_event_properties(ExOnvif.Device.t()) :: {:ok, ExOnvif.Event.EventProperties.t()}
+  @spec get_event_properties(ExOnvif.Device.t()) :: {:ok, ExOnvif.Event.EventProperties.t()} | ExOnvif.error()
   def get_event_properties(device) do
     event_request(
       device,
@@ -54,7 +54,7 @@ defmodule ExOnvif.Event do
   Returns the capabilities of the event service.
   """
   @spec get_service_capabilities(ExOnvif.Device.t()) ::
-          {:ok, ExOnvif.Event.ServiceCapabilities.t()}
+          {:ok, ExOnvif.Event.ServiceCapabilities.t()} | ExOnvif.error()
   def get_service_capabilities(device) do
     event_request(
       device,

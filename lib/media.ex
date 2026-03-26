@@ -26,7 +26,7 @@ defmodule ExOnvif.Media do
   @doc """
   Create the OSD.
   """
-  @spec create_osd(ExOnvif.Device.t(), OSD.t()) :: {:ok, String.t()} | {:error, any()}
+  @spec create_osd(ExOnvif.Device.t(), OSD.t()) :: {:ok, String.t()} | ExOnvif.error()
   def create_osd(device, osd) do
     body = element(:"trt:CreateOSD", OSD.encode(osd))
     media_request(device, "CreateOSD", body, &parse_create_osd_response/1)
@@ -35,7 +35,7 @@ defmodule ExOnvif.Media do
   @doc """
   Delete the OSD with the provided token.
   """
-  @spec delete_osd(ExOnvif.Device.t(), String.t()) :: :ok | {:error, any()}
+  @spec delete_osd(ExOnvif.Device.t(), String.t()) :: :ok | ExOnvif.error()
   def delete_osd(device, token) do
     body = element(:"trt:DeleteOSD", element(:"trt:OSDToken", token))
     media_request(device, "DeleteOSD", body, fn _body -> :ok end)
@@ -45,7 +45,7 @@ defmodule ExOnvif.Media do
   The GetAudioEncoderConfiguration command fetches the encoder configuration if the audio encoder configuration token is known.
   """
   @spec get_audio_encoder_configuration(ExOnvif.Device.t(), String.t()) ::
-          {:ok, AudioEncoderConfiguration.t()} | {:error, any()}
+          {:ok, AudioEncoderConfiguration.t()} | ExOnvif.error()
   def get_audio_encoder_configuration(device, config_token) do
     body =
       element(
@@ -66,7 +66,7 @@ defmodule ExOnvif.Media do
   parameters are reconfigured.
   """
   @spec get_audio_configuration_options(ExOnvif.Device.t(), encoder_options_opts()) ::
-          {:ok, AudioEncoderConfigurationOptions.t()} | {:error, any()}
+          {:ok, AudioEncoderConfigurationOptions.t()} | ExOnvif.error()
   def get_audio_configuration_options(device, opts \\ []) do
     body =
       element(
@@ -86,7 +86,7 @@ defmodule ExOnvif.Media do
   @doc """
   Get OSD by token.
   """
-  @spec get_osd(ExOnvif.Device.t(), String.t()) :: {:ok, OSD.t()} | {:error, any()}
+  @spec get_osd(ExOnvif.Device.t(), String.t()) :: {:ok, OSD.t()} | ExOnvif.error()
   def get_osd(device, token) do
     body = element(:"trt:GetOSD", element(:"trt:OSDToken", token))
     media_request(device, "GetOSD", body, &parse_osd_response/1)
@@ -95,9 +95,9 @@ defmodule ExOnvif.Media do
   @doc """
   Get the OSD Options.
   """
-  @spec get_osd_options(ExOnvif.Device.t()) :: {:ok, OSDOptions.t()} | {:error, any()}
+  @spec get_osd_options(ExOnvif.Device.t()) :: {:ok, OSDOptions.t()} | ExOnvif.error()
   @spec get_osd_options(ExOnvif.Device.t(), String.t() | nil) ::
-          {:ok, OSDOptions.t()} | {:error, any()}
+          {:ok, OSDOptions.t()} | ExOnvif.error()
   def get_osd_options(device, token \\ nil) do
     body = element(:"trt:GetOSDOptions", element(:"trt:ConfigurationToken", token))
     media_request(device, "GetOSDOptions", body, &parse_osd_options_response/1)
@@ -106,8 +106,8 @@ defmodule ExOnvif.Media do
   @doc """
   Get the OSDs.
   """
-  @spec get_osds(ExOnvif.Device.t()) :: {:ok, [OSD.t()]} | {:error, any()}
-  @spec get_osds(ExOnvif.Device.t(), String.t() | nil) :: {:ok, [OSD.t()]} | {:error, any()}
+  @spec get_osds(ExOnvif.Device.t()) :: {:ok, [OSD.t()]} | ExOnvif.error()
+  @spec get_osds(ExOnvif.Device.t(), String.t() | nil) :: {:ok, [OSD.t()]} | ExOnvif.error()
   def get_osds(device, configuration_token \\ nil) do
     body = element(:"trt:GetOSDs", element(:"trt:ConfigurationToken", configuration_token))
     media_request(device, "GetOSDs", body, &parse_osds_response/1)
@@ -116,7 +116,7 @@ defmodule ExOnvif.Media do
   @doc """
   Get profile by token.
   """
-  @spec get_profile(ExOnvif.Device.t(), String.t()) :: {:ok, Profile.t()} | {:error, any()}
+  @spec get_profile(ExOnvif.Device.t(), String.t()) :: {:ok, Profile.t()} | ExOnvif.error()
   def get_profile(device, token) do
     body = element(:"trt:GetProfile", element(:"trt:ProfileToken", token))
     media_request(device, "GetProfile", body, &parse_profile_response/1)
@@ -128,7 +128,7 @@ defmodule ExOnvif.Media do
   Pre-configured or dynamically configured profiles can be retrieved using this command. This command lists all configured
   profiles in a device. The client does not need to know the media profile in order to use the command.
   """
-  @spec get_profiles(ExOnvif.Device.t()) :: {:ok, [Profile.t()]} | {:error, any()}
+  @spec get_profiles(ExOnvif.Device.t()) :: {:ok, [Profile.t()]} | ExOnvif.error()
   def get_profiles(device) do
     media_request(device, "GetProfiles", :"trt:GetProfiles", &parse_profiles_response/1)
   end
@@ -137,7 +137,7 @@ defmodule ExOnvif.Media do
   Returns the capabilities of the media service.
   """
   @spec get_service_capabilities(ExOnvif.Device.t()) ::
-          {:ok, ServiceCapabilities.t()} | {:error, any()}
+          {:ok, ServiceCapabilities.t()} | ExOnvif.error()
   def get_service_capabilities(device) do
     media_request(
       device,
@@ -153,7 +153,7 @@ defmodule ExOnvif.Media do
   The URI can be used for acquiring a JPEG image through a HTTP GET operation. The image encoding will always be JPEG regardless
   of the encoding setting in the media profile. The Jpeg settings (like resolution or quality) may be taken from the profile if suitable.
   """
-  @spec get_snapshot_uri(ExOnvif.Device.t(), String.t()) :: {:ok, String.t()} | {:error, any()}
+  @spec get_snapshot_uri(ExOnvif.Device.t(), String.t()) :: {:ok, String.t()} | ExOnvif.error()
   def get_snapshot_uri(device, profile_token) do
     body = element(:"trt:GetSnapshotUri", element(:"trt:ProfileToken", profile_token))
     media_request(device, "GetSnapshotUri", body, &parse_snapshot_uri_response/1)
@@ -171,7 +171,7 @@ defmodule ExOnvif.Media do
   multicast setting.
   """
   @spec get_stream_uri(ExOnvif.Device.t(), String.t(), String.t(), String.t()) ::
-          {:ok, String.t()} | {:error, any()}
+          {:ok, String.t()} | ExOnvif.error()
   def get_stream_uri(device, profile_token, stream \\ "RTP-Unicast", transport_protocol \\ "UDP") do
     body =
       element(
@@ -191,7 +191,7 @@ defmodule ExOnvif.Media do
   If the video encoder configuration token is already known, the encoder configuration can be fetched through the GetVideoEncoderConfiguration command.
   """
   @spec get_video_encoder_configuration(ExOnvif.Device.t(), String.t()) ::
-          {:ok, VideoEncoderConfiguration.t()} | {:error, any()}
+          {:ok, VideoEncoderConfiguration.t()} | ExOnvif.error()
   def get_video_encoder_configuration(device, config_token) do
     body =
       element(
@@ -219,7 +219,7 @@ defmodule ExOnvif.Media do
   with that media profile. If no tokens are specified, the options shall be considered generic for the device.
   """
   @spec get_video_encoder_configuration_options(ExOnvif.Device.t(), encoder_options_opts()) ::
-          {:ok, [VideoEncoderConfigurationOptions.t()]} | {:error, any()}
+          {:ok, [VideoEncoderConfigurationOptions.t()]} | ExOnvif.error()
   def get_video_encoder_configuration_options(device, opts \\ []) do
     body =
       element(
@@ -244,7 +244,7 @@ defmodule ExOnvif.Media do
   @spec set_audio_encoder_configuration(
           ExOnvif.Device.t(),
           AudioEncoderConfiguration.t()
-        ) :: :ok | {:error, any()}
+        ) :: :ok | ExOnvif.error()
   def set_audio_encoder_configuration(device, encoder_config) do
     body =
       element(
@@ -259,7 +259,7 @@ defmodule ExOnvif.Media do
   @doc """
   Set the OSD
   """
-  @spec set_osd(ExOnvif.Device.t(), OSD.t()) :: :ok | {:error, any()}
+  @spec set_osd(ExOnvif.Device.t(), OSD.t()) :: :ok | ExOnvif.error()
   def set_osd(device, osd) do
     body = element(:"trt:SetOSD", OSD.encode(osd))
     media_request(device, "SetOSD", body, fn _body -> :ok end)
@@ -280,7 +280,7 @@ defmodule ExOnvif.Media do
   @spec set_video_encoder_configuration(
           ExOnvif.Device.t(),
           VideoEncoderConfiguration.t()
-        ) :: :ok | {:error, any()}
+        ) :: :ok | ExOnvif.error()
   def set_video_encoder_configuration(device, encoder_config) do
     body =
       element(
