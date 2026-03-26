@@ -64,7 +64,8 @@ defmodule ExOnvif.MixProject do
         ExOnvif.Recording,
         ExOnvif.Replay,
         ExOnvif.Search,
-        ExOnvif.PTZ
+        ExOnvif.PTZ,
+        ExOnvif.Fault
       ],
       groups_for_modules: [
         Core: [
@@ -73,7 +74,8 @@ defmodule ExOnvif.MixProject do
           ExOnvif.Device,
           ExOnvif.MacAddress,
           ExOnvif.Request,
-          ExOnvif.Request.Header
+          ExOnvif.Request.Header,
+          ~r/^ExOnvif.Fault.*/,
         ],
         Interfaces: [
           ExOnvif.Devices,

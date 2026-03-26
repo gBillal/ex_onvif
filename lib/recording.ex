@@ -35,7 +35,7 @@ defmodule ExOnvif.Recording do
   All TrackConfigurations shall have the MaximumRetentionTime set to 0 (unlimited), and the Description set to the empty string.
   """
   @spec create_recording(ExOnvif.Device.t(), RecordingConfiguration.t()) ::
-          {:ok, String.t()} | {:error, any()}
+          {:ok, String.t()} | ExOnvif.error()
   def create_recording(device, recording_configuration) do
     body =
       element(:"trc:CreateRecording", [RecordingConfiguration.encode(recording_configuration)])
@@ -51,7 +51,7 @@ defmodule ExOnvif.Recording do
   and the AutoCreateReceiver field shall be omitted.
   """
   @spec create_recording_job(ExOnvif.Device.t(), JobConfiguration.t()) ::
-          {:ok, RecordingJob.t()} | {:error, any()}
+          {:ok, RecordingJob.t()} | ExOnvif.error()
   def create_recording_job(device, job_configuration) do
     body = element(:"trc:CreateRecordingJob", [JobConfiguration.encode(job_configuration)])
     recording_request(device, "CreateRecordingJob", body, &parse_create_recording_job_response/1)
@@ -62,7 +62,7 @@ defmodule ExOnvif.Recording do
 
   This description shall include a list of all the tracks for each recording.
   """
-  @spec get_recordings(ExOnvif.Device.t()) :: {:ok, [Recording.t()]} | {:error, any()}
+  @spec get_recordings(ExOnvif.Device.t()) :: {:ok, [Recording.t()]} | ExOnvif.error()
   def get_recordings(device) do
     body = element(:"trc:GetRecordings")
     recording_request(device, "GetRecordings", body, &parse_recordings_response/1)
@@ -71,7 +71,7 @@ defmodule ExOnvif.Recording do
   @doc """
   GetRecordingJobs shall return a list of all the recording jobs in the device.
   """
-  @spec get_recording_jobs(ExOnvif.Device.t()) :: {:ok, [RecordingJob.t()]} | {:error, any()}
+  @spec get_recording_jobs(ExOnvif.Device.t()) :: {:ok, [RecordingJob.t()]} | ExOnvif.error()
   def get_recording_jobs(device) do
     body = element(:"trc:GetRecordingJobs")
     recording_request(device, "GetRecordingJobs", body, &parse_recording_jobs_response/1)
@@ -81,7 +81,7 @@ defmodule ExOnvif.Recording do
   Returns the capabilities of the recording service.
   """
   @spec get_service_capabilities(ExOnvif.Device.t()) ::
-          {:ok, ServiceCapabilities.t()} | {:error, any()}
+          {:ok, ServiceCapabilities.t()} | ExOnvif.error()
   def get_service_capabilities(device) do
     recording_request(
       device,

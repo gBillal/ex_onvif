@@ -24,7 +24,7 @@ defmodule ExOnvif.PullPoint do
           device :: ExOnvif.Device.t(),
           url :: String.t(),
           opts :: Keyword.t()
-        ) :: {:ok, Messages.t()} | {:error, any()}
+        ) :: {:ok, Messages.t()} | ExOnvif.error()
   def pull_messages(device, url, opts \\ []) do
     timeout = Keyword.get(opts, :timeout, 2)
     message_limit = Keyword.get(opts, :message_limit, 10)

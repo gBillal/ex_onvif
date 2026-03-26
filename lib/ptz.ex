@@ -30,7 +30,7 @@ defmodule ExOnvif.PTZ do
   speed vector or to map x and y to the component speed. If the speed argument is omitted, the default speed set by the
   PTZConfiguration will be used.
   """
-  @spec absolute_move(ExOnvif.Device.t(), AbsoluteMove.t()) :: :ok | {:error, any()}
+  @spec absolute_move(ExOnvif.Device.t(), AbsoluteMove.t()) :: :ok | ExOnvif.error()
   def absolute_move(device, abs_move) do
     body = AbsoluteMove.encode(abs_move)
     ptz_request(device, "AbsoluteMove", body, fn _body -> :ok end)
@@ -42,7 +42,7 @@ defmodule ExOnvif.PTZ do
   The operation is supported if the PTZNode supports at least one continuous Pan/Tilt or Zoom space.
   If the space argument is omitted, the default space set by the PTZConfiguration will be used.
   """
-  @spec continuous_move(ExOnvif.Device.t(), ContinuousMove.t()) :: :ok | {:error, any()}
+  @spec continuous_move(ExOnvif.Device.t(), ContinuousMove.t()) :: :ok | ExOnvif.error()
   def continuous_move(device, continuous_move) do
     body = ContinuousMove.encode(continuous_move)
     ptz_request(device, "ContinuousMove", body, fn _body -> :ok end)
@@ -53,7 +53,7 @@ defmodule ExOnvif.PTZ do
 
   If no stop argument for pan, tilt or zoom is set, the device will stop all ongoing pan, tilt and zoom movements.
   """
-  @spec stop(ExOnvif.Device.t(), Stop.t()) :: :ok | {:error, any()}
+  @spec stop(ExOnvif.Device.t(), Stop.t()) :: :ok | ExOnvif.error()
   def stop(device, stop) do
     body = Stop.encode(stop)
     ptz_request(device, "Stop", body, fn _body -> :ok end)
@@ -62,7 +62,7 @@ defmodule ExOnvif.PTZ do
   @doc """
   Get a specific PTZ Node identified by a reference token or a name.
   """
-  @spec get_node(ExOnvif.Device.t(), String.t()) :: {:ok, Node.t()} | {:error, any()}
+  @spec get_node(ExOnvif.Device.t(), String.t()) :: {:ok, Node.t()} | ExOnvif.error()
   def get_node(device, node_token) do
     body = element("tptz:GetNode", element("tptz:NodeToken", node_token))
     ptz_request(device, "GetNode", body, &parse_node_response/1)
@@ -75,7 +75,7 @@ defmodule ExOnvif.PTZ do
   PTZ Nodes are the lowest level entities in the PTZ control API and reflect the supported PTZ capabilities. The PTZ Node is referenced
   either by its name or by its reference token.
   """
-  @spec get_nodes(ExOnvif.Device.t()) :: {:ok, [Node.t()]} | {:error, map()}
+  @spec get_nodes(ExOnvif.Device.t()) :: {:ok, [Node.t()]} | ExOnvif.error()
   def get_nodes(device) do
     ptz_request(device, "GetNodes", :"tptz:GetNodes", &parse_nodes_response/1)
   end
@@ -84,7 +84,7 @@ defmodule ExOnvif.PTZ do
   Returns the capabilities of the PTZ service.
   """
   @spec get_service_capabilities(ExOnvif.Device.t()) ::
-          {:ok, ServiceCapabilities.t()} | {:error, any()}
+          {:ok, ServiceCapabilities.t()} | ExOnvif.error()
   def get_service_capabilities(device) do
     body = :"tptz:GetServiceCapabilities"
     ptz_request(device, "GetServiceCapabilities", body, &parse_service_capabilities/1)
@@ -100,7 +100,7 @@ defmodule ExOnvif.PTZ do
 
   """
   @spec get_configurations(ExOnvif.Device.t(), profile_token()) ::
-          {:ok, [Configurations.t()]} | {:error, any()}
+          {:ok, [Configurations.t()]} | ExOnvif.error()
   def get_configurations(device, profile_token) do
     body = element("tptz:GetConfigurations", element("tptz:ProfileToken", profile_token))
     ptz_request(device, "GetConfigurations", body, &parse_configuration_response/1)
@@ -109,7 +109,7 @@ defmodule ExOnvif.PTZ do
   @doc """
   Operation to request PTZ status for the Node in the selected profile.
   """
-  @spec get_status(ExOnvif.Device.t(), String.t()) :: {:ok, Status.t()} | {:error, any()}
+  @spec get_status(ExOnvif.Device.t(), String.t()) :: {:ok, Status.t()} | ExOnvif.error()
   def get_status(device, profile_token) do
     body = element("tptz:GetStatus", element("tptz:ProfileToken", profile_token))
     ptz_request(device, "GetStatus", body, &parse_status_response/1)
@@ -120,7 +120,7 @@ defmodule ExOnvif.PTZ do
   The SetHomePosition command returns with a failure if the “home” position is fixed and cannot be overwritten.
   If the SetHomePosition is successful, it is possible to recall the Home Position with the GotoHomePosition command.
   """
-  @spec set_home_position(ExOnvif.Device.t(), String.t()) :: :ok
+  @spec set_home_position(ExOnvif.Device.t(), String.t()) :: :ok | ExOnvif.error()
   def set_home_position(device, profile_token) do
     body = element("tptz:SetHomePosition", element("tptz:ProfileToken", profile_token))
     ptz_request(device, "SetHomePosition", body, fn _body -> :ok end)
@@ -129,7 +129,7 @@ defmodule ExOnvif.PTZ do
   @doc """
   Operation to move the PTZ device to it's "home" position. The operation is supported if the HomeSupported element in the PTZNode is true.
   """
-  @spec goto_home_position(ExOnvif.Device.t(), String.t(), Vector.t() | nil) :: :ok
+  @spec goto_home_position(ExOnvif.Device.t(), String.t(), Vector.t() | nil) :: :ok | ExOnvif.error()
   def goto_home_position(device, profile_token, speed \\ nil) do
     body =
       element("tptz:Speed", Vector.encode(speed))
@@ -143,8 +143,7 @@ defmodule ExOnvif.PTZ do
   Operation to request all PTZ presets for the PTZNode in the selected profile.
   The operation is supported if there is support for at least on PTZ preset by the PTZNode.
   """
-  @spec get_presets(ExOnvif.Device.t(), profile_token()) ::
-          [Preset.preset_t()] | {:error, any()}
+  @spec get_presets(ExOnvif.Device.t(), profile_token()) :: [Preset.t()] | ExOnvif.error()
   def get_presets(device, profile_token) do
     body = element("tptz:GetPresets", element("tptz:ProfileToken", profile_token))
     ptz_request(device, "GetPresets", body, &parse_presets/1)
@@ -161,7 +160,7 @@ defmodule ExOnvif.PTZ do
   The device MAY internally save additional states such as imaging properties in the PTZ Preset which then should be recalled in the GotoPreset operation.
   """
   @spec set_preset(ExOnvif.Device.t(), profile_token(), set_preset_options()) ::
-          {:ok, String.t()} | {:error, any()}
+          {:ok, String.t()} | ExOnvif.error()
   def set_preset(device, profile_token, options \\ []) do
     body =
       element("tptz:SetPreset", [
@@ -177,7 +176,7 @@ defmodule ExOnvif.PTZ do
   Operation to remove a PTZ preset for the Node in the selected profile.
   The operation is supported if the PresetPosition capability exists for the Node in the selected profile.
   """
-  @spec remove_preset(ExOnvif.Device.t(), profile_token(), String.t()) :: {:ok, String.t()}
+  @spec remove_preset(ExOnvif.Device.t(), profile_token(), String.t()) :: {:ok, String.t()} | ExOnvif.error()
   def remove_preset(device, profile_token, preset_token) do
     body =
       element("tptz:RemovePreset", [
@@ -191,7 +190,7 @@ defmodule ExOnvif.PTZ do
   @doc """
   Operation to go to a saved preset position for the PTZNode in the selected profile. The operation is supported if there is support for at least on PTZ preset by the PTZNode.
   """
-  @spec goto_preset(ExOnvif.Device.t(), profile_token(), String.t(), Vector.t() | nil) :: :ok
+  @spec goto_preset(ExOnvif.Device.t(), profile_token(), String.t(), Vector.t() | nil) :: :ok | ExOnvif.error()
   def goto_preset(device, profile_token, preset_token, move \\ nil) do
     body =
       element("tptz:Speed", move && Vector.encode(move))

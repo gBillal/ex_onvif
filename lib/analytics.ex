@@ -15,7 +15,7 @@ defmodule ExOnvif.Analytics do
   List the currently assigned set of analytics modules of a VideoAnalyticsConfiguration.
   """
   @spec get_analytics_modules(ExOnvif.Device.t(), String.t()) ::
-          {:ok, [Module.t()]} | {:error, any()}
+          {:ok, [Module.t()]} | ExOnvif.error()
   def get_analytics_modules(device, configuration_token) do
     body =
       element("axt:GetAnalyticsModules", element("axt:ConfigurationToken", configuration_token))
@@ -27,7 +27,7 @@ defmodule ExOnvif.Analytics do
   Returns the capabilities of the analytics service.
   """
   @spec get_service_capabilities(ExOnvif.Device.t()) ::
-          {:ok, ServiceCapabilities.t()} | {:error, any()}
+          {:ok, ServiceCapabilities.t()} | ExOnvif.error()
   def get_service_capabilities(device) do
     analytics_request(
       device,

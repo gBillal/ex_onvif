@@ -30,7 +30,7 @@ defmodule ExOnvif.Search do
   Results shall be ordered by time, ascending in case of forward search, or descending in case of backward search.
   This operation is mandatory to support for a device implementing the recording search service.
   """
-  @spec find_events(ExOnvif.Device.t(), FindEvents.t()) :: {:ok, String.t()} | {:error, any()}
+  @spec find_events(ExOnvif.Device.t(), FindEvents.t()) :: {:ok, String.t()} | ExOnvif.error()
   def find_events(device, find_events) do
     body = FindEvents.encode(find_events)
     search_request(device, "FindEvents", body, &parse_find_token_response/1)
@@ -50,7 +50,7 @@ defmodule ExOnvif.Search do
   This operation is mandatory to support for a device implementing the recording search service.
   """
   @spec find_recordings(ExOnvif.Device.t(), FindRecordings.t()) ::
-          {:ok, String.t()} | {:error, any()}
+          {:ok, String.t()} | ExOnvif.error()
   def find_recordings(device, find_recordings) do
     body = FindRecordings.encode(find_recordings)
     search_request(device, "FindRecordings", body, &parse_find_token_response/1)
@@ -72,7 +72,7 @@ defmodule ExOnvif.Search do
     * Search is completed or stopped.
   """
   @spec get_recording_search_results(ExOnvif.Device.t(), GetRecordingSearchResults.t()) ::
-          {:ok, FindRecordingResult.t()} | {:error, any()}
+          {:ok, FindRecordingResult.t()} | ExOnvif.error()
   def get_recording_search_results(device, recording_search_result) do
     body = GetRecordingSearchResults.encode(recording_search_result)
 
@@ -87,7 +87,7 @@ defmodule ExOnvif.Search do
   @doc """
   GetRecordingSummary is used to get a summary description of all recorded data.
   """
-  @spec get_recording_summary(ExOnvif.Device.t()) :: {:ok, RecordingSummary.t()} | {:error, any()}
+  @spec get_recording_summary(ExOnvif.Device.t()) :: {:ok, RecordingSummary.t()} | ExOnvif.error()
   def get_recording_summary(device) do
     body = element(:"tse:GetRecordingSummary")
     search_request(device, "GetRecordingSummary", body, &parse_get_recording_summary/1)
