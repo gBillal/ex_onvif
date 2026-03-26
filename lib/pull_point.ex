@@ -9,6 +9,12 @@ defmodule ExOnvif.PullPoint do
 
   alias ExOnvif.Event.Messages
 
+  @type pull_messages_opts :: [
+          timeout: non_neg_integer(),
+          message_limit: non_neg_integer(),
+          subscription_id: String.t()
+        ]
+
   @doc """
   This method pulls one or more messages from a PullPoint.
 
@@ -23,7 +29,7 @@ defmodule ExOnvif.PullPoint do
   @spec pull_messages(
           device :: ExOnvif.Device.t(),
           url :: String.t(),
-          opts :: Keyword.t()
+          pull_messages_opts()
         ) :: {:ok, Messages.t()} | ExOnvif.error()
   def pull_messages(device, url, opts \\ []) do
     timeout = Keyword.get(opts, :timeout, 2)

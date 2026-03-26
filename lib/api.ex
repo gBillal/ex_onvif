@@ -24,7 +24,7 @@ defmodule ExOnvif.API do
     middleware = [
       {Tesla.Middleware.BaseUrl, url},
       auth_function(device),
-      {Tesla.Middleware.Logger, log_level: :info}
+      {Tesla.Middleware.Logger, level: :info}
     ]
 
     Tesla.client(middleware, adapter)
